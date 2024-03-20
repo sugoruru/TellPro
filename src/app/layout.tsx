@@ -3,6 +3,7 @@ import "../css/globals.css";
 import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";
 import { usePathname } from "next/navigation";
+import NextAuthProvider from "./providers/NextAuth";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-slate-100">
         <Header />
-        {children}
+        <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>
   );
