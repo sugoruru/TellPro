@@ -1,0 +1,12 @@
+<svg width="150" height="150" viewBox="0 0 130 130" className="h-auto w-6 text-indigo-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <clipPath id="p.0">
+        <path d="m0 0l135.00262 0l0 125.33596l-135.00262 0l0 -125.33596z" clip-rule="nonzero" />
+    </clipPath>
+    <g clip-path="url(#p.0)">
+        <path fill="#000000" fill-opacity="0.0" d="m0 0l135.00262 0l0 125.33596l-135.00262 0z" fill-rule="evenodd" />
+        <path fill="#3d85c6" d="m0 116.09162l134.99213 0l0 9.259842l-134.99213 0z" fill-rule="evenodd" />
+        <path fill="#f6b26b" d="m52.84003 45.9071l29.322834 0l0 70.17323l-29.322834 0z" fill-rule="evenodd" />
+        <path fill="#e06666" d="m13.458005 91.87108l29.322834 0l0 24.220474l-29.322834 0z" fill-rule="evenodd" />
+        <path fill="#f1c232" d="m92.21943 0.010498688l29.322838 0l0 116.09449l-29.322838 0z" fill-rule="evenodd" />
+    </g>
+</svg>
