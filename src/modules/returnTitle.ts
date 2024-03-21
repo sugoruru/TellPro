@@ -4,5 +4,4 @@ export const titles: {
   "/": "TellPro｜Home",
   "/questions": "TellPro｜Questions",
   "/pages": "TellPro｜Pages",
-  "/books": "TellPro｜Books",
 }

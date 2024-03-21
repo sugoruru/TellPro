@@ -1,13 +1,29 @@
 import Link from "next/link";
 import Image from "next/image";
 import { IoSearch } from "react-icons/io5";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import axios from "axios";
 
 const Header = () => {
   let [isOpen, setIsOpen] = useState(false);
-  const { status } = useSession();
+  let [existUser, setExistUser] = useState(false);
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status == "authenticated") {
+      const fetchData = async () => {
+        try {
+          const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+          setExistUser(response.data.exist);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [status]);
 
   return (
     <>
@@ -27,7 +43,7 @@ const Header = () => {
                   </span>
                 </button>
               </div>
-            ) : status == "authenticated" ? (
+            ) : status == "authenticated" && existUser ? (
               <div onClick={() => signOut()}>ログイン済み</div>
             ) : (
               <div></div>
