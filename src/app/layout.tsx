@@ -3,10 +3,11 @@ import "../css/globals.css";
 import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";
 import { usePathname } from "next/navigation";
-import NextAuthProvider from "./providers/NextAuth";
+import { SessionProvider } from "next-auth/react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
   return (
     <html lang="ja">
       <head>
@@ -16,8 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="../svg/logo.svg"></link>
       </head>
       <body className="bg-slate-100">
-        <Header />
-        <NextAuthProvider>{children}</NextAuthProvider>
+        <SessionProvider>
+          <Header />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

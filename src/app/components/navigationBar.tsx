@@ -17,9 +17,6 @@ const NavigationBar = (props: { pathName: string }) => {
         <li className={"px-2 font-medium" + " " + IsLocation("/pages")}>
           <Link href="/pages">Pages</Link>
         </li>
-        <li className={"px-2 font-medium" + " " + IsLocation("/books")}>
-          <Link href="/books">Books</Link>
-        </li>
       </ul>
     </nav>
   );
