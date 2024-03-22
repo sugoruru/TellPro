@@ -1,6 +1,6 @@
 import NavigationBar from "../components/navigationBar";
 
-export default function Home() {
+export default function Pages() {
   return (
     <>
       <NavigationBar pathName="/pages"></NavigationBar>
