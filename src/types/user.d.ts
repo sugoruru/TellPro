@@ -1,6 +1,6 @@
 interface User {
   ID: string;
-  userName: string;
+  username: string;
   mail: string;
   icon: string;
   statusMessage: string;

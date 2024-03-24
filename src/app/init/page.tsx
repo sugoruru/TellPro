@@ -9,6 +9,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { quickSort } from "@/modules/quickSort";
 import { existTargetByBinarySearch } from "@/modules/existTargetByBinarySearch";
+import { handleUserNameChange } from "@/modules/handleUserNameChange";
+import handleImageChange from "@/modules/handleImageChange";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -49,31 +51,6 @@ export default function Init() {
       fetchData();
     }
   }, [status]);
-
-  // 画像の変更.
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file?.size ? file.size > 1024 * 1024 * 10 : false) {
-      alert("10MB以下の画像を選択してください");
-    } else if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // ユーザー名の変更.
-  const handleUserNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value.length > 20 || e.target.value.length < 1) {
-      setIsUserNameError(true);
-      setUserNameErrorMessage("ユーザー名は1文字以上20文字以下で入力してください");
-    } else {
-      setIsUserNameError(false);
-      setUserNameErrorMessage("");
-    }
-  };
 
   // ページ名の変更.
   const handlePageNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -218,9 +195,14 @@ export default function Init() {
                   <p className="text-red-500">{userNameErrorMessage}</p>
                 </label>
                 <input
-                  onChange={handleUserNameChange}
+                  onChange={(e) => {
+                    const x = handleUserNameChange(e);
+                    setIsUserNameError(x.isUserNameError);
+                    setUserNameErrorMessage(x.userNameErrorMessage);
+                  }}
                   defaultValue={status == "authenticated" && session.user ? (session.user.name ? session.user.name : "") : ""}
                   id="userName_tellPro"
+                  disabled={isSending}
                   className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isUserNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
                 />
               </div>
@@ -237,6 +219,7 @@ export default function Init() {
                   <input
                     onChange={handlePageNameChange}
                     id="pageName_tellPro"
+                    disabled={isSending}
                     className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isPageNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
                   />
                 </div>
@@ -255,7 +238,7 @@ export default function Init() {
                     <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
                   </div>
                 </label>
-                <input hidden={true} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={handleImageChange} />
+                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={(e) => setSelectedImage(handleImageChange(e))} />
               </div>
               <Image src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               {/*ステータスメッセージ*/}
@@ -269,6 +252,7 @@ export default function Init() {
                     if (e.target.value.length <= 200) setAreaValue(e.target.value);
                   }}
                   value={areaValue}
+                  disabled={isSending}
                   maxLength={200}
                   className="h-64 w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
                 ></textarea>

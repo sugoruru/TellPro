@@ -8,12 +8,14 @@ import axios from "axios";
 import { PiSignOut } from "react-icons/pi";
 import { GoHistory } from "react-icons/go";
 import { FaRegCircleUser } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   let [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
   let [existUser, setExistUser] = useState(false);
   let [user, setUser] = useState<User | null>(null);
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (status == "authenticated") {
@@ -99,7 +101,10 @@ const Header = () => {
                       <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                            <button
+                              onClick={() => router.push("/settings")}
+                              className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
+                            >
                               <IoSettingsOutline className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                               Settings
                             </button>
