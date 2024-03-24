@@ -32,6 +32,9 @@ const OPTIONS: AuthOptions = {
         },
       };
     }
+  },
+  pages: {
+    error: "/init"
   }
 };
 

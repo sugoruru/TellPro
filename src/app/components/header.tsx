@@ -1,13 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IoSearch } from "react-icons/io5";
+import { IoSearch, IoSettingsOutline, IoBookmarks } from "react-icons/io5";
 import { Fragment, useEffect, useState } from "react";
-import { Dialog, FocusTrap, Transition } from "@headlessui/react";
+import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import axios from "axios";
+import { PiSignOut } from "react-icons/pi";
+import { GoHistory } from "react-icons/go";
+import { FaRegCircleUser } from "react-icons/fa6";
 
 const Header = () => {
-  let [isOpen, setIsOpen] = useState(false);
+  let [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
   let [existUser, setExistUser] = useState(false);
   let [user, setUser] = useState<User | null>(null);
   const { data: session, status } = useSession();
@@ -43,22 +46,88 @@ const Header = () => {
             {status == "unauthenticated" ? (
               <div className="flex items-center gap-2.5">
                 <IoSearch className="flex-shrink-0 text-lg" />
-                <button className="ml-2 sm:block" onClick={() => setIsOpen(true)}>
+                <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)}>
                   <span className="rounded-lg bg-indigo-500 px-5 py-2 text-center text-xs font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">
                     Login
                   </span>
                 </button>
               </div>
             ) : status == "authenticated" && existUser ? (
-              <Image src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} onClick={() => signOut()} />
+              <div>
+                <Menu as="div" className="relative inline-block text-left">
+                  <div>
+                    <Menu.Button>
+                      <Image src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} />
+                    </Menu.Button>
+                  </div>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                      <div className="px-1 py-1 ">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <FaRegCircleUser className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              User Page
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              Bookmarks
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <GoHistory className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              History
+                            </button>
+                          )}
+                        </Menu.Item>
+                      </div>
+                      <div className="px-1 py-1">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <IoSettingsOutline className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              Settings
+                            </button>
+                          )}
+                        </Menu.Item>
+                      </div>
+                      <div className="px-1 py-1">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button onClick={() => signOut()} className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <PiSignOut className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              Sign Out
+                            </button>
+                          )}
+                        </Menu.Item>
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
+              </div>
             ) : (
               <div></div>
             )}
           </header>
         </div>
       </div>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+      <Transition appear show={isLoginMenuOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => setIsLoginMenuOpen(false)}>
           <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
             <div className="fixed inset-0 bg-black/25" />
           </Transition.Child>

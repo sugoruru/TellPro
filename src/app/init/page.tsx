@@ -7,13 +7,21 @@ import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { quickSort } from "@/modules/quickSort";
+import { existTargetByBinarySearch } from "@/modules/existTargetByBinarySearch";
 
 export default function Init() {
   const { data: session, status } = useSession();
   let [areaValue, setAreaValue] = useState("");
   let [existUser, setExistUser] = useState(true);
   let [isSending, setIsSending] = useState(false);
-  const [selectedImage, setSelectedImage] = useState("");
+  let [isUserNameError, setIsUserNameError] = useState(false);
+  let [userNameErrorMessage, setUserNameErrorMessage] = useState("");
+  let [isPageNameError, setIsPageNameError] = useState(true);
+  let [pageNameErrorMessage, setPageNameErrorMessage] = useState("");
+  let [selectedImage, setSelectedImage] = useState("");
+  let [stateMessage, setStateMessage] = useState("");
+  let [usersID, setUsersID] = useState([] as string[]);
   const router = useRouter();
 
   // ユーザーがDBに存在すればホームにリダイレクト.
@@ -22,6 +30,10 @@ export default function Init() {
       const fetchData = async () => {
         try {
           const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+          const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
+          if (response2.data.ok) {
+            setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
+          }
           if (response.data.exist) {
             router.push("/");
           } else {
@@ -38,6 +50,7 @@ export default function Init() {
     }
   }, [status]);
 
+  // 画像の変更.
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file?.size ? file.size > 1024 * 1024 * 10 : false) {
@@ -51,6 +64,38 @@ export default function Init() {
     }
   };
 
+  // ユーザー名の変更.
+  const handleUserNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 20 || e.target.value.length < 1) {
+      setIsUserNameError(true);
+      setUserNameErrorMessage("ユーザー名は1文字以上20文字以下で入力してください");
+    } else {
+      setIsUserNameError(false);
+      setUserNameErrorMessage("");
+    }
+  };
+
+  // ページ名の変更.
+  const handlePageNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 20 || e.target.value.length < 1) {
+      // 1文字以上20文字以下.
+      setIsPageNameError(true);
+      setPageNameErrorMessage("ページ名は1文字以上20文字以下で入力してください");
+    } else if (!/^[a-zA-Z0-9-]+$/.test(e.target.value)) {
+      // 大英文字、小英文字、数字、ハイフンのみ入力可能.
+      setIsPageNameError(true);
+      setPageNameErrorMessage("ページ名は大英文字、小英文字、数字、ハイフンのみ入力してください");
+    } else if (existTargetByBinarySearch(usersID, e.target.value)) {
+      // 二分探索でページ名が存在するか確認.
+      setIsPageNameError(true);
+      setPageNameErrorMessage("このページ名は既に使われています");
+    } else {
+      setIsPageNameError(false);
+      setPageNameErrorMessage("");
+    }
+  };
+
+  // 画像をBase64に変換.
   async function getImageBase64(url: string) {
     const response = await fetch(url);
     const contentType = response.headers.get("content-type");
@@ -61,30 +106,63 @@ export default function Init() {
 
   // アカウントの作成.
   async function sendDataToDB(dataURL: string) {
+    if (isUserNameError) {
+      setStateMessage("ユーザー名が正しく入力されていません");
+      return;
+    }
+    if (isPageNameError) {
+      setStateMessage("ページ名が正しく入力されていません");
+      return;
+    }
     try {
-      setIsSending(true);
-      const formData = new FormData();
-      formData.append("image", dataURL.replace(/^data:image\/(png|jpg);base64,/, ""));
-      const response = await axios.post("https://api.imgur.com/3/image", formData, {
-        headers: {
-          Authorization: `Client-ID ${process.env.NEXT_PUBLIC_IMGUR_CLIENT_ID}`,
-        },
-        responseType: "json",
-        onUploadProgress: function (progressEvent) {
-          if (progressEvent.total) console.log("Upload Progress: " + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
-        },
-      });
-      const imgLink = response.data.data.link;
-      await axios.post("/api/db/create", {
-        userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
-        mail: session?.user?.email,
-        icon: imgLink,
-        statusMessage: areaValue,
-      });
-      setIsSending(false);
-      router.push("/");
+      if (session) {
+        setStateMessage("ユーザーが存在するかを確認中...");
+        const existUser = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+        if (existUser.data.exist) {
+          router.push("/");
+          return;
+        }
+        setStateMessage("画像データをimgurにアップロード中...");
+        setIsSending(true);
+        const formData = new FormData();
+        formData.append("image", dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
+        const response = await axios.post("https://api.imgur.com/3/image", formData, {
+          headers: {
+            Authorization: `Client-ID ${process.env.NEXT_PUBLIC_IMGUR_CLIENT_ID}`,
+          },
+          responseType: "json",
+          onUploadProgress: function (progressEvent) {
+            if (progressEvent.total) {
+              setStateMessage("画像データをimgurにアップロード中..." + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
+            }
+          },
+        });
+        const imgLink = response.data.data.link;
+        setStateMessage("ページ名が使用されているかを確認中...");
+        const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
+        if (response2.data.ok) {
+          const x = quickSort(response2.data.data, 0, response2.data.data.length - 1);
+          if (existTargetByBinarySearch(x, (document.getElementById("pageName_tellPro") as HTMLInputElement).value)) {
+            setIsSending(false);
+            setStateMessage("このページ名は既に使われています");
+            return;
+          }
+        }
+        setStateMessage("データベースにデータを送信中...");
+        await axios.post("/api/db/create", {
+          ID: (document.getElementById("pageName_tellPro") as HTMLInputElement).value,
+          userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
+          mail: session?.user?.email,
+          icon: imgLink,
+          statusMessage: areaValue,
+        });
+        setIsSending(false);
+        router.push("/");
+      } else {
+        setStateMessage("エラーが発生しました");
+      }
     } catch (err) {
-      console.log("Error:", err);
+      setStateMessage("エラーが発生しました");
     }
   }
 
@@ -136,13 +214,32 @@ export default function Init() {
               {/*ユーザー名*/}
               <div className="sm:col-span-2">
                 <label htmlFor="userName_tellPro" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
-                  ユーザー名*(あとから変更できます)
+                  ユーザー名<span className="text-gray-500 pl-1">あとから変更できます</span>
+                  <p className="text-red-500">{userNameErrorMessage}</p>
                 </label>
                 <input
+                  onChange={handleUserNameChange}
                   defaultValue={status == "authenticated" && session.user ? (session.user.name ? session.user.name : "") : ""}
                   id="userName_tellPro"
-                  className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
+                  className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isUserNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
                 />
+              </div>
+              {/*ページ名*/}
+              <div className="sm:col-span-2">
+                <label htmlFor="pageName_tellPro" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
+                  ページ名<span className="text-gray-500 pl-1">あとから変更できません</span>
+                  <p className="text-red-500">{pageNameErrorMessage}</p>
+                </label>
+                <div className="flex justify-items-center">
+                  <label htmlFor="pageName_tellPro" className="py-2 pr-2 text-lg text-gray-600">
+                    {window.location.origin}/
+                  </label>
+                  <input
+                    onChange={handlePageNameChange}
+                    id="pageName_tellPro"
+                    className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isPageNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
+                  />
+                </div>
               </div>
               {/*アイコン画像*/}
               <div className="relative">
@@ -158,7 +255,7 @@ export default function Init() {
                     <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
                   </div>
                 </label>
-                <input hidden={true} type="file" accept="image/*" id="button2" onChange={handleImageChange} />
+                <input hidden={true} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={handleImageChange} />
               </div>
               <Image src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               {/*ステータスメッセージ*/}
@@ -187,6 +284,7 @@ export default function Init() {
                 >
                   Send
                 </button>
+                <p>{stateMessage}</p>
               </div>
             </div>
           </div>
