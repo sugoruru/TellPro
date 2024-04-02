@@ -9,13 +9,19 @@ const NavigationBar = (props: { pathName: string }) => {
     <nav className="bg-white">
       <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
         <li className={"px-2 font-medium" + " " + IsLocation("/")}>
-          <Link href="/">Home</Link>
+          <Link href="/" prefetch>
+            Home
+          </Link>
         </li>
         <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
-          <Link href="/questions">Questions</Link>
+          <Link href="/questions" prefetch>
+            Questions
+          </Link>
         </li>
         <li className={"px-2 font-medium" + " " + IsLocation("/pages")}>
-          <Link href="/pages">Pages</Link>
+          <Link href="/pages" prefetch>
+            Pages
+          </Link>
         </li>
       </ul>
     </nav>

@@ -5,6 +5,7 @@ import { titles } from "@/modules/returnTitle";
 import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
+import NextTopLoader from "nextjs-toploader";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -28,6 +29,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-slate-100">
         <SessionProvider>
+          <NextTopLoader
+            color="#2299DD"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            showSpinner={true}
+            easing="ease"
+            speed={200}
+            shadow="0 0 10px #2299DD,0 0 5px #2299DD"
+            template='<div class="bar" role="bar"><div class="peg"></div></div>'
+            zIndex={1600}
+            showAtBottom={false}
+          />
           {hideHeaderPage.includes(pathname) ? null : <Header />}
           <div>{children}</div>
         </SessionProvider>

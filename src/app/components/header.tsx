@@ -9,14 +9,12 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 const Header = () => {
   let [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
   let [existUser, setExistUser] = useState(false);
   let [user, setUser] = useState<User | null>(null);
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   useEffect(() => {
     if (status == "authenticated") {
@@ -102,31 +100,34 @@ const Header = () => {
                       <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                              <IoDocumentTextSharp className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              記事の作成
-                            </button>
+                            <Link href="/newPage">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <IoDocumentTextSharp className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                記事の作成
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                              <RiQuestionnaireLine className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              質問の作成
-                            </button>
+                            <Link href="/newQuestion">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <RiQuestionnaireLine className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                質問の作成
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                       </div>
                       <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
-                            <button
-                              onClick={() => router.push("/settings")}
-                              className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
-                            >
-                              <IoSettingsOutline className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              設定
-                            </button>
+                            <Link href="/settings">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <IoSettingsOutline className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                設定
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                       </div>
@@ -145,7 +146,7 @@ const Header = () => {
                 </Menu>
               </div>
             ) : (
-              <div></div>
+              <div>ロード中...</div>
             )}
           </header>
         </div>
