@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const imageSendToImgur = async (dataURL: string, setStateMessage: Function) => {
+const imageSendToImgur = async (dataURL: string, setStateMessage: Function | undefined = undefined) => {
   const formData = new FormData();
   formData.append("image", dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
   const response = await axios.post("https://api.imgur.com/3/image", formData, {
@@ -10,7 +10,8 @@ const imageSendToImgur = async (dataURL: string, setStateMessage: Function) => {
     responseType: "json",
     onUploadProgress: function (progressEvent) {
       if (progressEvent.total) {
-        setStateMessage("画像データをimgurにアップロード中..." + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
+        if (setStateMessage)
+          setStateMessage("画像データをimgurにアップロード中..." + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
       }
     },
   });

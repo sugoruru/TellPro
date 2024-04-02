@@ -12,6 +12,7 @@ import { existTargetByBinarySearch } from "@/modules/existTargetByBinarySearch";
 import { handleUserNameChange } from "@/modules/handleUserNameChange";
 import handleImageChange from "@/modules/handleImageChange";
 import getImageBase64 from "@/modules/getImageBase64";
+import imageSendToImgur from "@/modules/imageSendToImgur";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -96,20 +97,7 @@ export default function Init() {
           return;
         }
         setStateMessage("画像データをimgurにアップロード中...");
-        const formData = new FormData();
-        formData.append("image", dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
-        const response = await axios.post("https://api.imgur.com/3/image", formData, {
-          headers: {
-            Authorization: `Client-ID ${process.env.NEXT_PUBLIC_IMGUR_CLIENT_ID}`,
-          },
-          responseType: "json",
-          onUploadProgress: function (progressEvent) {
-            if (progressEvent.total) {
-              setStateMessage("画像データをimgurにアップロード中..." + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
-            }
-          },
-        });
-        const imgLink = response.data.data.link;
+        const imgLink = await imageSendToImgur(dataURL);
         setStateMessage("ページ名が使用されているかを確認中...");
         const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
         if (response2.data.ok) {
