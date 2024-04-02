@@ -7,7 +7,7 @@ const OPTIONS: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ''
     }),
   ],
   callbacks: {
@@ -34,7 +34,7 @@ const OPTIONS: AuthOptions = {
     }
   },
   pages: {
-    error: "/init"
+    error: "/auth/error"
   }
 };
 

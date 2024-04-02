@@ -4,10 +4,18 @@ import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";
 import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideHeaderPage = ["/init"];
+
+  // 別のDNSに接続した時、トップページにリダイレクトする.
+  useEffect(() => {
+    if (window.location.protocol + "//" + window.location.host != process.env.NEXT_PUBLIC_TRUTH_URL) {
+      location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname;
+    }
+  }, []);
 
   return (
     <html lang="ja">

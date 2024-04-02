@@ -11,6 +11,7 @@ import { quickSort } from "@/modules/quickSort";
 import { existTargetByBinarySearch } from "@/modules/existTargetByBinarySearch";
 import { handleUserNameChange } from "@/modules/handleUserNameChange";
 import handleImageChange from "@/modules/handleImageChange";
+import getImageBase64 from "@/modules/getImageBase64";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -72,23 +73,17 @@ export default function Init() {
     }
   };
 
-  // 画像をBase64に変換.
-  async function getImageBase64(url: string) {
-    const response = await fetch(url);
-    const contentType = response.headers.get("content-type");
-    const arrayBuffer = await response.arrayBuffer();
-    let base64String = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(arrayBuffer))));
-    return `data:${contentType};base64,${base64String}`;
-  }
-
   // アカウントの作成.
   async function sendDataToDB(dataURL: string) {
+    setIsSending(true);
     if (isUserNameError) {
       setStateMessage("ユーザー名が正しく入力されていません");
+      setIsSending(false);
       return;
     }
     if (isPageNameError) {
       setStateMessage("ページ名が正しく入力されていません");
+      setIsSending(false);
       return;
     }
     try {
@@ -97,10 +92,10 @@ export default function Init() {
         const existUser = await axios.get(`/api/db/exist?user=${session.user?.email}`);
         if (existUser.data.exist) {
           router.push("/");
+          setIsSending(false);
           return;
         }
         setStateMessage("画像データをimgurにアップロード中...");
-        setIsSending(true);
         const formData = new FormData();
         formData.append("image", dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
         const response = await axios.post("https://api.imgur.com/3/image", formData, {
@@ -137,9 +132,11 @@ export default function Init() {
         router.push("/");
       } else {
         setStateMessage("エラーが発生しました");
+        setIsSending(false);
       }
     } catch (err) {
       setStateMessage("エラーが発生しました");
+      setIsSending(false);
     }
   }
 
@@ -238,7 +235,7 @@ export default function Init() {
                     <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
                   </div>
                 </label>
-                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={(e) => setSelectedImage(handleImageChange(e))} />
+                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
               </div>
               <Image src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               {/*ステータスメッセージ*/}

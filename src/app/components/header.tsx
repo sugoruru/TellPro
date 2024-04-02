@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IoSearch, IoSettingsOutline, IoBookmarks } from "react-icons/io5";
+import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp } from "react-icons/io5";
+import { RiQuestionnaireLine } from "react-icons/ri";
+import { PiSignOut } from "react-icons/pi";
+import { GoHistory } from "react-icons/go";
+import { FaRegCircleUser } from "react-icons/fa6";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import axios from "axios";
-import { PiSignOut } from "react-icons/pi";
-import { GoHistory } from "react-icons/go";
-import { FaRegCircleUser } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
@@ -50,7 +51,7 @@ const Header = () => {
                 <IoSearch className="flex-shrink-0 text-lg" />
                 <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)}>
                   <span className="rounded-lg bg-indigo-500 px-5 py-2 text-center text-xs font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">
-                    Login
+                    ログイン
                   </span>
                 </button>
               </div>
@@ -77,7 +78,7 @@ const Header = () => {
                           {({ active }) => (
                             <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                               <FaRegCircleUser className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              User Page
+                              ユーザー
                             </button>
                           )}
                         </Menu.Item>
@@ -85,7 +86,7 @@ const Header = () => {
                           {({ active }) => (
                             <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                               <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              Bookmarks
+                              ブックマーク
                             </button>
                           )}
                         </Menu.Item>
@@ -93,7 +94,25 @@ const Header = () => {
                           {({ active }) => (
                             <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                               <GoHistory className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              History
+                              履歴
+                            </button>
+                          )}
+                        </Menu.Item>
+                      </div>
+                      <div className="px-1 py-1">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <IoDocumentTextSharp className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              記事の作成
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                              <RiQuestionnaireLine className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                              質問の作成
                             </button>
                           )}
                         </Menu.Item>
@@ -106,7 +125,7 @@ const Header = () => {
                               className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
                             >
                               <IoSettingsOutline className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              Settings
+                              設定
                             </button>
                           )}
                         </Menu.Item>
@@ -116,7 +135,7 @@ const Header = () => {
                           {({ active }) => (
                             <button onClick={() => signOut()} className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                               <PiSignOut className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              Sign Out
+                              サインアウト
                             </button>
                           )}
                         </Menu.Item>

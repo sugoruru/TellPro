@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import handleImageChange from "@/modules/handleImageChange";
+import getImageBase64 from "@/modules/getImageBase64";
 
 export default function Settings() {
   const { data: session, status } = useSession();
@@ -18,6 +19,7 @@ export default function Settings() {
   let [userNameErrorMessage, setUserNameErrorMessage] = useState("");
   let [areaValue, setAreaValue] = useState("");
   let [selectedImage, setSelectedImage] = useState("");
+  let [stateMessage, setStateMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -26,12 +28,13 @@ export default function Settings() {
       const fetchData = async () => {
         try {
           const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
-          if (!response.data.exist) {
+          if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
             setExistUser(true);
             setUser(response.data.data as User);
             setAreaValue(response.data.data.statusMessage);
+            setSelectedImage(await getImageBase64(response.data.data.icon));
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -42,6 +45,60 @@ export default function Settings() {
       router.push("/");
     }
   }, [status]);
+
+  const handleSendButton = async (dataURL: string) => {
+    setIsSending(true);
+    if (isUserNameError) {
+      setStateMessage("ユーザー名が正しく入力されていません");
+      setIsSending(false);
+      return;
+    }
+    try {
+      if (session) {
+        setStateMessage("ユーザーが存在するかを確認中...");
+        const existUser = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+        if (!existUser.data.exist) {
+          router.push("/");
+          setIsSending(false);
+          return;
+        }
+        setStateMessage("画像データをimgurにアップロード中...");
+        const formData = new FormData();
+        formData.append("image", dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
+        const response = await axios.post("https://api.imgur.com/3/image", formData, {
+          headers: {
+            Authorization: `Client-ID ${process.env.NEXT_PUBLIC_IMGUR_CLIENT_ID}`,
+          },
+          responseType: "json",
+          onUploadProgress: function (progressEvent) {
+            if (progressEvent.total) {
+              setStateMessage("画像データをimgurにアップロード中..." + Math.round((progressEvent.loaded / progressEvent.total) * 100) + "%");
+            }
+          },
+        });
+        const imgLink = response.data.data.link;
+        setStateMessage("データベースにデータを送信中...");
+        await axios.post("/api/db/update", {
+          ID: user?.ID,
+          userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
+          mail: session?.user?.email,
+          icon: imgLink,
+          statusMessage: areaValue,
+        });
+        setIsSending(false);
+        setStateMessage("完了しました");
+        if (process.env.NEXT_PUBLIC_TRUTH_URL) location.href = process.env.NEXT_PUBLIC_TRUTH_URL;
+      } else {
+        setStateMessage("エラーが発生しました");
+        setIsSending(false);
+        return;
+      }
+    } catch (err) {
+      setStateMessage("エラーが発生しました");
+      setIsSending(false);
+      return;
+    }
+  };
 
   return (
     <>
@@ -82,7 +139,7 @@ export default function Settings() {
                     <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
                   </div>
                 </label>
-                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={(e) => setSelectedImage(handleImageChange(e))} />
+                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
               </div>
               <Image src={selectedImage == "" ? user!.icon : selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               <div className="sm:col-span-2">
@@ -105,13 +162,13 @@ export default function Settings() {
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="flex items-center justify-between sm:col-span-2">
                 <button
-                  onClick={() => console.log("button")}
+                  onClick={() => handleSendButton(selectedImage)}
                   disabled={isSending}
                   className="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base"
                 >
                   Send
                 </button>
-                <p>{}</p>
+                <p>{stateMessage}</p>
               </div>
             </div>
           </div>
