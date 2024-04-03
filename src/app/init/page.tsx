@@ -33,7 +33,7 @@ export default function Init() {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+          const response = await axios.get(`/api/db/exist`);
           const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
           if (response2.data.ok) {
             setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
@@ -90,7 +90,7 @@ export default function Init() {
     try {
       if (session) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+        const existUser = await axios.get(`/api/db/exist`);
         if (existUser.data.exist) {
           router.push("/");
           setIsSending(false);

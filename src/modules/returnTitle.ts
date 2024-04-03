@@ -6,4 +6,6 @@ export const titles: {
   "/pages": "TellPro｜Pages",
   "/init": "TellPro｜Init",
   "/settings": "TellPro｜Settings",
+  "/newPage": "TellPro｜New Page",
+  "/newQuestion": "TellPro｜New Question",
 }

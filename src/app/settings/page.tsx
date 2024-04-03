@@ -29,7 +29,7 @@ export default function Settings() {
       setIsSignIn(true);
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+          const response = await axios.get(`/api/db/exist`);
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
@@ -56,21 +56,21 @@ export default function Settings() {
       return;
     }
     try {
-      if (session) {
+      if (session && user && existUser && session.user) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+        const existUser = await axios.get(`/api/db/exist`);
         if (!existUser.data.exist) {
           router.push("/");
           setIsSending(false);
           return;
         }
         setStateMessage("画像データをimgurにアップロード中...");
-        const imgLink = await imageSendToImgur(dataURL, setSelectedImage);
+        const imgLink = await imageSendToImgur(dataURL, setStateMessage);
         setStateMessage("データベースにデータを送信中...");
         await axios.post("/api/db/update", {
-          ID: user?.ID,
+          ID: user.ID,
           userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
-          mail: session?.user?.email,
+          mail: session.user.email,
           icon: imgLink,
           statusMessage: areaValue,
         });

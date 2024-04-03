@@ -28,10 +28,6 @@ const nextConfig = {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
           },
-          {
-            key: "Content-Security-Policy",
-            value: cspHeader.replace(/\n/g, ""),
-          },
         ],
       },
     ];

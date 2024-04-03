@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="referrer" content="no-referrer" />
-        <link rel="icon" href="../svg/logo.svg"></link>
+        <link rel="icon" href="/svg/logo.svg"></link>
       </head>
       <body className="bg-slate-100">
         <SessionProvider>

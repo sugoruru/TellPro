@@ -20,12 +20,13 @@ const Header = () => {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist?user=${session.user?.email}`);
+          const response = await axios.get(`/api/db/exist`);
           setExistUser(response.data.exist);
           if (!response.data.exist) {
             signOut();
           } else {
             setUser(response.data.data as User);
+            localStorage.setItem("user", JSON.stringify(response.data.data));
           }
         } catch (error) {
           console.error("Error fetching data:", error);
