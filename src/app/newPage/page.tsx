@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Loading from "../components/loading";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import returnRandomString from "@/modules/returnRandomString";
+import returnRandomString from "@/modules/algo/returnRandomString";
 
 export default function makeNewPage() {
   const { data: session, status } = useSession();
@@ -14,7 +14,7 @@ export default function makeNewPage() {
       const user = localStorage.getItem("user");
       if (user) {
         const jsonUser: User = JSON.parse(user);
-        router.push(`/users/${jsonUser.ID}/pages/${returnRandomString(16)}`);
+        router.push(`/users/${jsonUser.ID}/pages/${returnRandomString(16)}/edit`);
       } else {
         router.push("/");
       }

@@ -7,12 +7,12 @@ import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { quickSort } from "@/modules/quickSort";
-import { existTargetByBinarySearch } from "@/modules/existTargetByBinarySearch";
-import { handleUserNameChange } from "@/modules/handleUserNameChange";
-import handleImageChange from "@/modules/handleImageChange";
-import getImageBase64 from "@/modules/getImageBase64";
-import imageSendToImgur from "@/modules/imageSendToImgur";
+import { quickSort } from "@/modules/algo/quickSort";
+import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySearch";
+import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
+import handleImageChange from "@/modules/handle/handleImageChange";
+import getImageBase64 from "@/modules/network/getImageBase64";
+import imageSendToImgur from "@/modules/network/imageSendToImgur";
 
 export default function Init() {
   const { data: session, status } = useSession();

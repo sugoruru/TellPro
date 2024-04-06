@@ -59,7 +59,7 @@ const Header = () => {
                 <Menu as="div" className="relative inline-block text-left">
                   <div>
                     <Menu.Button>
-                      <Image src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} />
+                      <Image priority={false} src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} />
                     </Menu.Button>
                   </div>
                   <Transition

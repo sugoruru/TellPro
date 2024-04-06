@@ -1,15 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    style-src 'self' 'unsafe-inline';
-    object-src 'none';
-    frame-ancestors 'none';
-    block-all-mixed-content;
-    upgrade-insecure-requests;
-`;
-
 const nextConfig = {
   async headers() {
     return [
@@ -47,6 +37,9 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  experimental: {
+    forceSwcTransforms: true,
   },
 };
 

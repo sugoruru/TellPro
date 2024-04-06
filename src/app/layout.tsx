@@ -6,10 +6,12 @@ import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
+import Prism from "prismjs";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideHeaderPage = ["/init"];
+  Prism.manual = true;
 
   // 別のDNSに接続した時、トップページにリダイレクトする.
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" href="/svg/logo.svg"></link>
       </head>
-      <body className="bg-slate-100">
+      <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
         <SessionProvider>
           <NextTopLoader
             color="#2299DD"
@@ -44,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             showAtBottom={false}
           />
           {hideHeaderPage.includes(pathname) ? null : <Header />}
-          <div>{children}</div>
+          <>{children}</>
         </SessionProvider>
       </body>
     </html>

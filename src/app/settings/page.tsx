@@ -1,14 +1,14 @@
 "use client";
-import { handleUserNameChange } from "@/modules/handleUserNameChange";
+import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import axios from "axios";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { IoCloudUploadOutline } from "react-icons/io5";
-import handleImageChange from "@/modules/handleImageChange";
-import getImageBase64 from "@/modules/getImageBase64";
-import imageSendToImgur from "@/modules/imageSendToImgur";
+import handleImageChange from "@/modules/handle/handleImageChange";
+import getImageBase64 from "@/modules/network/getImageBase64";
+import imageSendToImgur from "@/modules/network/imageSendToImgur";
 import Loading from "../components/loading";
 
 export default function Settings() {

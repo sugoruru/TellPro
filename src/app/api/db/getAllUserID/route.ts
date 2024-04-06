@@ -1,4 +1,4 @@
-import db from "@/modules/db";
+import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../auth/[...nextauth]/options";
