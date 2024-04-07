@@ -28,7 +28,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     if (status === "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist`);
+          const response = await axios.get(`/api/db/users/exist`);
           if (!response.data.exist || !response.data.data) {
             signOut();
             router.push("/");

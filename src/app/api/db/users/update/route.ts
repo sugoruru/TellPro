@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
-import OPTIONS from "../../auth/[...nextauth]/options";
-import axios from "axios";
+import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
@@ -19,11 +18,11 @@ export async function POST(req: NextRequest) {
   try {
     await limitChecker.check(100, ip);
   } catch (error) {
-    NextResponse.json({
+    const res = NextResponse.json({
       ok: false,
       error: "Too many requests",
     }, { status: 429 });
-    return;
+    return res;
   }
 
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
@@ -48,22 +47,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // ユーザーがすでに存在していれば400を返す.
-  try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/exist", {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (existUser.data.exist) {
-      return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
-    }
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
-  }
-
   // ユーザーを作成.
-  await db.any(`INSERT INTO "Users" VALUES ($1, $2, $3, $4, $5, $6, $7)`, [body.ID, body.userName, body.mail, body.icon, body.statusMessage, 0, 0]);
+  await db.any(`UPDATE "Users" SET "username"=$1, "icon"=$2, "statusMessage"=$3 WHERE "ID" = $4`, [body.userName, body.icon, body.statusMessage, body.ID]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

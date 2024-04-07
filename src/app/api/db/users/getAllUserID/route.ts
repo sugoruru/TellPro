@@ -1,7 +1,7 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
-import OPTIONS from "../../auth/[...nextauth]/options";
+import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 
@@ -26,16 +26,11 @@ export async function GET(req: NextRequest) {
   }
 
   const session = await getServerSession(OPTIONS);
-  if (!session || !session.user) {
+  if (!session) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
-  const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]);
-  if (data.length == 0) {
-    const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
-    return res;
-  } else {
-    const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
-    return res;
-  }
+  const data = await db.any(`SELECT "ID" FROM "Users"`);
+  const res = NextResponse.json({ ok: true, data: data.map((x: { [s: string]: string; } | ArrayLike<string>) => Object.values(x)).flat() });
+  return res;
 }

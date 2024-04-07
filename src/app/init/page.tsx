@@ -33,8 +33,8 @@ export default function Init() {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist`);
-          const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
+          const response = await axios.get(`/api/db/users/exist`);
+          const response2 = await axios.get(`/api/db/users/getAllUserID`);
           if (response2.data.ok) {
             setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
           }
@@ -90,7 +90,7 @@ export default function Init() {
     try {
       if (session) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/exist`);
+        const existUser = await axios.get(`/api/db/users/exist`);
         if (existUser.data.exist) {
           router.push("/");
           setIsSending(false);
@@ -99,7 +99,7 @@ export default function Init() {
         setStateMessage("画像データをimgurにアップロード中...");
         const imgLink = await imageSendToImgur(dataURL);
         setStateMessage("ページ名が使用されているかを確認中...");
-        const response2 = await axios.get(`/api/db/getAllUserID?user=${session.user?.email}`);
+        const response2 = await axios.get(`/api/db/users/getAllUserID`);
         if (response2.data.ok) {
           const x = quickSort(response2.data.data, 0, response2.data.data.length - 1);
           if (existTargetByBinarySearch(x, (document.getElementById("pageName_tellPro") as HTMLInputElement).value)) {
@@ -109,7 +109,7 @@ export default function Init() {
           }
         }
         setStateMessage("データベースにデータを送信中...");
-        await axios.post("/api/db/create", {
+        await axios.post("/api/db/users/create", {
           ID: (document.getElementById("pageName_tellPro") as HTMLInputElement).value,
           userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
           mail: session?.user?.email,
@@ -199,7 +199,7 @@ export default function Init() {
                 </label>
                 <div className="flex justify-items-center">
                   <label htmlFor="pageName_tellPro" className="py-2 pr-2 text-lg text-gray-600">
-                    {window.location.origin}/
+                    {window.location.origin}/users/
                   </label>
                   <input
                     onChange={handlePageNameChange}

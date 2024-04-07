@@ -29,7 +29,7 @@ export default function Settings() {
       setIsSignIn(true);
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/exist`);
+          const response = await axios.get(`/api/db/users/exist`);
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
@@ -58,7 +58,7 @@ export default function Settings() {
     try {
       if (session && user && existUser && session.user) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/exist`);
+        const existUser = await axios.get(`/api/db/users/exist`);
         if (!existUser.data.exist) {
           router.push("/");
           setIsSending(false);
@@ -67,7 +67,7 @@ export default function Settings() {
         setStateMessage("画像データをimgurにアップロード中...");
         const imgLink = await imageSendToImgur(dataURL, setStateMessage);
         setStateMessage("データベースにデータを送信中...");
-        await axios.post("/api/db/update", {
+        await axios.post("/api/db/users/update", {
           ID: user.ID,
           userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
           mail: session.user.email,
@@ -116,22 +116,28 @@ export default function Settings() {
                   className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isUserNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
                 />
               </div>
-              <div className="relative">
-                <label
-                  title="Click to upload"
-                  htmlFor="button2"
-                  className="cursor-pointer flex items-center gap-4 px-6 py-4 before:border-gray-400/60 hover:before:border-gray-300 group before:bg-gray-100 before:absolute before:inset-0 before:rounded-3xl before:border before:border-dashed before:transition-transform before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95"
-                >
-                  <div className="w-max relative">
-                    <IoCloudUploadOutline className="w-12 text-3xl" />
-                  </div>
-                  <div className="relative">
-                    <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
-                  </div>
-                </label>
-                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
+              <div className="flex">
+                <div className="rounded-md border border-indigo-500 bg-gray-50 p-4 shadow-md w-36">
+                  <label htmlFor="upload" className="flex flex-col items-center gap-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 fill-white stroke-indigo-500" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-gray-600 font-medium">Upload file</span>
+                  </label>
+                  <input id="upload" type="file" className="hidden" disabled={isSending} accept=".jpg, .jpeg, .png" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
+                </div>
+                <div className="my-auto mx-5 text-center">
+                  <span>preview</span>
+                  <Image
+                    src={selectedImage == "" ? user!.icon : selectedImage}
+                    className="border rounded-full object-cover"
+                    width={60}
+                    height={60}
+                    style={{ width: "80px", height: "80px" }}
+                    alt={""}
+                  />
+                </div>
               </div>
-              <Image src={selectedImage == "" ? user!.icon : selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               <div className="sm:col-span-2">
                 <label htmlFor="message" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
                   ステータスメッセージ(残り{200 - areaValue.length}字)
