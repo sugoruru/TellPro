@@ -43,8 +43,7 @@ export async function POST(req: NextRequest) {
   }
   if (body.statusMessage === undefined) body.statusMessage = "";
 
-  // メールアドレスがセッションのユーザーのものでなければ401を返す.
-  if (session.user?.email !== body.mail) {
+  if (!session.user) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

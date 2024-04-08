@@ -30,7 +30,11 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
-  const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]);
+  if (req.nextUrl.searchParams.get("userID") === null || req.nextUrl.searchParams.get("pageID") === null) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+    return res;
+  }
+  const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [req.nextUrl.searchParams.get("pageID"), req.nextUrl.searchParams.get("userID")]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
     return res;

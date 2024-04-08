@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
+import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import axios from "axios";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
   try {
     await limitChecker.check(100, ip);
   } catch (error) {
-    const res = NextResponse.json({
+    NextResponse.json({
       ok: false,
       error: "Too many requests",
     }, { status: 429 });
-    return res;
+    return;
   }
 
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
@@ -34,36 +34,30 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["userName", "mail", "icon", "ID"];
+  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
   const body = await req.json();
   for (const key of required) {
     if (!body[key]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   }
-  if (body.statusMessage === undefined) body.statusMessage = "";
 
-  // メールアドレスがセッションのユーザーのものでなければ401を返す.
-  if (session.user?.email !== body.mail) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
-
-  // ユーザーがすでに存在していれば400を返す.
+  // ページがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/users/exist", {
+    const existUser = await axios.get(process.env.NEXTAUTH_URL + `api/db/pages/exist?userID=${body["userID"]}&pageID=${body["ID"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
       }
     });
-    if (!existUser.data.exist) {
-      return NextResponse.json({ ok: false, error: "User Not found" }, { status: 400 });
+    if (existUser.data.exist) {
+      return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ユーザーをアップデート.
-  await db.any(`UPDATE "Users" SET "username"=$1, "icon"=$2, "statusMessage"=$3 WHERE "ID" = $4`, [body.userName, body.icon, body.statusMessage, body.ID]);
+  // ユーザーを作成.
+  await db.any(`INSERT INTO "Pages" VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [body.ID, body.userID, body.title, body.content, 0, 0, body.tags, body.isPublic, new Date().toISOString().split("T")[0]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -34,36 +34,30 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["userName", "mail", "icon", "ID"];
+  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
   const body = await req.json();
   for (const key of required) {
     if (!body[key]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   }
-  if (body.statusMessage === undefined) body.statusMessage = "";
 
-  // メールアドレスがセッションのユーザーのものでなければ401を返す.
-  if (session.user?.email !== body.mail) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
-
-  // ユーザーがすでに存在していれば400を返す.
+  // ページがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/users/exist", {
+    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/pages/exist", {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
       }
     });
     if (!existUser.data.exist) {
-      return NextResponse.json({ ok: false, error: "User Not found" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Page Not found" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ユーザーをアップデート.
-  await db.any(`UPDATE "Users" SET "username"=$1, "icon"=$2, "statusMessage"=$3 WHERE "ID" = $4`, [body.userName, body.icon, body.statusMessage, body.ID]);
+  // ページをアップデート.
+  await db.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
