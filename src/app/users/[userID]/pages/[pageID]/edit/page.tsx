@@ -17,6 +17,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
   const [title, setTitle] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
+  const [tags, setTags] = useState<string[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
 
@@ -28,16 +29,24 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     if (status === "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/exist`);
-          if (!response.data.exist || !response.data.data) {
+          const fetchUser = await axios.get(`/api/db/users/exist`);
+          const fetchPage = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
+          if (!fetchUser.data.exist || !fetchUser.data.data) {
             signOut();
             router.push("/");
           } else {
             setExistUser(true);
-            const tempUser = response.data.data as User;
+            const tempUser = fetchUser.data.data as User;
             if (tempUser) {
-              if (params.userID == tempUser.ID) {
+              if (params.userID === tempUser.ID) {
                 setCanEdit(true);
+                if (fetchPage.data.exist) {
+                  const tempPage = fetchPage.data.data as Page;
+                  setMdAreaValue(tempPage.content);
+                  setTitle(tempPage.title);
+                  setTags(tempPage.tags);
+                  setIsPublic(tempPage.isPublic);
+                }
               }
             } else {
               router.push("/");
