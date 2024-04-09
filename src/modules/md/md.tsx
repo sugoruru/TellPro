@@ -39,6 +39,11 @@ const Lex = (props: { text: string }) => {
       if (header.length === header.split("").filter((char) => char === "-").length && header.length >= 3) {
         // ---という横切り線の場合.
         result.push(<hr />);
+      } else if (/!\[.*\]\((.*)\)/g.test(elem)) {
+        // 画像の場合.
+        const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
+        const src = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        result.push(<img src={src} alt={alt} key={returnRandomString(64)} />);
       } else {
         // 通常のテキストの場合.
         result.push(Text(elem));

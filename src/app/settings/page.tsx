@@ -5,7 +5,6 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import getImageBase64 from "@/modules/network/getImageBase64";
 import imageSendToImgur from "@/modules/network/imageSendToImgur";

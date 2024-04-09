@@ -44,13 +44,13 @@ export async function POST(req: NextRequest) {
 
   // ページがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/pages/exist", {
+    const existPage = await axios.get(process.env.NEXTAUTH_URL + `api/db/pages/exist?pageID=${body.ID}&userID=${body.userID}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
       }
     });
-    if (!existUser.data.exist) {
+    if (!existPage.data.exist) {
       return NextResponse.json({ ok: false, error: "Page Not found" }, { status: 400 });
     }
   } catch (error) {
@@ -58,6 +58,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ページをアップデート.
-  await db.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
-  return NextResponse.json({ ok: true }, { status: 200 });
+  try {
+    await db.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });
+  }
 }

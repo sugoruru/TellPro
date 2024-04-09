@@ -8,15 +8,20 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
 import Prism from "prismjs";
+import { BsExclamationCircle } from "react-icons/bs";
+import Link from "next/link";
 
 export default function MakeNewPage({ params }: { params: { userID: string; pageID: string } }) {
   const { status } = useSession();
   const [existUser, setExistUser] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
-  const [mdAreaValue, setMdAreaValue] = useState("");
-  const [title, setTitle] = useState("");
+  const [isPageExist, setIsPageExist] = useState(false);
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [mdAreaValue, setMdAreaValue] = useState("");
+  const [title, setTitle] = useState("");
+  const [sendingMessage, setSendingMessage] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -46,6 +51,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
                   setTitle(tempPage.title);
                   setTags(tempPage.tags);
                   setIsPublic(tempPage.isPublic);
+                  setIsPageExist(true);
                 }
               }
             } else {
@@ -69,8 +75,52 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     }
   }, [isMarkdown]);
 
+  const handlePageUpload = async () => {
+    setIsSending(true);
+    setSendingMessage("");
+    if (title === "") {
+      setSendingMessage("タイトルを入力してください");
+      setIsSending(false);
+      return;
+    }
+    if (mdAreaValue === "") {
+      setSendingMessage("本文を入力してください");
+      setIsSending(false);
+      return;
+    }
+    if (isPageExist) {
+      try {
+        await axios.post("/api/db/pages/update", {
+          ID: params.pageID,
+          userID: params.userID,
+          title: title,
+          content: mdAreaValue,
+          tags: tags,
+          isPublic: isPublic,
+        });
+        router.push(`/users/${params.userID}/pages/${params.pageID}`);
+      } catch (e) {
+        setSendingMessage("エラーが発生しました");
+      }
+    } else {
+      try {
+        const res = await axios.post("/api/db/pages/create", {
+          ID: params.pageID,
+          userID: params.userID,
+          title: title,
+          content: mdAreaValue,
+          tags: tags,
+          isPublic: isPublic,
+        });
+        router.push(`/users/${params.userID}/pages/${params.pageID}`);
+      } catch (e) {
+        setSendingMessage("エラーが発生しました");
+      }
+    }
+    setIsSending(false);
+  };
+
   // TODO: 編集権限の無いページのレイアウトを作成する
-  // TODO: タイトルバーの設定を作成する
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
@@ -93,17 +143,26 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
         // マークダウンタブの場合.
         <>
           <div className="border-b w-full p-3">
-            <input type="text" className="border outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full" placeholder="タイトル" onChange={(e) => setTitle(e.target.value)} value={title} />
+            <input
+              type="text"
+              className={`border ${sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""} outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full`}
+              placeholder="タイトル"
+              onChange={(e) => setTitle(e.target.value)}
+              value={title}
+            />
           </div>
           <div className="grow w-full p-3">
             <textarea
-              className="border outline-1 resize-none rounded h-5/6 outline-sky-400 p-1 w-full"
+              className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-5/6 outline-sky-400 p-1 w-full`}
               placeholder="本文(Markdown)"
               onChange={(e) => setMdAreaValue(e.target.value)}
               value={mdAreaValue}
             ></textarea>
             <div className="justify-end flex mt-2">
-              <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded-l border-r">{isPublic ? "公開する" : "下書き保存"}</button>
+              <span className="text-red-600 my-auto mr-5">{sendingMessage}</span>
+              <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
+                {isPublic ? "公開する" : "下書き保存"}
+              </button>
               <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-r border-l">
                 <Menu.Button>
                   <MdKeyboardArrowDown className="text-xl" />
@@ -156,6 +215,18 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     </div>
   ) : (
     // 編集権限が無い場合.
-    <div>編集権限がありません</div>
+    <div className="min-h-screen bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
+      <div className="flex justify-center">
+        <BsExclamationCircle className="text-green-500 text-6xl" />
+      </div>
+      <p>編集権限がありません</p>
+      <p className="text-sm pt-5">
+        <span>(</span>
+        <Link href="/" className="text-blue-300">
+          こちら
+        </Link>
+        <span>からホームに戻ることが出来ます)</span>
+      </p>
+    </div>
   );
 }
