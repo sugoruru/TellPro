@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
   const body = await req.json();
   for (const key of required) {
-    if (!body[key]) {
+    if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   }

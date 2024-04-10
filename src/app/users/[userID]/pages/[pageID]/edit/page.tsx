@@ -104,7 +104,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
       }
     } else {
       try {
-        const res = await axios.post("/api/db/pages/create", {
+        await axios.post("/api/db/pages/create", {
           ID: params.pageID,
           userID: params.userID,
           title: title,

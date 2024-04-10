@@ -39,11 +39,17 @@ const Lex = (props: { text: string }) => {
       if (header.length === header.split("").filter((char) => char === "-").length && header.length >= 3) {
         // ---という横切り線の場合.
         result.push(<hr />);
-      } else if (/!\[.*\]\((.*)\)/g.test(elem)) {
+      } else if (/!\[.*\]\((.*)\).*/g.test(elem)) {
         // 画像の場合.
         const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
         const src = elem.match(/\(.*\)/g)![0].slice(1, -1);
-        result.push(<img src={src} alt={alt} key={returnRandomString(64)} />);
+        const text = elem.replace(/!\[.*\]\(.*\)/g, "");
+        result.push(
+          <div className="flex" key={returnRandomString(64)}>
+            <img src={src} alt={alt} style={{ width: "150", height: "150" }} />
+            <span style={{ marginTop: "auto" }}>{Text(text)}</span>
+          </div>
+        );
       } else {
         // 通常のテキストの場合.
         result.push(Text(elem));
