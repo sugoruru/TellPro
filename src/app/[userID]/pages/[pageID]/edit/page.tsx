@@ -34,7 +34,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     if (status === "authenticated") {
       const fetchData = async () => {
         try {
-          const fetchUser = await axios.get(`/api/db/users/exist`);
+          const fetchUser = await axios.get(`/api/db/users/existMe`);
           const fetchPage = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
           if (!fetchUser.data.exist || !fetchUser.data.data) {
             signOut();
@@ -98,7 +98,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
           tags: tags,
           isPublic: isPublic,
         });
-        router.push(`/users/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
       }
@@ -112,7 +112,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
           tags: tags,
           isPublic: isPublic,
         });
-        router.push(`/users/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
       }
@@ -121,6 +121,9 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
   };
 
   // TODO: 編集権限の無いページのレイアウトを作成する
+  // TODO: プレビューに作成者のアイコンと名前を表示する
+  // TODO: 画像のアップロード機能の作成
+  // TODO: タグつけ機能の作成
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>

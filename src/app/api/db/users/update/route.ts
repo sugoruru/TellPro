@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   // ユーザーがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + "api/db/users/exist", {
+    const existUser = await axios.get(process.env.NEXTAUTH_URL + `api/db/users/existMe?userID=${body.ID}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")

@@ -14,7 +14,7 @@ export default function makeNewPage() {
       const user = localStorage.getItem("user");
       if (user) {
         const jsonUser: User = JSON.parse(user);
-        router.push(`/users/${jsonUser.ID}/pages/${returnRandomString(16)}/edit`);
+        router.push(`/${jsonUser.ID}/pages/${returnRandomString(16)}/edit`);
       } else {
         router.push("/");
       }

@@ -33,7 +33,7 @@ export default function Init() {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/exist`);
+          const response = await axios.get(`/api/db/users/existMe`);
           const response2 = await axios.get(`/api/db/users/getAllUserID`);
           if (response2.data.ok) {
             setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
@@ -90,7 +90,7 @@ export default function Init() {
     try {
       if (session) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/users/exist`);
+        const existUser = await axios.get(`/api/db/users/existMe`);
         if (existUser.data.exist) {
           router.push("/");
           setIsSending(false);
@@ -199,7 +199,7 @@ export default function Init() {
                 </label>
                 <div className="flex justify-items-center">
                   <label htmlFor="pageName_tellPro" className="py-2 pr-2 text-lg text-gray-600">
-                    {window.location.origin}/users/
+                    {window.location.origin}/
                   </label>
                   <input
                     onChange={handlePageNameChange}

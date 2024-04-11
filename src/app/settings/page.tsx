@@ -28,7 +28,7 @@ export default function Settings() {
       setIsSignIn(true);
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/exist`);
+          const response = await axios.get(`/api/db/users/existMe`);
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
@@ -57,7 +57,7 @@ export default function Settings() {
     try {
       if (session && user && existUser && session.user) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/users/exist`);
+        const existUser = await axios.get(`/api/db/users/existMe`);
         if (!existUser.data.exist) {
           router.push("/");
           setIsSending(false);
@@ -95,7 +95,7 @@ export default function Settings() {
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="mb-10 md:mb-16">
               <h2 className="text-center text-2xl font-bold text-gray-800 lg:text-3xl">Settings</h2>
-              <h4 className="text-center font-bold text-gray-800">(ヘッダーロゴを押すと戻れます)</h4>
+              <h4 className="text-center font-bold text-gray-800">(ヘッダーロゴを押すとホームに戻れます)</h4>
             </div>
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="sm:col-span-2">

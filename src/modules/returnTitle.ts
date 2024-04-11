@@ -8,4 +8,6 @@ export const titles: {
   "/settings": "TellPro｜Settings",
   "/newPage": "TellPro｜New Page",
   "/newQuestion": "TellPro｜New Question",
+  "/bookmarks": "TellPro｜Bookmarks",
+  "/histories": "TellPro｜Histories",
 }

@@ -20,7 +20,7 @@ const Header = () => {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/exist`);
+          const response = await axios.get(`/api/db/users/existMe`);
           setExistUser(response.data.exist);
           if (!response.data.exist) {
             signOut();
@@ -54,7 +54,7 @@ const Header = () => {
                   </span>
                 </button>
               </div>
-            ) : status == "authenticated" && existUser ? (
+            ) : status == "authenticated" && existUser && user ? (
               <div>
                 <Menu as="div" className="relative inline-block text-left">
                   <div>
@@ -75,26 +75,32 @@ const Header = () => {
                       <div className="px-1 py-1 ">
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                              <FaRegCircleUser className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              ユーザー
-                            </button>
+                            <Link href={`/${user.ID}`}>
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <FaRegCircleUser className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                ユーザー
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                              <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              ブックマーク
-                            </button>
+                            <Link href="/bookmarks">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                ブックマーク
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                              <GoHistory className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                              履歴
-                            </button>
+                            <Link href="/histories">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <GoHistory className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                履歴
+                              </button>
+                            </Link>
                           )}
                         </Menu.Item>
                       </div>

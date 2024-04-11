@@ -33,6 +33,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       router.push("/");
     }
   }, []);
+
+  // TODO: ブックマークを追加する機能を実装する.
   return isLoading ? (
     <>
       <title>TellPro｜ロード中...</title>
