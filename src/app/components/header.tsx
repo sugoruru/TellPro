@@ -11,10 +11,10 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import axios from "axios";
 
 const Header = () => {
-  let [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
-  let [existUser, setExistUser] = useState(false);
-  let [user, setUser] = useState<User | null>(null);
-  const { data: session, status } = useSession();
+  const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
+  const [existUser, setExistUser] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const { status } = useSession();
 
   useEffect(() => {
     if (status == "authenticated") {

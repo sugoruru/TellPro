@@ -18,12 +18,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     if (window.location.protocol + "//" + window.location.host != process.env.NEXT_PUBLIC_TRUTH_URL) {
       location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname;
     }
+    // /pages/以下のページにアクセスした時、トップページにリダイレクトする.
+    if (/\/*\/pages$/g.test(pathname)) {
+      location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname.replace("/pages", "");
+    }
   }, []);
 
   return (
     <html lang="ja">
       <head>
-        <title>{titles[pathname]}</title>
+        <title>{titles[pathname] ? titles[pathname] : "Loading...｜TellPro"}</title>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="referrer" content="no-referrer" />

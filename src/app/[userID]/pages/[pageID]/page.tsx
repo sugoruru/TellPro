@@ -30,7 +30,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       };
       fetch();
     } catch (e) {
-      router.push("/");
+      router.replace("/");
     }
   }, []);
 

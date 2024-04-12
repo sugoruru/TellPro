@@ -45,9 +45,9 @@ const Lex = (props: { text: string }) => {
         const src = elem.match(/\(.*\)/g)![0].slice(1, -1);
         const text = elem.replace(/!\[.*\]\(.*\)/g, "");
         result.push(
-          <div className="flex" key={returnRandomString(64)}>
+          <div className="block" key={returnRandomString(64)}>
             <img src={src} alt={alt} style={{ width: "150", height: "150" }} />
-            <span style={{ marginTop: "auto" }}>{Text(text)}</span>
+            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
       } else {

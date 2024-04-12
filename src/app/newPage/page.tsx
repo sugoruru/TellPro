@@ -14,12 +14,12 @@ export default function makeNewPage() {
       const user = localStorage.getItem("user");
       if (user) {
         const jsonUser: User = JSON.parse(user);
-        router.push(`/${jsonUser.ID}/pages/${returnRandomString(16)}/edit`);
+        router.replace(`/${jsonUser.ID}/pages/${returnRandomString(16)}/edit`);
       } else {
-        router.push("/");
+        router.replace("/");
       }
     } else if (status === "unauthenticated") {
-      router.push("/");
+      router.replace("/");
     }
   }, [status]);
 

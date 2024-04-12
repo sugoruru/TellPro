@@ -12,15 +12,15 @@ import Loading from "../components/loading";
 
 export default function Settings() {
   const { data: session, status } = useSession();
-  let [isSignIn, setIsSignIn] = useState(false);
-  let [existUser, setExistUser] = useState(false);
-  let [user, setUser] = useState<User | null>(null);
-  let [isSending, setIsSending] = useState(false);
-  let [isUserNameError, setIsUserNameError] = useState(false);
-  let [userNameErrorMessage, setUserNameErrorMessage] = useState("");
-  let [areaValue, setAreaValue] = useState("");
-  let [selectedImage, setSelectedImage] = useState("");
-  let [stateMessage, setStateMessage] = useState("");
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [existUser, setExistUser] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [isUserNameError, setIsUserNameError] = useState(false);
+  const [userNameErrorMessage, setUserNameErrorMessage] = useState("");
+  const [areaValue, setAreaValue] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
+  const [stateMessage, setStateMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function Settings() {
       };
       fetchData();
     } else if (status === "unauthenticated") {
-      router.push("/");
+      router.replace("/");
     }
   }, [status]);
 
@@ -59,7 +59,7 @@ export default function Settings() {
         setStateMessage("ユーザーが存在するかを確認中...");
         const existUser = await axios.get(`/api/db/users/existMe`);
         if (!existUser.data.exist) {
-          router.push("/");
+          router.replace("/");
           setIsSending(false);
           return;
         }

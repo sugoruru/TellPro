@@ -16,16 +16,16 @@ import imageSendToImgur from "@/modules/network/imageSendToImgur";
 
 export default function Init() {
   const { data: session, status } = useSession();
-  let [areaValue, setAreaValue] = useState("");
-  let [existUser, setExistUser] = useState(true);
-  let [isSending, setIsSending] = useState(false);
-  let [isUserNameError, setIsUserNameError] = useState(false);
-  let [userNameErrorMessage, setUserNameErrorMessage] = useState("");
-  let [isPageNameError, setIsPageNameError] = useState(true);
-  let [pageNameErrorMessage, setPageNameErrorMessage] = useState("");
-  let [selectedImage, setSelectedImage] = useState("");
-  let [stateMessage, setStateMessage] = useState("");
-  let [usersID, setUsersID] = useState([] as string[]);
+  const [areaValue, setAreaValue] = useState("");
+  const [existUser, setExistUser] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [isUserNameError, setIsUserNameError] = useState(false);
+  const [userNameErrorMessage, setUserNameErrorMessage] = useState("");
+  const [isPageNameError, setIsPageNameError] = useState(true);
+  const [pageNameErrorMessage, setPageNameErrorMessage] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
+  const [stateMessage, setStateMessage] = useState("");
+  const [usersID, setUsersID] = useState([] as string[]);
   const router = useRouter();
 
   // ユーザーがDBに存在すればホームにリダイレクト.
@@ -39,7 +39,7 @@ export default function Init() {
             setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
           }
           if (response.data.exist) {
-            router.push("/");
+            router.replace("/");
           } else {
             if (session.user?.image) {
               setSelectedImage(await getImageBase64(session.user.image));
@@ -92,7 +92,7 @@ export default function Init() {
         setStateMessage("ユーザーが存在するかを確認中...");
         const existUser = await axios.get(`/api/db/users/existMe`);
         if (existUser.data.exist) {
-          router.push("/");
+          router.replace("/");
           setIsSending(false);
           return;
         }
@@ -117,7 +117,7 @@ export default function Init() {
           statusMessage: areaValue,
         });
         setIsSending(false);
-        router.push("/");
+        router.replace("/");
       } else {
         setStateMessage("エラーが発生しました");
         setIsSending(false);

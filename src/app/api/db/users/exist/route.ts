@@ -22,16 +22,16 @@ export async function GET(req: NextRequest) {
     }, { status: 429 });
     return res;
   }
-
-  if (req.nextUrl.searchParams.get("userID") === null || req.nextUrl.searchParams.get("pageID") === null) {
+  if (req.nextUrl.searchParams.get("userID") === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
-  const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [req.nextUrl.searchParams.get("pageID"), req.nextUrl.searchParams.get("userID")]);
+  const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [req.nextUrl.searchParams.get("userID")]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
     return res;
   } else {
+    delete data[0].mail;
     const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
     return res;
   }

@@ -1,13 +1,13 @@
 export const titles: {
   [key: string]: string;
 } = {
-  "/": "TellPro｜Home",
-  "/questions": "TellPro｜Questions",
-  "/pages": "TellPro｜Pages",
-  "/init": "TellPro｜Init",
-  "/settings": "TellPro｜Settings",
-  "/newPage": "TellPro｜New Page",
-  "/newQuestion": "TellPro｜New Question",
-  "/bookmarks": "TellPro｜Bookmarks",
-  "/histories": "TellPro｜Histories",
+  "/": "Home｜TellPro",
+  "/questions": "Questions｜TellPro",
+  "/pages": "Pages｜TellPro",
+  "/init": "Init｜TellPro",
+  "/settings": "Settings｜TellPro",
+  "/newPage": "New Page｜TellPro",
+  "/newQuestion": "New Question｜TellPro",
+  "/bookmarks": "Bookmarks｜TellPro",
+  "/histories": "Histories｜TellPro",
 }
