@@ -6,7 +6,6 @@
     "dev": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "init": "node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/initDB.ts",
     "lint": "next lint"
   },
   "dependencies": {
