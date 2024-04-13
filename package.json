@@ -6,6 +6,7 @@
     "dev": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
+    "init": "node --no-warnings=ExperimentalWarning --loader ts-node/esm ./src/initDB.ts",
     "lint": "next lint"
   },
   "dependencies": {
@@ -26,11 +27,12 @@
     "rehype-code-titles": "^1.2.0",
     "rehype-prism-plus": "^2.0.0",
     "request": "^2.88.2",
-    "request-ip": "^3.3.0"
+    "request-ip": "^3.3.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/lru-cache": "^7.10.10",
-    "@types/node": "^20",
+    "@types/node": "^20.12.7",
     "@types/prismjs": "^1.26.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -44,6 +46,6 @@
     "postcss": "^8",
     "sanitize-html": "^2.13.0",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5.4.5"
   }
 }

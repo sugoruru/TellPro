@@ -6,7 +6,6 @@
 /.next/
 /out/
 /build
-/readme
 .DS_Store
 *.pem
 npm-debug.log*

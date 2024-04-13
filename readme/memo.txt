@@ -1,0 +1,130 @@
+★サービス内容
+競技プログラミングのコミュニティサイトの作成
+いろんな競プロerが安心して過ごせるサイト作り
+継続的な運営を行い、競プロerのためのサイトを作る
+
+★作ろうと思ったきっかけ
+・自分にとってメリットしか無い
+・そもそも存在しないもの
+
+★使用技術
+-クライアント
+・TypeScript
+・Next.js/React
+
+-サーバー
+・Next.js
+
+-DB
+・postgresql
+・pgPromise
+
+-OAuth
+・NextAuth
+・Google OAuth
+
+-UI
+・Tailwind:主CSS
+・headlessUI:ダイアログの生成
+・nextjs-toploader:読み込み時のプログレスバー
+・React Icons:直感的なUIのためのアイコン
+・Prism.js:マークダウン記法のためのシンタックスハイライト
+
+-デプロイ
+・Next.js on Netlify
+・Imgur
+
+✨️まだしていないこと
+・画像のアップロード
+・タグを付けることができる
+・ブックマーク機能
+・退会機能
+・記事を新着・いいね・コメント数順に並べるボタンの設置
+・解決していない質問ページを古い順にソートする機能
+・利用規約+プライバシーポリシー(+特定商取引法に基づく表記)+コミュニティガイドライン
+・stripe APIによる商品の売り出し
+・フッターに著作権情報の提示
+・モデレーションにAIを導入
+・(ZZ掛け算のミニゲーム(ランキング))
+
+✨️実装が終わったこと
+・DBのDOS攻撃の対策→50request/分の制限
+・ユーザーが存在するかのアルゴリズムにquickSortと二分探索を使用
+・質問・サイトの作成をするにはGoogle OAuthとの紐づけ
+・マークダウンエディタでは、sanitize-htmlでのXSS対策
+・/newPageでページ作成の初期化→
+　users/{userName}/pages/{pageID}/editへ遷移→
+　page/editのプログラムを実行
+・page/edit→
+　OAuthのメールアドレスとユーザーIDの一致を調べる(URLのクエリパラメータ==OAuthのメールアドレス)→
+　編集権限の付与→
+　記事が存在しなければ新規作成としてからのUIを渡し、存在すればDB内のcontentを渡す
+・公開ボタン→ページの存在確認→存在してなければcreate→してればupdate
+・自作のマークダウン記法
+
+★他のSNSとの区別
+・わかりやすいマークダウン
+・競技プログラマー向けのタグ
+・コード記述欄のハイライト
+・他の競技プログラミングサイトのAPIを使用して、独自のスコアを作成(ほかサイトのレートをまとめたようなもの)
+
+★OAuthの処理
+Google OAuthを使用して、不正なデータベースへのアクセスを拒否
+
+★データベースの設計(予定なので大幅変更あり)
+利用者が増えてお金が回り始めたらより強いサーバーに切り替える
+✨️Users
+ID:主キー(UUID)
+username:ユーザー名
+mail:Googleのメールアドレス
+icon:ユーザーのアイコン
+answerScore:回答スコア
+pageScore:記事のスコア
+likeTags:int[]
+
+✨️Pages(ttps://.../userName/pages/...で接続)
+ID:主キー(UUID)
+userID:UsersテーブルのユーザーUUID
+pageTitle:ページのタイトル
+pageContent:ページのコンテンツ
+time:公開時間
+likeCount:数字
+commentCount:数字
+tags:int[]
+isPublic:bool
+
+✨️Questions(ttps://.../userName/questions/...で接続)
+ID:主キー(UUID)
+userID:Usersテーブルのid
+title:タイトル
+content:中身
+time:公開時間
+likeCount:数字
+responseCount:回答数
+tags:int[]
+images:text[]
+
+✨️Bookmarks(ttps://.../bookmarksで確認可能)
+userID:Usersテーブルのid
+URL:pages/,questions/,comment/を含んだブックマークのURL
+time:ブックマークした時間
+
+✨️Comments
+ID:主キー(UUID)
+userID:Usersテーブルのid
+URL:pages/,questions/,comment/を含んだブックマークのURL
+content:中身
+time:公開時間
+likeCount:数字
+images:text[]
+
+✨️Likes
+userID:いいねした人本人のID
+URL:pages/,questions/,comment/を含んだブックマークのURL
+time:いいねした時間
+
+★DB接続 nextjs
+async function getDbData() {
+  const data = await db.any('SELECT * FROM "Users"');
+  console.log(data);
+}

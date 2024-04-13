@@ -142,9 +142,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     setIsSending(false);
   };
 
-  // TODO: 編集権限の無いページのレイアウトを作成する
   // TODO: プレビューに作成者のアイコンと名前を表示する
-  // TODO: 画像のアップロード機能の作成
   // TODO: タグつけ機能の作成
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
@@ -205,7 +203,6 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
                   <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
                     <div className="fixed inset-0 bg-black/25" />
                   </Transition.Child>
-
                   <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
                       <Transition.Child
