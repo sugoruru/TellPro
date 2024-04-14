@@ -128,7 +128,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           tags: tags,
           isPublic: isPublic,
         });
-        router.replace(`/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
       }
@@ -142,7 +142,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           tags: tags,
           isPublic: isPublic,
         });
-        router.replace(`/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
       }

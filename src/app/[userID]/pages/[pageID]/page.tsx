@@ -10,10 +10,12 @@ import { useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
+import Image from "next/image";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState<JSX.Element>(<></>);
+  const [userIcon, setUserIcon] = useState<string>("");
   const [page, setPage] = useState<Page>({} as Page);
   const [isExist, setIsExist] = useState(false);
   const router = useRouter();
@@ -23,6 +25,12 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     Prism.highlightAll();
     try {
       const fetch = async () => {
+        const fetchUser = await axios.get(`/api/db/users/exist?userID=${params.userID}`);
+        if (!fetchUser.data.exist) {
+          router.replace("/");
+          return;
+        }
+        setUserIcon(fetchUser.data.data.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
           setIsExist(false);
@@ -57,6 +65,17 @@ export default function Page({ params }: { params: { userID: string; pageID: str
               {tagJSON[String(e)]}
             </div>
           ))}
+        </div>
+      </div>
+      <div className="mx-auto text-base font-bold text-gray-700">
+        <div
+          className="flex cursor-pointer"
+          onClick={() => {
+            router.push(`/${params.userID}`);
+          }}
+        >
+          <Image src={userIcon} alt="" width={24} height={24} className="mr-1" priority />
+          <u>@{params.userID}</u>
         </div>
       </div>
       <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
