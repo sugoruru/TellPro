@@ -33,6 +33,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
   const [mdAreaValue, setMdAreaValue] = useState("");
+  const [prevIcon, setPrevIcon] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
   const [title, setTitle] = useState("");
   const [sendingMessage, setSendingMessage] = useState("");
@@ -59,6 +60,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             setExistUser(true);
             const tempUser = fetchUser.data.data as User;
             if (tempUser) {
+              setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.ID) {
                 setCanEdit(true);
                 if (fetchPage.data.exist) {
@@ -149,7 +151,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   };
   const TagsDialogMemo = React.memo(TagsDialog);
 
-  // TODO: プレビューに作成者のアイコンと名前を表示する
   // TODO: タグつけのサーチ機能の作成
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
@@ -299,7 +300,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                       >
-                        <Dialog.Panel className="w-full text-center max-w-md transform overflow-hidden rounded-2xl bg-white p-6 align-middle shadow-xl transition-all">
+                        <Dialog.Panel className="w-full text-center max-w-md transform overflow-hidden rounded-2xl bg-white p-3 align-middle shadow-xl transition-all">
                           <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                             タグの編集(5つまで)
                           </Dialog.Title>
@@ -383,6 +384,17 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   {tagJSON[String(e)]}
                 </div>
               ))}
+            </div>
+          </div>
+          <div className="mx-auto text-base font-bold text-gray-700">
+            <div
+              className="flex cursor-pointer"
+              onClick={() => {
+                if (confirm("データの保存はされませんがページを遷移しますか？")) router.replace(`/${params.userID}`);
+              }}
+            >
+              <Image src={prevIcon} alt="" width={24} height={24} className="mr-1" priority />
+              <u>@{params.userID}</u>
             </div>
           </div>
           <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
