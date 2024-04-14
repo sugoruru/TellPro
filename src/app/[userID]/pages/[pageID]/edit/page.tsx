@@ -1,6 +1,6 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/components/loading";
@@ -15,14 +15,19 @@ import { IoMdImages } from "react-icons/io";
 import Image from "next/image";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import imageSendToImgur from "@/modules/network/imageSendToImgur";
+import React from "react";
+import TagsDialog from "@/app/components/tagsDialog";
+import data from "@/modules/tags.json";
+import returnRandomString from "@/modules/algo/returnRandomString";
 
-export default function MakeNewPage({ params }: { params: { userID: string; pageID: string } }) {
+const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
   const [existUser, setExistUser] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [isPageExist, setIsPageExist] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isOpenImageUpload, setIsOpenImageUpload] = useState(false);
+  const [isOpenTagEditor, setIsOpenTagEditor] = useState(false);
   const [isSendingImage, setIsSendingImage] = useState(false);
   const [sendingImageMessage, setSendingImageMessage] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
@@ -32,9 +37,10 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
   const [title, setTitle] = useState("");
   const [sendingMessage, setSendingMessage] = useState("");
   const [imageValue, setImageValue] = useState<string>("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Number[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
+  const tagJSON: { [key: string]: any } = data;
 
   useEffect(() => {
     Prism.highlightAll();
@@ -59,7 +65,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
                   const tempPage = fetchPage.data.data as Page;
                   setMdAreaValue(tempPage.content);
                   setTitle(tempPage.title);
-                  setTags(tempPage.tags);
+                  setTags(tempPage.tags.map((e) => Number(e)));
                   setIsPublic(tempPage.isPublic);
                   setIsPageExist(true);
                 }
@@ -141,9 +147,10 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
     }
     setIsSending(false);
   };
+  const TagsDialogMemo = React.memo(TagsDialog);
 
   // TODO: プレビューに作成者のアイコンと名前を表示する
-  // TODO: タグつけ機能の作成
+  // TODO: タグつけのサーチ機能の作成
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
@@ -185,7 +192,11 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
               id="mdArea"
             ></textarea>
             <div className="justify-end flex mt-2">
-              <button title="タグの設定" className="bg-slate-400 leading-10 transition text-center hover:bg-slate-500 disabled:bg-slate-400 text-white font-bold text-2xl rounded-full mx-2 h-10 w-10">
+              <button
+                onClick={() => setIsOpenTagEditor(true)}
+                title="タグの設定"
+                className="bg-slate-400 leading-10 transition text-center hover:bg-slate-500 disabled:bg-slate-400 text-white font-bold text-2xl rounded-full mx-2 h-10 w-10"
+              >
                 <FaTag className="inline-flex" />
               </button>
               <button
@@ -198,6 +209,7 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
               >
                 <IoMdImages className="inline-flex" />
               </button>
+              {/* image uploader */}
               <Transition appear show={isOpenImageUpload || isSendingImage} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={() => setIsOpenImageUpload(false)}>
                   <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
@@ -270,6 +282,49 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
                   </div>
                 </Dialog>
               </Transition>
+              {/* tag editor */}
+              <Transition appear show={isOpenTagEditor} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={() => setIsOpenTagEditor(false)}>
+                  <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+                    <div className="fixed inset-0 bg-black/25" />
+                  </Transition.Child>
+                  <div className="fixed inset-0 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                      <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0 scale-95"
+                        enterTo="opacity-100 scale-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100 scale-100"
+                        leaveTo="opacity-0 scale-95"
+                      >
+                        <Dialog.Panel className="w-full text-center max-w-md transform overflow-hidden rounded-2xl bg-white p-6 align-middle shadow-xl transition-all">
+                          <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                            タグの編集(5つまで)
+                          </Dialog.Title>
+                          <TagsDialogMemo tags={tags} setTags={setTags} />
+                          <div className="flex mt-2 px-1 flex-wrap">
+                            {tags.map((e) => (
+                              <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-400" key={returnRandomString(32)}>
+                                <FaTag className="inline-flex my-auto mr-1" />
+                                {tagJSON[String(e)]}
+                              </div>
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            className="mx-2 mt-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            onClick={() => setIsOpenTagEditor(false)}
+                          >
+                            決定
+                          </button>
+                        </Dialog.Panel>
+                      </Transition.Child>
+                    </div>
+                  </div>
+                </Dialog>
+              </Transition>
               <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
                 {isPublic ? "公開する" : "下書き"}
               </button>
@@ -320,6 +375,16 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
         <>
           <div className="text-center text-4xl font-bold text-gray-700 my-5">{title === "" ? "untitled" : title}</div>
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
+          <div className="mx-auto">
+            <div className="flex mt-2 px-1 flex-wrap">
+              {tags.map((e) => (
+                <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
+                  <FaTag className="inline-flex my-auto mr-1" />
+                  {tagJSON[String(e)]}
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
         </>
       )}
@@ -340,4 +405,6 @@ export default function MakeNewPage({ params }: { params: { userID: string; page
       </p>
     </div>
   );
-}
+};
+
+export default MakeNewPage;

@@ -58,6 +58,6 @@ export async function POST(req: NextRequest) {
   }
 
   // ユーザーを作成.
-  await db.any(`INSERT INTO "Pages" VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [body.ID, body.userID, body.title, body.content, 0, 0, body.tags, body.isPublic, new Date().toISOString().split("T")[0]]);
+  await db.any(`INSERT INTO "Pages" VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [body.ID, body.userID, body.title, body.content, 0, 0, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

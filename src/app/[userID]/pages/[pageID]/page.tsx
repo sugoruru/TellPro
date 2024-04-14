@@ -1,5 +1,6 @@
 "use client";
 import Loading from "@/app/components/loading";
+import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
 import Link from "next/link";
@@ -7,6 +8,8 @@ import { useRouter } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
+import { FaTag } from "react-icons/fa6";
+import data from "@/modules/tags.json";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +17,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [page, setPage] = useState<Page>({} as Page);
   const [isExist, setIsExist] = useState(false);
   const router = useRouter();
+  const tagJSON: { [key: string]: any } = data;
+
   useEffect(() => {
     Prism.highlightAll();
     try {
@@ -44,6 +49,16 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     <>
       <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
       <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
+      <div className="mx-auto">
+        <div className="flex mt-2 px-1 flex-wrap">
+          {page.tags.map((e) => (
+            <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
+              <FaTag className="inline-flex my-auto mr-1" />
+              {tagJSON[String(e)]}
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
     </>
   ) : (

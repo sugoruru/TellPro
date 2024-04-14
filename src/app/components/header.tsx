@@ -42,7 +42,7 @@ const Header = () => {
         <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
           <header className="flex items-center justify-between py-4 md:py-4">
             <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl" aria-label="logo" title="TellPro">
-              <Image src="/svg/logo.svg" width={30} height={30} alt={""} />
+              <Image src="/svg/logo.svg" width={30} height={30} alt={""} priority />
               TellPro
             </Link>
             {status == "unauthenticated" ? (
