@@ -2,7 +2,7 @@
 import "../css/globals.css";
 import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
@@ -17,10 +17,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (window.location.protocol + "//" + window.location.host != process.env.NEXT_PUBLIC_TRUTH_URL) {
       location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname;
-    }
-    // /pages/以下のページにアクセスした時、トップページにリダイレクトする.
-    if (/\/*\/pages$/g.test(pathname)) {
-      location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname.replace("/pages", "");
     }
   }, []);
 

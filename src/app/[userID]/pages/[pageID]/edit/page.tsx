@@ -44,6 +44,10 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const tagJSON: { [key: string]: any } = data;
 
   useEffect(() => {
+    if (!/^[a-zA-Z]+$/.test(params.pageID)) {
+      router.replace("/");
+      return;
+    }
     Prism.highlightAll();
   }, []);
 
