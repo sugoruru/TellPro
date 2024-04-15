@@ -19,6 +19,7 @@ import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
 import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import getImageBase64 from "@/modules/network/getImageBase64";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -64,7 +65,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             setExistUser(true);
             const tempUser = fetchUser.data.data as User;
             if (tempUser) {
-              setPrevIcon(tempUser.icon);
+              setPrevIcon(await getImageBase64(tempUser.icon));
               if (params.userID === tempUser.ID) {
                 setCanEdit(true);
                 if (fetchPage.data.exist) {

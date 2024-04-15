@@ -9,6 +9,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import axios from "axios";
+import getImageBase64 from "@/modules/network/getImageBase64";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
@@ -26,6 +27,8 @@ const Header = () => {
             signOut();
           } else {
             setUser(response.data.data as User);
+            const userIcon = await getImageBase64(response.data.data.icon);
+            setUser({ ...response.data.data, icon: userIcon });
             localStorage.setItem("user", JSON.stringify(response.data.data));
           }
         } catch (error) {

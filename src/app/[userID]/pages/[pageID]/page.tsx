@@ -12,6 +12,7 @@ import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
 import Image from "next/image";
 import { MdEditNote } from "react-icons/md";
+import getImageBase64 from "@/modules/network/getImageBase64";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           router.replace("/");
           return;
         }
-        setUserIcon(fetchUser.data.data.icon);
+        setUserIcon(await getImageBase64(fetchUser.data.data.icon));
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
           setIsExist(false);

@@ -7,6 +7,7 @@ import Image from "next/image";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import data from "@/modules/tags.json";
 import Link from "next/link";
+import getImageBase64 from "@/modules/network/getImageBase64";
 
 // TODO: もし本人であれば全てのページを表示する
 // TODO: 他人であれば公開しているページのみ表示する
@@ -27,6 +28,8 @@ export default function Page({ params }: { params: { userID: string } }) {
         if (res.data.exist) {
           setIsExist(true);
           setUser(res.data.data);
+          const userIcon = await getImageBase64(res.data.data.icon);
+          setUser({ ...res.data.data, icon: userIcon });
           document.title = `${res.data.data.username}｜TellPro`;
         }
         setIsLoading(false);
