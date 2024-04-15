@@ -10,7 +10,7 @@ const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得
   const headersList = headers();
-  const ip = headersList.get(process.env.NODE_ENV === "development" ? "x-forwarded-for" : "x-nf-client-connection-ip");
+  const ip = headersList.get(process.env.NODE_ENV === "development" ? "X-Forwarded-For" : "X-Nf-Client-Connection-Ip");
   if (!ip) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
