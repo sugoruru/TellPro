@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const headersList = headers();
   const ip = headersList.get(process.env.NODE_ENV === "development" ? "X-Forwarded-For" : "X-Nf-Client-Connection-Ip");
   if (!ip) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "not found your IP" }, { status: 400 });
   }
 
   // 毎分100requestの制限.
