@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
-export default function makeNewPage() {
+const MakeNewPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -24,4 +24,6 @@ export default function makeNewPage() {
   }, [status]);
 
   return <Loading />;
-}
+};
+
+export default MakeNewPage;

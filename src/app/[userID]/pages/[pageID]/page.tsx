@@ -11,6 +11,7 @@ import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
 import Image from "next/image";
+import { MdEditNote } from "react-icons/md";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -75,17 +76,17 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         </div>
       </div>
       <div className="mx-auto text-base font-bold text-gray-700">
-        <div
-          className="flex cursor-pointer"
-          onClick={() => {
-            router.push(`/${params.userID}`);
-          }}
-        >
+        <Link href={`/${params.userID}`} className="flex cursor-pointer">
           <Image src={userIcon} alt="" width={24} height={24} className="mr-1" priority />
           <u>@{params.userID}</u>
-        </div>
+        </Link>
       </div>
       <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
+      <Link href={`/${params.userID}/pages/${params.pageID}/edit`}>
+        <div className="flex items-center justify-center w-16 h-16 bg-gray-300 hover:bg-gray-400 transition rounded-full fixed bottom-[30px] right-[30px]">
+          <MdEditNote className="inline-flex text-4xl" />
+        </div>
+      </Link>
     </>
   ) : (
     // ページが存在しない時.

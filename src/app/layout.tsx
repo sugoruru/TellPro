@@ -2,7 +2,7 @@
 import "../css/globals.css";
 import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
@@ -15,8 +15,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   // 別のDNSに接続した時、トップページにリダイレクトする.
   useEffect(() => {
-    if (window.location.protocol + "//" + window.location.host != process.env.NEXT_PUBLIC_TRUTH_URL) {
-      location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname;
+    // 開発環境の時のみ実行.
+    if (process.env.NODE_ENV === "development") {
+      if (window.location.protocol + "//" + window.location.host != process.env.NEXT_PUBLIC_TRUTH_URL) {
+        location.href = process.env.NEXT_PUBLIC_TRUTH_URL + pathname;
+      }
     }
   }, []);
 

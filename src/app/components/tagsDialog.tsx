@@ -1,10 +1,10 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import data from "@/modules/tags.json";
-import { memo, UIEvent, useEffect } from "react";
+import { UIEvent, useEffect } from "react";
 import { FaTag } from "react-icons/fa6";
 let scroll = 0;
 
-const TagsDialog = memo((props: { tags: Number[]; setTags: Function }) => {
+const TagsDialog = (props: { tags: Number[]; setTags: Function }) => {
   const tagJSON: { [key: string]: any } = data;
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
@@ -40,6 +40,6 @@ const TagsDialog = memo((props: { tags: Number[]; setTags: Function }) => {
         ))}
     </div>
   );
-});
+};
 
 export default TagsDialog;

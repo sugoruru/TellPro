@@ -135,6 +135,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
+        setIsSending(false);
       }
     } else {
       try {
@@ -149,13 +150,14 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         router.push(`/${params.userID}/pages/${params.pageID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
+        setIsSending(false);
       }
     }
-    setIsSending(false);
   };
   const TagsDialogMemo = React.memo(TagsDialog);
 
   // TODO: タグつけのサーチ機能の作成
+  // TODO: タイトルの文字数を制限する
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
