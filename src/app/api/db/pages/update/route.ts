@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   // ページが存在しない場合は400を返す.
   try {
-    const existPage = await axios.get(process.env.NEXTAUTH_URL + `api/db/pages/exist?pageID=${body.ID}&userID=${body.userID}`, {
+    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?pageID=${body.ID}&userID=${body.userID}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")

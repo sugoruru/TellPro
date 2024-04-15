@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     return res;
   }
   try {
-    const me = await axios.get(process.env.NEXTAUTH_URL + `api/db/users/existMe`, {
+    const me = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
