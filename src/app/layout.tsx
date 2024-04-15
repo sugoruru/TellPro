@@ -7,6 +7,7 @@ import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
+import React from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
