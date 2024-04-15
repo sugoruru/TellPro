@@ -44,20 +44,31 @@ export async function POST(req: NextRequest) {
 
   // ページがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${body["userID"]}&pageID=${body["ID"]}`, {
+    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${body["userID"]}&pageID=${body["ID"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
       }
     });
-    if (existUser.data.exist) {
-      return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
+    if (existPage.data.exist) {
+      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ユーザーを作成.
-  await db.any(`INSERT INTO "Pages" VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [body.ID, body.userID, body.title, body.content, 0, 0, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
+  // ページを作成.
+  await db.any(`
+  INSERT INTO "Pages"
+  SET "ID" = $1,
+      "userID" = $2,
+      "title" = $3,
+      "content" = $4,
+      "likeCount" = 0,
+      "commentCount" = 0,
+      "isPublic" = $7,
+      "date" = $8,
+      "tags" = $9
+`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
