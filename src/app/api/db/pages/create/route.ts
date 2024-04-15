@@ -58,17 +58,6 @@ export async function POST(req: NextRequest) {
   }
 
   // ページを作成.
-  await db.any(`
-  INSERT INTO "Pages"
-  SET "ID" = $1,
-      "userID" = $2,
-      "title" = $3,
-      "content" = $4,
-      "likeCount" = 0,
-      "commentCount" = 0,
-      "isPublic" = $7,
-      "date" = $8,
-      "tags" = $9
-`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
+  await db.any(`INSERT INTO "Pages" ("ID", "userID", "title", "content", "likeCount", "commentCount", "isPublic", "date", "tags") VALUES ($1, $2, $3, $4, 0, 0, $5, $6, $7);`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

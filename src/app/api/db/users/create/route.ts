@@ -63,15 +63,6 @@ export async function POST(req: NextRequest) {
   }
 
   // ユーザーを作成.
-  await db.any(`
-  INSERT INTO "Users"
-  SET "ID" = $1,
-      "username" = $2,
-      "mail" = $3,
-      "icon" = $4,
-      "statusMessage" = $5,
-      "answerScore" = 0,
-      "pageScore" = 0
-`, [body.ID, body.userName, body.mail, body.icon, body.statusMessage]);
+  await db.any(`INSERT INTO "Users" ("ID", "username", "mail", "icon", "statusMessage", "answerScore", "pageScore") VALUES ($1, $2, $3, $4, $5, 0, 0);`, [body.ID, body.userName, body.mail, body.icon, body.statusMessage]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
