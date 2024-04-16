@@ -56,7 +56,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   // TODO: ブックマークを追加する機能を実装する.
   // TODO: いいね機能を実装する.
   // TODO: コメント機能を実装する.
-  // TODO: もしページの作者なら編集ボタンを表示する.
   return isLoading ? (
     <>
       <title>TellPro｜ロード中...</title>

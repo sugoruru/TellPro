@@ -158,7 +158,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const TagsDialogMemo = React.memo(TagsDialog);
 
   // TODO: タグつけのサーチ機能の作成
-  // TODO: タイトルの文字数を制限する
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
@@ -186,7 +185,11 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               type="text"
               className={`border ${sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""} outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full`}
               placeholder="タイトル"
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value.length <= 30) {
+                  setTitle(e.target.value);
+                }
+              }}
               value={title}
             />
           </div>
