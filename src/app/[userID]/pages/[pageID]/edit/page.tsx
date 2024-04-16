@@ -118,6 +118,11 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       setIsSending(false);
       return;
     }
+    if (mdAreaValue.length > 20000) {
+      setSendingMessage("記事のサイズが大きすぎます");
+      setIsSending(false);
+      return;
+    }
     if (mdAreaValue === "") {
       setSendingMessage("本文を入力してください");
       setIsSending(false);
