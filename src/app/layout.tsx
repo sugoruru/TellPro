@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/svg/logo.svg"></link>
       </head>
       <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
-        <SessionProvider>
+        <SessionProvider refetchOnWindowFocus={false}>
           <NextTopLoader
             color="#2299DD"
             initialPosition={0.08}
