@@ -5,7 +5,7 @@ import { FaTag } from "react-icons/fa6";
 let scroll = 0;
 
 const TagsDialog = (props: { tags: Number[]; setTags: Function }) => {
-  const tagJSON: { [key: string]: any } = data;
+  const tagJSON: Tags = data;
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     scroll = e.currentTarget.scrollTop;
@@ -18,26 +18,24 @@ const TagsDialog = (props: { tags: Number[]; setTags: Function }) => {
 
   return (
     <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900" onScroll={handleScroll}>
-      {Object.keys(tagJSON)
-        .filter((e) => isNaN(Number(e)))
-        .map((e) => (
-          <div
-            onClick={() => {
-              if (props.tags.includes(tagJSON[e])) {
-                if (props.tags.length <= 5) {
-                  props.setTags(props.tags.filter((tag) => tag !== tagJSON[e]));
-                }
-              } else if (props.tags.length < 5) {
-                props.setTags([...props.tags, Number(tagJSON[e])]);
+      {tagJSON.tags.map((e: Tag) => (
+        <div
+          onClick={() => {
+            if (props.tags.includes(e.id)) {
+              if (props.tags.length <= 5) {
+                props.setTags(props.tags.filter((tag) => tag !== e.id));
               }
-            }}
-            key={returnRandomString(16)}
-            className={`select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 ${props.tags.includes(tagJSON[e]) ? "bg-slate-400" : "bg-slate-200"}`}
-          >
-            <FaTag className="inline-flex my-auto mr-1" />
-            {e}
-          </div>
-        ))}
+            } else if (props.tags.length < 5) {
+              props.setTags([...props.tags, e.id]);
+            }
+          }}
+          key={returnRandomString(16)}
+          className={`select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 ${props.tags.includes(e.id) ? "bg-slate-400" : "bg-slate-200"}`}
+        >
+          <FaTag className="inline-flex my-auto mr-1" />
+          {e.name}
+        </div>
+      ))}
     </div>
   );
 };

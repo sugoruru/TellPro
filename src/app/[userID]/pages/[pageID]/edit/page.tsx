@@ -42,7 +42,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [tags, setTags] = useState<Number[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
-  const tagJSON: { [key: string]: any } = data;
+  const tagJSON: Tags = data;
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -56,8 +56,8 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     if (status === "authenticated") {
       const fetchData = async () => {
         try {
-          const fetchUser = await axios.get(`/api/db/users/existMe`);
-          const fetchPage = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
+          // 並列処理でユーザーとページの存在確認を行う.
+          const [fetchUser, fetchPage] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`)]);
           if (!fetchUser.data.exist || !fetchUser.data.data) {
             signOut();
             router.replace("/");
@@ -324,7 +324,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                             {tags.map((e) => (
                               <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-400" key={returnRandomString(32)}>
                                 <FaTag className="inline-flex my-auto mr-1" />
-                                {tagJSON[String(e)]}
+                                {tagJSON.tags[Number(e)].name}
                               </div>
                             ))}
                           </div>
@@ -396,7 +396,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               {tags.map((e) => (
                 <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                   <FaTag className="inline-flex my-auto mr-1" />
-                  {tagJSON[String(e)]}
+                  {tagJSON.tags[Number(e)].name}
                 </div>
               ))}
             </div>

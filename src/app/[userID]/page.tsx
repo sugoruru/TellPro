@@ -11,6 +11,7 @@ import getImageBase64 from "@/modules/network/getImageBase64";
 
 // TODO: もし本人であれば全てのページを表示する
 // TODO: 他人であれば公開しているページのみ表示する
+// TODO: Linkタグの範囲の修正.
 export default function Page({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
@@ -18,24 +19,21 @@ export default function Page({ params }: { params: { userID: string } }) {
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("pages");
   const router = useRouter();
-  const tagJSON: { [key: string]: any } = data;
+  const tagJSON: Tags = data;
 
   useEffect(() => {
     try {
-      // TODO: 並列処理に変更する.
       const fetcher = async () => {
-        const res = await axios.get(`/api/db/users/exist?userID=${params.userID}`);
-        if (res.data.exist) {
+        const [userData, pagesData] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/pages/getPages?userID=${params.userID}`)]);
+        if (userData.data.exist) {
           setIsExist(true);
-          setUser(res.data.data);
-          const userIcon = await getImageBase64(res.data.data.icon);
-          setUser({ ...res.data.data, icon: userIcon });
-          document.title = `${res.data.data.username}｜TellPro`;
+          const userIcon = await getImageBase64(userData.data.data.icon);
+          setUser({ ...userData.data.data, icon: userIcon });
+          document.title = `${userData.data.data.username}｜TellPro`;
         }
         setIsLoading(false);
-        const pages = await axios.get(`/api/db/pages/getPages?userID=${params.userID}`);
-        if (pages.data.ok) {
-          setPages(pages.data.pages);
+        if (pagesData.data.ok) {
+          setPages(pagesData.data.pages);
         }
       };
       fetcher();
@@ -98,7 +96,7 @@ export default function Page({ params }: { params: { userID: string } }) {
                     <div className="flex flex-wrap mb-2">
                       {page.tags.map((e) => (
                         <div className="text-xs select-none mr-1 mb-1 px-1 cursor-pointer flex rounded-sm h-4 bg-slate-300" key={returnRandomString(32)}>
-                          {tagJSON[String(e)]}
+                          {tagJSON.tags[Number(e)].name}
                         </div>
                       ))}
                     </div>
