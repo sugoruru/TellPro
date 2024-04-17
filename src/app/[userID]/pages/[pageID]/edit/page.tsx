@@ -39,6 +39,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [title, setTitle] = useState("");
   const [sendingMessage, setSendingMessage] = useState("");
   const [imageValue, setImageValue] = useState<string>("");
+  const [tagSearchValue, setTagSearchValue] = useState<string>("");
   const [tags, setTags] = useState<Number[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -162,7 +163,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   };
   const TagsDialogMemo = React.memo(TagsDialog);
 
-  // TODO: タグつけのサーチ機能の作成
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
@@ -319,7 +319,15 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                           <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                             タグの編集(5つまで)
                           </Dialog.Title>
-                          <TagsDialogMemo tags={tags} setTags={setTags} />
+                          <input
+                            value={tagSearchValue}
+                            onChange={(e) => setTagSearchValue(e.currentTarget.value)}
+                            type="text"
+                            className="border w-full outline-sky-400"
+                            placeholder="タグを検索(ひらがなで入力)"
+                            maxLength={20}
+                          />
+                          <TagsDialogMemo tags={tags} setTags={setTags} tagSearchValue={tagSearchValue} />
                           <div className="flex mt-2 px-1 flex-wrap">
                             {tags.map((e) => (
                               <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-400" key={returnRandomString(32)}>

@@ -1,6 +1,5 @@
 interface Tags {
-  "tags": Tag[],
-  "read": (string | number)[][]
+  "tags": Tag[]
 }
 
 interface Tag {

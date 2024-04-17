@@ -4,7 +4,7 @@ import { UIEvent, useEffect } from "react";
 import { FaTag } from "react-icons/fa6";
 let scroll = 0;
 
-const TagsDialog = (props: { tags: Number[]; setTags: Function }) => {
+const TagsDialog = (props: { tags: Number[]; setTags: Function; tagSearchValue: string }) => {
   const tagJSON: Tags = data;
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
@@ -18,24 +18,28 @@ const TagsDialog = (props: { tags: Number[]; setTags: Function }) => {
 
   return (
     <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900" onScroll={handleScroll}>
-      {tagJSON.tags.map((e: Tag) => (
-        <div
-          onClick={() => {
-            if (props.tags.includes(e.id)) {
-              if (props.tags.length <= 5) {
-                props.setTags(props.tags.filter((tag) => tag !== e.id));
+      {tagJSON.tags.map((e: Tag) =>
+        e.name.substring(0, props.tagSearchValue.length) === props.tagSearchValue ? (
+          <div
+            onClick={() => {
+              if (props.tags.includes(e.id - 1)) {
+                if (props.tags.length <= 5) {
+                  props.setTags(props.tags.filter((tag) => tag !== e.id - 1));
+                }
+              } else if (props.tags.length < 5) {
+                props.setTags([...props.tags, e.id - 1]);
               }
-            } else if (props.tags.length < 5) {
-              props.setTags([...props.tags, e.id]);
-            }
-          }}
-          key={returnRandomString(16)}
-          className={`select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 ${props.tags.includes(e.id) ? "bg-slate-400" : "bg-slate-200"}`}
-        >
-          <FaTag className="inline-flex my-auto mr-1" />
-          {e.name}
-        </div>
-      ))}
+            }}
+            key={returnRandomString(16)}
+            className={`select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 ${props.tags.includes(e.id - 1) ? "bg-slate-400" : "bg-slate-200"}`}
+          >
+            <FaTag className="inline-flex my-auto mr-1" />
+            {e.name}
+          </div>
+        ) : (
+          <></>
+        )
+      )}
     </div>
   );
 };
