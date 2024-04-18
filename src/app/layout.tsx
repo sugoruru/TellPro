@@ -23,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }
     }
   }, []);
+  const HeaderMemo = React.memo(Header);
 
   return (
     <html lang="ja">
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             zIndex={1600}
             showAtBottom={false}
           />
-          {hideHeaderPage.includes(pathname) ? null : <Header />}
+          {hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}
           <>{children}</>
         </SessionProvider>
       </body>
