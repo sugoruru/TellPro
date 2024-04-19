@@ -15,9 +15,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           if (!response.data.exist) {
             signOut();
           } else {
+            response.data.data.icon = await getImageBase64(response.data.data.icon);
             setUser(response.data.data as User);
-            const userIcon = await getImageBase64(response.data.data.icon);
-            setUser({ ...response.data.data, icon: userIcon });
           }
         } catch (error) {
           console.error("Error fetching data:", error);

@@ -42,6 +42,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 自分自身のページであるか確認.
+  try {
+    const me = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
+      withCredentials: true,
+      headers: {
+        Cookie: req.headers.get("cookie")
+      }
+    });
+    if (!me.data.exist) {
+      return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
+    }
+    if (me.data.data.ID !== body["userID"]) {
+      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    }
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+  }
+
   // ページがすでに存在していれば400を返す.
   try {
     const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${body["userID"]}&pageID=${body["ID"]}`, {
