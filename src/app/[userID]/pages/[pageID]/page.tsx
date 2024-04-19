@@ -23,6 +23,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
+  const [isLikeSending, setIsLikeSending] = useState(false);
   const [myID, setMyID] = useState("");
   const router = useRouter();
   const tagJSON: Tags = data;
@@ -66,7 +67,28 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   }, []);
 
   const handleGoodButton = async () => {
-    setIsLike(!isLike);
+    try {
+      setIsLikeSending(true);
+      if (!isLike) {
+        setIsLike(true);
+        await axios.post("/api/db/likes/create", {
+          myID: myID,
+          pageUserID: params.userID,
+          pageID: params.pageID,
+        });
+      } else {
+        setIsLike(false);
+        await axios.post("/api/db/likes/delete", {
+          myID: myID,
+          pageUserID: params.userID,
+          pageID: params.pageID,
+        });
+      }
+      setIsLikeSending(false);
+    } catch (e) {
+      console.log(e);
+      setIsLikeSending(false);
+    }
   };
 
   const handleBookmark = async () => {
@@ -111,16 +133,17 @@ export default function Page({ params }: { params: { userID: string; pageID: str
             <MdEditNote className="inline-flex text-4xl" />
           </div>
         </Link>
-        <div
-          className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full fixed ${
+        <button
+          className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 disabled:bg-gray-400 transition rounded-full fixed ${
             myID === params.userID ? "bottom-[120px]" : "bottom-[30px]"
           } right-[30px]`}
           title="いいね"
           onClick={handleGoodButton}
+          disabled={isLikeSending}
         >
           {isLike ? <FaHeart className="inline-flex text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-3xl text-red-500" />}
-        </div>
-        <div
+        </button>
+        <button
           className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full fixed ${
             myID === params.userID ? "bottom-[210px]" : "bottom-[120px]"
           } right-[30px]`}
@@ -128,7 +151,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           onClick={handleBookmark}
         >
           {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
-        </div>
+        </button>
       </>
     ) : (
       // ページが非公開の時.
