@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
 import React from "react";
+import { UserProvider } from "./components/providers/userProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -36,22 +37,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
         <SessionProvider refetchOnWindowFocus={false}>
-          <NextTopLoader
-            color="#2299DD"
-            initialPosition={0.08}
-            crawlSpeed={200}
-            height={3}
-            crawl={true}
-            showSpinner={true}
-            easing="ease"
-            speed={200}
-            shadow="0 0 10px #2299DD,0 0 5px #2299DD"
-            template='<div class="bar" role="bar"><div class="peg"></div></div>'
-            zIndex={1600}
-            showAtBottom={false}
-          />
-          {hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}
-          <>{children}</>
+          <UserProvider>
+            <NextTopLoader
+              color="#2299DD"
+              initialPosition={0.08}
+              crawlSpeed={200}
+              height={3}
+              crawl={true}
+              showSpinner={true}
+              easing="ease"
+              speed={200}
+              shadow="0 0 10px #2299DD,0 0 5px #2299DD"
+              template='<div class="bar" role="bar"><div class="peg"></div></div>'
+              zIndex={1600}
+              showAtBottom={false}
+            />
+            {hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}
+            <>{children}</>
+          </UserProvider>
         </SessionProvider>
       </body>
     </html>

@@ -5,39 +5,16 @@ import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { GoHistory } from "react-icons/go";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import axios from "axios";
-import getImageBase64 from "@/modules/network/getImageBase64";
+import { UserContext } from "./providers/userProvider";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
-  const [existUser, setExistUser] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const { status } = useSession();
-
-  useEffect(() => {
-    if (status == "authenticated") {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(`/api/db/users/existMe`);
-          setExistUser(response.data.exist);
-          if (!response.data.exist) {
-            signOut();
-          } else {
-            setUser(response.data.data as User);
-            const userIcon = await getImageBase64(response.data.data.icon);
-            setUser({ ...response.data.data, icon: userIcon });
-            localStorage.setItem("user", JSON.stringify(response.data.data));
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-      fetchData();
-    }
-  }, [status]);
+  const user = useContext(UserContext);
+  const existUser = user ? true : false;
 
   return (
     <>
