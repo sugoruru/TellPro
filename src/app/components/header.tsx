@@ -133,7 +133,7 @@ const Header = () => {
                 </Menu>
               </div>
             ) : (
-              <div>ロード中...</div>
+              <></>
             )}
           </header>
         </div>

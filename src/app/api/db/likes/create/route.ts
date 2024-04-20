@@ -5,6 +5,7 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import returnRandomString from "@/modules/algo/returnRandomString";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
 
   // ページを作成.
   const pageScore = await db.one(`SELECT "pageScore" FROM "Users" WHERE "ID"=$1`, body["pageUserID"]);
-  await db.any(`INSERT INTO "Likes" ("userID", "URL", "time") VALUES ($1, $2, $3);`, [body["myID"], url, new Date().getTime()]);
+  await db.any(`INSERT INTO "Likes" ("ID", "userID", "URL", "time") VALUES ($1, $2, $3, $4);`, [returnRandomString(64), body["myID"], url, new Date().getTime()]);
   await db.any(`UPDATE "Users" SET "pageScore"=$1 WHERE "ID"=$2`, [Number(pageScore.pageScore) + 1, body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
