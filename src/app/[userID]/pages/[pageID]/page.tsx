@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
-import { FaBook, FaTag } from "react-icons/fa6";
+import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
 import Image from "next/image";
 import { MdEditNote } from "react-icons/md";
@@ -96,8 +96,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   };
 
   // TODO: ブックマークを追加する機能を実装する.
-  // TODO: いいね機能を実装する→Like DBとuser DBを上書きする.
   // TODO: コメント機能を実装する.
+  // TODO: ページのいいね数を可視化する.
   // TODO: ページの目次(MDのheaderから)を作成する.
   // TODO: 最終ログインをUser DBに記録していいねのお知らせが来るようにする.
   // TODO: ページの削除を作成.
