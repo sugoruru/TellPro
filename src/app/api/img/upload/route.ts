@@ -10,5 +10,5 @@ export async function POST(req: NextRequest) {
   const image = (await req.formData()).get("image") as string;
   const decodedFile = Buffer.from(image, 'base64');
   writeFileSync(`public/img.local/${imageID}.jpg`, decodedFile);
-  return NextResponse.json({ ok: true, data: { link: `https://127.0.0.1:3000/img.local/${imageID}.jpg` } }, { status: 200 });
+  return NextResponse.json({ ok: true, data: { link: `${process.env.NEXT_PUBLIC_TRUTH_URL}/img.local/${imageID}.jpg` } }, { status: 200 });
 }

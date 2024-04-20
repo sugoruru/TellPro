@@ -177,7 +177,7 @@ const Header = () => {
                             <path fill="none" d="M0 0h48v48H0z"></path>
                           </svg>
                         </div>
-                        <span className="gsi-material-button-contents" onClick={() => signIn("google", { callbackUrl: `https://127.0.0.1:3000/init` }, { prompt: "login" })}>
+                        <span className="gsi-material-button-contents" onClick={() => signIn("google", { callbackUrl: `${process.env.NEXT_PUBLIC_TRUTH_URL}/init` }, { prompt: "login" })}>
                           Sign in with Google
                         </span>
                       </div>
