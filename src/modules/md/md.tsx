@@ -6,10 +6,10 @@ import H3 from "./header/h3";
 import H4 from "./header/h4";
 import H5 from "./header/h5";
 import H6 from "./header/h6";
+import YouTube, { YouTubeProps } from "react-youtube";
 import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
 const head: string[] = ["#", "##", "###", "####", "#####", "######", "-[]", "-[x]"];
 
-// TODO: 動画の埋め込みに対応する.
 const Lex = (props: { text: string }) => {
   const { text } = props;
   const list = text.split("\n");
@@ -50,12 +50,26 @@ const Lex = (props: { text: string }) => {
             <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
+      } else if (/\\\[.*\]\((.*)\).*/g.test(elem)) {
+        // 別タブリンクの場合.
+        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
+        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        result.push(
+          <a href={href} key={returnRandomString(64)} className="myLink" target="_blank">
+            {Text(text)}
+          </a>
+        );
+      } else if (/@\[youtube\]\((.*)\).*/g.test(elem)) {
+        // メンションの場合.
+        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        const videoID = href.split("v=")[1];
+        result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
       } else if (/\[.*\]\((.*)\).*/g.test(elem)) {
         // リンクの場合.
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
         result.push(
-          <a href={href} key={returnRandomString(64)} className="text-blue-600">
+          <a href={href} key={returnRandomString(64)} className="myLink">
             {Text(text)}
           </a>
         );
@@ -94,7 +108,7 @@ const Text = (text: string): JSX.Element => {
     output = output.replace(/\~([^*]+?)\~/g, "<s>$1</s>"); // strike
     output = output.replace(/\*([^*]+?)\*/g, "<i>$1</i>"); // italic
     output = output.replace(/\`([^*]+?)\`/g, "<inline>$1</inline>"); // inline
-    return <span className="block" dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
+    return <div className="" dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
   };
 
   return decorateText(text);

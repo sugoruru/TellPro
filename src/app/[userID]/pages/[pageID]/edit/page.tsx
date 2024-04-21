@@ -51,7 +51,15 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       return;
     }
     Prism.highlightAll();
+    window.addEventListener("beforeunload", onBeforeunloadHandler);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeunloadHandler);
+    };
   }, []);
+
+  const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+  };
 
   useEffect(() => {
     if (status === "authenticated") {

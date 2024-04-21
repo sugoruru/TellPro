@@ -16,6 +16,22 @@ inline {
   padding-right: 0.25rem;
 }
 
+.youtube-iframe > iframe {
+  width: 80%;
+  height: calc(80vw * 0.5625);
+}
+
+@media (min-width: 1024px) {
+  .youtube-iframe > iframe {
+    width: 80%;
+    height: calc(48vw * 0.5625);
+  }
+}
+
+a.myLink {
+  @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+}
+
 dl {
   margin-bottom: 1rem;
 }

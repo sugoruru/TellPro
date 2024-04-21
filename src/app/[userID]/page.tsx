@@ -12,6 +12,7 @@ import { UserContext } from "../components/providers/userProvider";
 import { MdEditNote, MdKeyboardArrowDown } from "react-icons/md";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { FaTrashAlt } from "react-icons/fa";
+import sleep from "@/modules/sleep";
 
 // TODO:記事のエクスポートを実装する
 // TODO:10個ずつページを表示する
@@ -59,6 +60,8 @@ export default function Page({ params }: { params: { userID: string } }) {
     });
     setPages(pages.filter((e) => e.ID !== deletePageID));
     setIsOpenDeletePageModal(false);
+    // 削除ボタン連打防止.
+    await sleep(1000);
     setIsDeleteSending(false);
   };
 
@@ -181,7 +184,7 @@ export default function Page({ params }: { params: { userID: string } }) {
                   </div>
                 </div>
               ))}
-              <Transition appear show={isOpenDeletePageModal || isDeleteSending} as={Fragment}>
+              <Transition appear show={isOpenDeletePageModal} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={() => setIsOpenDeletePageModal(false)}>
                   <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
                     <div className="fixed inset-0 bg-black/25" />
@@ -221,6 +224,7 @@ export default function Page({ params }: { params: { userID: string } }) {
                               onClick={() => {
                                 deletePage();
                               }}
+                              disabled={isDeleteSending}
                             >
                               <b>削除する</b>
                             </button>
@@ -228,6 +232,7 @@ export default function Page({ params }: { params: { userID: string } }) {
                               type="button"
                               className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                               onClick={() => setIsOpenDeletePageModal(false)}
+                              disabled={isDeleteSending}
                             >
                               <b>キャンセル</b>
                             </button>
