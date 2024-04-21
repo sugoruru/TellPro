@@ -96,7 +96,7 @@ export default function Init() {
           setIsSending(false);
           return;
         }
-        setStateMessage("画像データをimgurにアップロード中...");
+        setStateMessage("画像データをアップロード中...");
         const imgLink = await imageSendToImgur(dataURL);
         setStateMessage("ページ名が使用されているかを確認中...");
         const response2 = await axios.get(`/api/db/users/getAllUserID`);

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにいいねしていれば400を返す.
   try {
-    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/likes/getLiked?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
+    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/likes/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")

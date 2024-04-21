@@ -32,10 +32,11 @@ export default function Settings() {
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
-            setExistUser(true);
+            response.data.data.icon = await getImageBase64(response.data.data.icon);
             setUser(response.data.data as User);
             setAreaValue(response.data.data.statusMessage);
-            setSelectedImage(await getImageBase64(response.data.data.icon));
+            setSelectedImage(response.data.data.icon);
+            setExistUser(true);
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -63,7 +64,7 @@ export default function Settings() {
           setIsSending(false);
           return;
         }
-        setStateMessage("画像データをimgurにアップロード中...");
+        setStateMessage("画像データをアップロード中...");
         const imgLink = await imageSendToImgur(dataURL, setStateMessage);
         setStateMessage("データベースにデータを送信中...");
         await axios.post("/api/db/users/update", {

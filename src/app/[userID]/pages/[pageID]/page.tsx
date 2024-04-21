@@ -39,7 +39,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         const [fetchUser, me, isLike] = await Promise.all([
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
           axios.get(`/api/db/users/existMe`),
-          axios.get(`/api/db/likes/getLiked?userID=${params.userID}&pageID=${params.pageID}`),
+          axios.get(`/api/db/likes/exist?userID=${params.userID}&pageID=${params.pageID}`),
         ]);
         if (!fetchUser.data.exist || !isLike.data.ok) {
           router.replace("/");

@@ -11,7 +11,6 @@ import getImageBase64 from "@/modules/network/getImageBase64";
 
 // TODO: もし本人であれば全てのページを表示する
 // TODO: 他人であれば公開しているページのみ表示する
-// TODO: Linkタグの範囲の修正.
 export default function Page({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
@@ -78,30 +77,34 @@ export default function Page({ params }: { params: { userID: string } }) {
           {navPlace === "pages" ? (
             <div className="bg-slate-100">
               {pages.map((page) => (
-                <Link key={returnRandomString(32)} href={`/${params.userID}/pages/${page.ID}`} prefetch>
-                  <div className="bg-white border-b cursor-pointer border-gray-200 mx-auto max-w-[50rem] mt-3 min-h-40 rounded-lg p-5 break-words">
-                    <div className="flex">
-                      <Image alt={user.username} src={user.icon} width={24} height={24} priority />
-                      <u
-                        className="ml-1 cursor-pointer"
-                        onClick={() => {
-                          router.push(`/${params.userID}`);
-                        }}
-                      >
-                        @{params.userID}
-                      </u>
-                    </div>
-                    <b className="mr-1">{page.title}</b>
-                    <div className={`${page.isPublic ? "bg-blue-400" : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>{page.isPublic ? "公開" : "非公開"}</div>
-                    <div className="flex flex-wrap mb-2">
-                      {page.tags.map((e) => (
-                        <div className="text-xs select-none mr-1 mb-1 px-1 cursor-pointer flex rounded-sm h-4 bg-slate-300" key={returnRandomString(32)}>
-                          {tagJSON.tags[Number(e)].name}
+                <div key={returnRandomString(32)}>
+                  <div className="border-gray-200">
+                    <div className="max-w-[70rem] mt-3 min-h-40 mx-auto">
+                      <Link href={`/${params.userID}/pages/${page.ID}`} prefetch className="bg-white block border-b cursor-pointer max-w-[70rem] mt-3 min-h-40 rounded-lg p-5 break-words">
+                        <div className="flex">
+                          <Image alt={user.username} src={user.icon} width={24} height={24} priority />
+                          <u
+                            className="ml-1 cursor-pointer"
+                            onClick={() => {
+                              router.push(`/${params.userID}`);
+                            }}
+                          >
+                            @{params.userID}
+                          </u>
                         </div>
-                      ))}
+                        <b className="mr-1">{page.title}</b>
+                        <div className={`${page.isPublic ? "bg-blue-400" : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>{page.isPublic ? "公開" : "非公開"}</div>
+                        <div className="flex flex-wrap mb-2">
+                          {page.tags.map((e) => (
+                            <div className="text-xs select-none mr-1 mb-1 px-1 cursor-pointer flex rounded-sm h-4 bg-slate-300" key={returnRandomString(32)}>
+                              {tagJSON.tags[Number(e)].name}
+                            </div>
+                          ))}
+                        </div>
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           ) : (
