@@ -105,7 +105,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   // TODO: コメント機能を実装する.
   // TODO: ページの目次(MDのheaderから)を作成する.
   // TODO: 最終ログインをUser DBに記録していいねのお知らせが来るようにする.
-  // TODO: ページの削除を作成.
   return isLoading ? (
     <>
       <title>TellPro｜ロード中...</title>
@@ -135,12 +134,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
         <div className="fixed right-2 bottom-2">
           <div className="flex flex-col">
-            <div className="text-center mb-2">
-              <button className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full`} title="ブックマーク" onClick={handleBookmark}>
-                {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
-              </button>
-              <span></span>
-            </div>
             <div className={`text-center w-16`}>
               <button
                 className={`cursor-pointer flex flex-col items-center w-16 h-16 justify-center bg-slate-300 hover:bg-blue-200 transition rounded-full`}
@@ -151,6 +144,11 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                 {isLike ? <FaHeart className="inline-flex text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-3xl text-red-500" />}
               </button>
               <b className="">{Number(page.likeCount)}</b>
+            </div>
+            <div className="text-center mb-2">
+              <button className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full`} title="ブックマーク" onClick={handleBookmark}>
+                {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
+              </button>
             </div>
             <Link title="編集" className={`cursor-pointer ${myID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/pages/${params.pageID}/edit`}>
               <div className="flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full">

@@ -63,7 +63,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             signOut();
             router.replace("/");
           } else {
-            setExistUser(true);
             const tempUser = fetchUser.data.data as User;
             if (tempUser) {
               setPrevIcon(await getImageBase64(tempUser.icon));
@@ -81,6 +80,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             } else {
               router.replace("/");
             }
+            setExistUser(true);
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -349,9 +349,11 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   </div>
                 </Dialog>
               </Transition>
+              {/* save button */}
               <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
                 {isPublic ? "公開する" : "下書き"}
               </button>
+              {/* 公開/非公開選択ボタン */}
               <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-r border-l">
                 <Menu.Button>
                   <MdKeyboardArrowDown className="text-xl" />

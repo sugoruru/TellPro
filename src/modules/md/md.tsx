@@ -50,6 +50,15 @@ const Lex = (props: { text: string }) => {
             <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
+      } else if (/\[.*\]\((.*)\).*/g.test(elem)) {
+        // リンクの場合.
+        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
+        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        result.push(
+          <a href={href} key={returnRandomString(64)} className="text-blue-600">
+            {Text(text)}
+          </a>
+        );
       } else {
         // 通常のテキストの場合.
         result.push(Text(elem));
