@@ -58,8 +58,8 @@ export default function Page({ params }: { params: { userID: string } }) {
       userID: me.ID,
     });
     setPages(pages.filter((e) => e.ID !== deletePageID));
-    setIsDeleteSending(false);
     setIsOpenDeletePageModal(false);
+    setIsDeleteSending(false);
   };
 
   return isLoading ? (
@@ -186,7 +186,6 @@ export default function Page({ params }: { params: { userID: string } }) {
                   <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
                     <div className="fixed inset-0 bg-black/25" />
                   </Transition.Child>
-
                   <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
                       <Transition.Child
@@ -200,11 +199,21 @@ export default function Page({ params }: { params: { userID: string } }) {
                       >
                         <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                           <Dialog.Title as="h3" className="text-lg text-center font-medium leading-6 text-gray-900">
-                            本当に削除しますか？
+                            {isDeleteSending ? "削除中です..." : "本当に削除しますか？"}
                           </Dialog.Title>
-                          <div className="mt-2 text-center">
-                            <p className="text-sm text-gray-500">この操作はもとに戻せません</p>
-                          </div>
+                          {isDeleteSending ? (
+                            <>
+                              <div className="flex justify-center mt-2" aria-label="読み込み中">
+                                <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="mt-2 text-center">
+                                <p className="text-sm text-gray-500">この操作はもとに戻せません</p>
+                              </div>
+                            </>
+                          )}
                           <div className="mt-4 flex justify-center">
                             <button
                               type="button"
