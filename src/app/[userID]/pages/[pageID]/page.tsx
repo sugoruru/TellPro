@@ -73,7 +73,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       setIsLikeSending(true);
       if (!isLike) {
         setIsLike(true);
-        setPage({ ...page, likeCount: page.likeCount + 1 });
+        setPage({ ...page, likeCount: Number(page.likeCount) + 1 });
         await axios.post("/api/db/likes/create", {
           myID: myID,
           pageUserID: params.userID,
@@ -81,7 +81,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         });
       } else {
         setIsLike(false);
-        setPage({ ...page, likeCount: page.likeCount - 1 });
+        setPage({ ...page, likeCount: Number(page.likeCount) - 1 });
         await axios.post("/api/db/likes/delete", {
           myID: myID,
           pageUserID: params.userID,
