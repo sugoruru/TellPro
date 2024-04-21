@@ -12,9 +12,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const fetchData = async () => {
         try {
           const response = await axios.get(`/api/db/users/existMe`);
-          if (!response.data.exist) {
-            signOut();
-          } else {
+          if (response.data.exist) {
             response.data.data.icon = await getImageBase64(response.data.data.icon);
             setUser(response.data.data as User);
           }
