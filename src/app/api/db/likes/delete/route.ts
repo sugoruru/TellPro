@@ -78,7 +78,9 @@ export async function POST(req: NextRequest) {
 
   // ページを削除.
   const pageScore = await db.one(`SELECT "pageScore" FROM "Users" WHERE "ID"=$1`, body["pageUserID"]);
+  const likeCount = await db.one(`SELECT "likeCount" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "URL" = $2`, [body["myID"], url]);
   await db.any(`UPDATE "Users" SET "pageScore"=$1 WHERE "ID"=$2`, [Number(pageScore.pageScore) - 1, body["pageUserID"]]);
+  await db.any(`UPDATE "Pages" SET "likeCount"=$1 WHERE "ID"=$2 AND "userID"=$3`, [Number(likeCount.likeCount) - 1, body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
