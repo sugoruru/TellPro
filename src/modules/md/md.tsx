@@ -6,7 +6,7 @@ import H3 from "./header/h3";
 import H4 from "./header/h4";
 import H5 from "./header/h5";
 import H6 from "./header/h6";
-import YouTube, { YouTubeProps } from "react-youtube";
+import YouTube from "react-youtube";
 import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
 const head: string[] = ["#", "##", "###", "####", "#####", "######", "-[]", "-[x]"];
 

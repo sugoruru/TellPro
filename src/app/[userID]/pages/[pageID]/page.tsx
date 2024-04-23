@@ -104,7 +104,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   // TODO: ブックマークを追加する機能を実装する.
   // TODO: コメント機能を実装する.
   // TODO: ページの目次(MDのheaderから)を作成する.
-  // TODO: 最終ログインをUser DBに記録していいねのお知らせが来るようにする.
+  // TODO: 最終ログインと比較していいねのお知らせが来るようにする.
   return isLoading ? (
     <>
       <title>TellPro｜ロード中...</title>
