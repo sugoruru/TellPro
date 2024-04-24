@@ -41,8 +41,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         const [fetchUser, me, isLike, isBookmark] = await Promise.all([
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
           axios.get(`/api/db/users/existMe`),
-          axios.get(`/api/db/likes/exist?userID=${params.userID}&pageID=${params.pageID}`),
-          axios.get(`/api/db/bookmarks/exist?userID=${params.userID}&pageID=${params.pageID}`),
+          axios.get(`/api/db/likes/exist?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+          axios.get(`/api/db/bookmarks/exist?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
         ]);
         if (!fetchUser.data.exist || !isLike.data.ok || !isBookmark.data.ok) {
           router.replace("/");
@@ -81,6 +81,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           myID: myID,
           pageUserID: params.userID,
           pageID: params.pageID,
+          URLType: "pages",
         });
       } else {
         setIsLike(false);
@@ -89,6 +90,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           myID: myID,
           pageUserID: params.userID,
           pageID: params.pageID,
+          URLType: "pages",
         });
       }
       // 連打防止用に1秒待機.
@@ -109,6 +111,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           myID: myID,
           pageUserID: params.userID,
           pageID: params.pageID,
+          URLType: "pages",
         });
       } else {
         setIsBookmark(false);
@@ -116,6 +119,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           myID: myID,
           pageUserID: params.userID,
           pageID: params.pageID,
+          URLType: "pages",
         });
       }
       // 連打防止用に1秒待機.

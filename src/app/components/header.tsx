@@ -36,7 +36,7 @@ const Header = () => {
               </div>
             ) : status == "authenticated" && existUser && user ? (
               <div>
-                <Menu as="div" className="relative inline-block text-left">
+                <Menu as="div" className="relative inline-block text-left z-50">
                   <div>
                     <Menu.Button>
                       <Image priority={false} src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} />

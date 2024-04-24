@@ -6,8 +6,8 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import URLTypes from "@/modules/URLTypes";
 
-// TODO: questionsを作成するときは、pagesかquestionsかのパラメータを作成する.
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得
@@ -36,12 +36,15 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["myID", "pageUserID", "pageID"];
+  const required = ["myID", "pageUserID", "pageID", "URLType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
+  }
+  if (URLTypes.indexOf(body["URLType"]) === -1) {
+    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
   }
 
   // 自分自身か確認.
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにいいねしていれば400を返す.
   try {
-    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/bookmarks/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
+    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/bookmarks/exist?pageUserID=${body["pageUserID"]}&pageID=${body["pageID"]}&URLType=${body["URLType"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
@@ -76,9 +79,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${body["pageUserID"]}/pages/${body["pageID"]}`;
+  const url = `${body["pageUserID"]}/${body["pageID"]}`;
 
   // ブックマークを作成.
-  await db.any(`INSERT INTO "Bookmarks" ("ID", "userID", "URL", "time") VALUES ($1, $2, $3, $4);`, [returnRandomString(64), body["myID"], url, new Date().getTime()]);
+  await db.any(`INSERT INTO "Bookmarks" ("ID", "userID", "URL", "time", "URLType") VALUES ($1, $2, $3, $4, $5);`, [returnRandomString(64), body["myID"], url, new Date().getTime(), body["URLType"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -9,6 +9,10 @@ import Prism from "prismjs";
 import React from "react";
 import { UserProvider } from "./components/providers/userProvider";
 
+// TODO: コードテスト実行環境の作成
+// TODO: 問題作成ページの作成
+// TODO: 自動採点システムの作成
+// TODO: 他のサイトのAPIを活用して、コンテストをほかサイトの問題から引っ張って作成できるようにする
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideHeaderPage = ["/init"];

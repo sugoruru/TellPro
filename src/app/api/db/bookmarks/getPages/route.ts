@@ -5,8 +5,8 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import URLTypes from "@/modules/URLTypes";
 
+// TODO:ページを30件ずつ取得できるようにページIDを受け取るようにする.
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
   // ipの取得
@@ -33,20 +33,6 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
-  const pageUserID = req.nextUrl.searchParams.get("pageUserID");
-  const pageID = req.nextUrl.searchParams.get("pageID");
-  const URLType = req.nextUrl.searchParams.get("URLType");
-
-  // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (pageUserID === null || pageID === null || URLType === null) {
-    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
-    return res;
-  }
-
-  // URLTypeが正しいか確認する.
-  if (URLTypes.indexOf(URLType) === -1) {
-    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
-  }
 
   // 自分自身を検索する.
   let userID = "";
@@ -65,29 +51,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページの存在を検索する.
-  try {
-    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${pageUserID}&pageID=${pageID}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (!existPage.data.exist) {
-      return NextResponse.json({ ok: false, error: "The page doesn't exist" }, { status: 400 });
-    }
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
-  }
+  // ブックマークを取得する.
+  const data = await db.any(`SELECT * FROM "Bookmarks" WHERE "userID" = $1 ORDER BY time DESC LIMIT 30`, [userID]);
+  console.log(data);
 
-  // URLを作成する.
-  const url = `${pageUserID}/${pageID}`;
-
-  // いいねを取得する.
-  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3', [userID, url, URLType]);
-  if (likes.length === 0) {
-    return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
-  } else {
-    return NextResponse.json({ ok: true, isLiked: true }, { status: 200 });
-  }
+  // ブックマークを取得する.
+  return NextResponse.json({ ok: true, data }, { status: 200 });
 }

@@ -32,16 +32,21 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
+  const pageUserID = req.nextUrl.searchParams.get("pageUserID");
+  const pageID = req.nextUrl.searchParams.get("pageID");
+  const URLType = req.nextUrl.searchParams.get("URLType");
 
+  // TODO:userIDをpageUserIDに変更する.
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (req.nextUrl.searchParams.get("userID") === null || req.nextUrl.searchParams.get("pageID") === null) {
+  if (pageUserID === null || pageID === null || URLType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
 
+  // TODO:質問にも対応する.
   // ページの存在を検索する.
   try {
-    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${req.nextUrl.searchParams.get("userID")}&pageID=${req.nextUrl.searchParams.get("pageID")}`, {
+    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${pageUserID}&pageID=${pageID}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
@@ -53,7 +58,9 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${req.nextUrl.searchParams.get("userID")}/pages/${req.nextUrl.searchParams.get("pageID")}`;
+
+  // URLを取得する.
+  const url = `${pageUserID}/${pageID}`;
 
   // 自分自身を検索する.
   let userID = "";
@@ -73,7 +80,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ブックマークを取得する.
-  const bookmarks = await db.any('SELECT * FROM "Bookmarks" WHERE "userID" = $1 AND "URL" = $2', [userID, url]);
+  const bookmarks = await db.any('SELECT * FROM "Bookmarks" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3', [userID, url, URLType]);
   if (bookmarks.length === 0) {
     return NextResponse.json({ ok: true, isBookmark: false }, { status: 200 });
   } else {

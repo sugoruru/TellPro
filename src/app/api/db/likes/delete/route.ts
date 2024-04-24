@@ -5,6 +5,7 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import URLTypes from "@/modules/URLTypes";
 
 // TODO: questionsを作成するときは、pagesかquestionsかのパラメータを作成する.
 const limitChecker = LimitChecker();
@@ -35,12 +36,15 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["myID", "pageUserID", "pageID"];
+  const required = ["myID", "pageUserID", "pageID", "URLType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
+  }
+  if (URLTypes.indexOf(body["URLType"]) === -1) {
+    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
   }
 
   // 自分自身か確認.
@@ -63,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにいいねしていなければ400を返す.
   try {
-    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/likes/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
+    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/likes/exist?pageUserID=${body["pageUserID"]}&pageID=${body["pageID"]}&URLType=${body["URLType"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
@@ -75,10 +79,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${body["pageUserID"]}/pages/${body["pageID"]}`;
+  const url = `${body["pageUserID"]}/${body["pageID"]}`;
 
   // ページを削除.
-  await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "URL" = $2`, [body["myID"], url]);
+  await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3`, [body["myID"], url, body["URLType"]]);
   await db.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
   await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
