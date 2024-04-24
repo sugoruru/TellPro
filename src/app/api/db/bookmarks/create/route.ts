@@ -64,23 +64,21 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにいいねしていれば400を返す.
   try {
-    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/likes/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
+    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/bookmarks/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`, {
       withCredentials: true,
       headers: {
         Cookie: req.headers.get("cookie")
       }
     });
-    if (existLike.data.isLiked) {
-      return NextResponse.json({ ok: false, error: "The page already liked" }, { status: 400 });
+    if (existLike.data.isBookmark) {
+      return NextResponse.json({ ok: false, error: "The page already bookmark" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
   const url = `${body["pageUserID"]}/pages/${body["pageID"]}`;
 
-  // いいねを作成.
-  await db.any(`INSERT INTO "Likes" ("ID", "userID", "URL", "time") VALUES ($1, $2, $3, $4);`, [returnRandomString(64), body["myID"], url, new Date().getTime()]);
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore"+1 WHERE "ID"=$1`, [body["pageUserID"]]);
-  await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  // ブックマークを作成.
+  await db.any(`INSERT INTO "Bookmarks" ("ID", "userID", "URL", "time") VALUES ($1, $2, $3, $4);`, [returnRandomString(64), body["myID"], url, new Date().getTime()]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

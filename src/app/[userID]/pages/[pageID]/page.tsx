@@ -25,6 +25,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
   const [isLikeSending, setIsLikeSending] = useState(false);
+  const [isBookmarkSending, setIsBookmarkSending] = useState(false);
   const [myID, setMyID] = useState("");
   const router = useRouter();
   const tagJSON: Tags = data;
@@ -37,16 +38,18 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const [fetchUser, me, isLike] = await Promise.all([
+        const [fetchUser, me, isLike, isBookmark] = await Promise.all([
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
           axios.get(`/api/db/users/existMe`),
           axios.get(`/api/db/likes/exist?userID=${params.userID}&pageID=${params.pageID}`),
+          axios.get(`/api/db/bookmarks/exist?userID=${params.userID}&pageID=${params.pageID}`),
         ]);
-        if (!fetchUser.data.exist || !isLike.data.ok) {
+        if (!fetchUser.data.exist || !isLike.data.ok || !isBookmark.data.ok) {
           router.replace("/");
           return;
         }
         setIsLike(isLike.data.isLiked);
+        setIsBookmark(isBookmark.data.isBookmark);
         setUserIcon(await getImageBase64(fetchUser.data.data.icon));
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
@@ -98,10 +101,32 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   };
 
   const handleBookmark = async () => {
-    setIsBookmark(!isBookmark);
+    try {
+      setIsBookmarkSending(true);
+      if (!isBookmark) {
+        setIsBookmark(true);
+        await axios.post("/api/db/bookmarks/create", {
+          myID: myID,
+          pageUserID: params.userID,
+          pageID: params.pageID,
+        });
+      } else {
+        setIsBookmark(false);
+        await axios.post("/api/db/bookmarks/delete", {
+          myID: myID,
+          pageUserID: params.userID,
+          pageID: params.pageID,
+        });
+      }
+      // 連打防止用に1秒待機.
+      await sleep(1000);
+      setIsBookmarkSending(false);
+    } catch (e) {
+      console.log(e);
+      setIsLikeSending(false);
+    }
   };
 
-  // TODO: ブックマークを追加する機能を実装する.
   // TODO: コメント機能を実装する.
   // TODO: ページの目次(MDのheaderから)を作成する.
   // TODO: 最終ログインと比較していいねのお知らせが来るようにする.
@@ -146,7 +171,12 @@ export default function Page({ params }: { params: { userID: string; pageID: str
               <b className="">{Number(page.likeCount)}</b>
             </div>
             <div className="text-center mb-2">
-              <button className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full`} title="ブックマーク" onClick={handleBookmark}>
+              <button
+                className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full`}
+                title="ブックマーク"
+                onClick={handleBookmark}
+                disabled={isBookmarkSending}
+              >
                 {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
               </button>
             </div>
