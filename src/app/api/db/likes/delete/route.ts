@@ -7,7 +7,6 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import URLTypes from "@/modules/URLTypes";
 
-// TODO: questionsを作成するときは、pagesかquestionsかのパラメータを作成する.
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得
@@ -79,10 +78,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${body["pageUserID"]}/${body["pageID"]}`;
 
   // ページを削除.
-  await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3`, [body["myID"], url, body["URLType"]]);
+  await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4`, [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
   await db.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
   await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });

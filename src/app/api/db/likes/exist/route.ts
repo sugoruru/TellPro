@@ -80,11 +80,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // URLを作成する.
-  const url = `${pageUserID}/${pageID}`;
-
   // いいねを取得する.
-  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3', [userID, url, URLType]);
+  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $3', [userID, pageID, pageUserID, URLType]);
   if (likes.length === 0) {
     return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
   } else {

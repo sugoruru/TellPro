@@ -10,7 +10,6 @@ import axios from "axios";
 // TODO: 処理内容を正確に記述して、ユーザー体感を向上させる.
 // TODO: try-catchを使ってエラーをキャッチする.
 // TODO: PagesとQuestionsで分ける.
-// TODO: リンクブロックコンポーネントを作成する.
 export default function Bookmark() {
   const { status } = useSession();
   const user = useContext(UserContext);

@@ -8,7 +8,6 @@ import { headers } from "next/headers";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import URLTypes from "@/modules/URLTypes";
 
-// TODO: questionsを作成するときは、pagesかquestionsかのパラメータを作成する.
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得
@@ -80,10 +79,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${body["pageUserID"]}/${body["pageID"]}`;
 
   // いいねを作成.
-  await db.any(`INSERT INTO "Likes" ("ID", "userID", "URL", "time", "URLType") VALUES ($1, $2, $3, $4, $5);`, [returnRandomString(64), body["myID"], url, new Date().getTime(), body["URLType"]]);
+  await db.any(`INSERT INTO "Likes" ("ID", "userID", "pageID", "time", "URLType", "pageUserID") VALUES ($1, $2, $3, $4, $5, $6);`, [returnRandomString(64), body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"]]);
   await db.any(`UPDATE "Users" SET "pageScore"="pageScore"+1 WHERE "ID"=$1`, [body["pageUserID"]]);
   await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
