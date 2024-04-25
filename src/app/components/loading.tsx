@@ -1,8 +1,8 @@
-const Loading = () => {
+const Loading = (props:{title:string}) => {
   return (
     <div className="flex justify-center">
       <div className="text-center my-5 w-80 h-40 ">
-        <p className="text-3xl">読み込み中...</p>
+        <p className="text-3xl">{props.title}</p>
         <div role="status" className="flex justify-center">
           <svg aria-hidden="true" className="w-32 h-32 mt-5 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

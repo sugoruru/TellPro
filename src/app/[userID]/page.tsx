@@ -13,12 +13,13 @@ import LinkBlock from "../components/linkBlock";
 
 // TODO:記事のエクスポートを実装する
 // TODO:10個ずつページを表示する
+// TODO:非公開のみの表示するボタンを実装する
 export default function Page({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
-  const [pageUser, setUser] = useState<User>({} as User);
+  const [pageUser, setPageUser] = useState<User>({} as User);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("pages");
   const [deletePageID, setDeletePageID] = useState("");
@@ -32,7 +33,7 @@ export default function Page({ params }: { params: { userID: string } }) {
         if (userData.data.exist) {
           setIsExist(true);
           const userIcon = await getImageBase64(userData.data.data.icon);
-          setUser({ ...userData.data.data, icon: userIcon });
+          setPageUser({ ...userData.data.data, icon: userIcon });
           document.title = `${userData.data.data.username}｜TellPro`;
         }
         setIsLoading(false);
@@ -64,7 +65,7 @@ export default function Page({ params }: { params: { userID: string } }) {
   return isLoading ? (
     <>
       <title>Loading...｜TellPro</title>
-      <Loading />
+      <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
     <>

@@ -31,7 +31,7 @@ const MakeNewPage = () => {
     fetcher();
   }, [status]);
 
-  return <Loading />;
+  return <Loading title="読み込み中..." />;
 };
 
 export default MakeNewPage;

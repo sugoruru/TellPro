@@ -137,7 +137,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   return isLoading ? (
     <>
       <title>TellPro｜ロード中...</title>
-      <Loading />
+      <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
     myID === params.userID || page.isPublic ? (

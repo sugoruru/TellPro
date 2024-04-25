@@ -5,7 +5,7 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import pageBlockKey from "@/modules/pageBlockKey";
+import { pageBlockKey, userBlockKey } from "@/modules/DBBlockKey";
 
 // TODO:ページを30件ずつ取得できるようにページIDを受け取るようにする.
 const limitChecker = LimitChecker();
@@ -54,7 +54,15 @@ export async function GET(req: NextRequest) {
 
   // ブックマークを取得する.
   const pages = await db.any(`SELECT p.${pageBlockKey} FROM "Pages" p INNER JOIN (SELECT "pageID", "pageUserID" FROM "Bookmarks" WHERE "userID" = $1 AND "URLType" = 'pages' ORDER BY time DESC LIMIT 30) b ON p."ID" = b."pageID" AND p."userID" = b."pageUserID"`, [userID]);
+  const userMap: { [key: string]: User } = {};
+  if (pages.length !== 0) {
+    const users: string[] = pages.map((e: Page) => e.userID);
+    const userData = await db.any(`SELECT ${userBlockKey} FROM "Users" WHERE "ID" IN ($1:csv)`, [users]) as User[];
+    userData.forEach((e) => {
+      userMap[e.ID] = e;
+    });
+  }
 
   // ブックマークを取得する.
-  return NextResponse.json({ ok: true, pages }, { status: 200 });
+  return NextResponse.json({ ok: true, pages, userMap }, { status: 200 });
 }

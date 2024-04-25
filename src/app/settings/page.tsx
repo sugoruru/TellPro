@@ -170,7 +170,7 @@ export default function Settings() {
           </div>
         </div>
       ) : (
-        <Loading />
+        <Loading title="読み込み中..." />
       )}
     </>
   );

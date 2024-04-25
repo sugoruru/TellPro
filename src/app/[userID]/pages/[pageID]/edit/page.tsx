@@ -175,7 +175,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     // ロード中またはユーザーが存在しない場合.
     <>
       <title>TellPro｜ロード中...</title>
-      <Loading />
+      <Loading title="読み込み中..." />
     </>
   ) : canEdit ? (
     // 編集権限がある場合.
