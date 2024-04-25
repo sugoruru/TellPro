@@ -5,23 +5,28 @@ import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { GoHistory } from "react-icons/go";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { UserContext } from "./providers/userProvider";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
+  const [isUserLogin, setIsUserLogin] = useState(false);
   const { status } = useSession();
   const user = useContext(UserContext);
-  const existUser = user ? true : false;
+  useEffect(() => {
+    if (status === "authenticated" && user) {
+      setIsUserLogin(true);
+    }
+  }, [status, user]);
 
   return (
     <>
       <div className="bg-white">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
           <header className="flex items-center justify-between py-4 md:py-4">
-            <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl" aria-label="logo" title="TellPro">
+            <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl md:leading-10 leading-10" aria-label="logo" title="TellPro">
               <Image src="/svg/logo.svg" width={30} height={30} alt={""} priority />
               TellPro
             </Link>
@@ -34,14 +39,19 @@ const Header = () => {
                   </span>
                 </button>
               </div>
-            ) : status == "authenticated" && existUser && user ? (
-              <div>
-                <Menu as="div" className="relative inline-block text-left z-50">
-                  <div>
-                    <Menu.Button>
-                      <Image priority={false} src={user ? user.icon : "/svg/userIcon.svg"} className="cursor-pointer" width={40} height={40} alt={""} />
-                    </Menu.Button>
-                  </div>
+            ) : status == "authenticated" && user ? (
+              <>
+                <Menu>
+                  <Menu.Button>
+                    <Image
+                      priority={false}
+                      src={user ? user.icon : "/svg/userIcon.svg"}
+                      className={`${isUserLogin ? "opacity-100" : ""} opacity-0 transition cursor-pointer`}
+                      width={40}
+                      height={40}
+                      alt={""}
+                    />
+                  </Menu.Button>
                   <Transition
                     as={Fragment}
                     enter="transition ease-out duration-100"
@@ -51,8 +61,8 @@ const Header = () => {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                      <div className="px-1 py-1 ">
+                    <Menu.Items className="z-50 absolute right-0 top-16 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                      <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
                             <Link href={`/${user.ID}`}>
@@ -131,7 +141,7 @@ const Header = () => {
                     </Menu.Items>
                   </Transition>
                 </Menu>
-              </div>
+              </>
             ) : (
               <></>
             )}
