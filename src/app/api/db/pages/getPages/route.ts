@@ -5,6 +5,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import axios from "axios";
+import pageBlockKey from "@/modules/pageBlockKey";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
     if (me.data.exist) {
       if (me.data.data.ID === req.nextUrl.searchParams.get("userID")) {
         // 非公開のページも取得.
-        const pages = await db.any(`SELECT * FROM "Pages" WHERE "userID" = $1`, [req.nextUrl.searchParams.get("userID")]);
+        const pages = await db.any(`SELECT ${pageBlockKey} FROM "Pages" WHERE "userID" = $1`, [req.nextUrl.searchParams.get("userID")]);
         const res = NextResponse.json({ ok: true, pages: pages }, { status: 200 });
         return res;
       }
@@ -48,7 +49,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
   // 公開ページのみ取得.
-  const pages = await db.any(`SELECT * FROM "Pages" WHERE "userID" = $1 AND "isPublic" = true`, [req.nextUrl.searchParams.get("userID")]);
+  // !取得するものを編集するなら上も編集すること.
+  const pages = await db.any(`SELECT ${pageBlockKey} FROM "Pages" WHERE "userID" = $1 AND "isPublic" = true`, [req.nextUrl.searchParams.get("userID")]);
   const res = NextResponse.json({ ok: true, pages: pages }, { status: 200 });
   return res;
 }

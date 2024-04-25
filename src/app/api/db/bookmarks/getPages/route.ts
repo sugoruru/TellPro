@@ -5,11 +5,12 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import pageBlockKey from "@/modules/pageBlockKey";
 
 // TODO:ページを30件ずつ取得できるようにページIDを受け取るようにする.
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
-  // ipの取得
+  // ipの取得.
   const headersList = headers();
   const ip = headersList.get(process.env.NODE_ENV === "development" ? "X-Forwarded-For" : "X-Nf-Client-Connection-Ip");
   if (!ip) {
@@ -52,9 +53,8 @@ export async function GET(req: NextRequest) {
   }
 
   // ブックマークを取得する.
-  const data = await db.any(`SELECT * FROM "Bookmarks" WHERE "userID" = $1 ORDER BY time DESC LIMIT 30`, [userID]);
-  console.log(data);
+  const pages = await db.any(`SELECT p.${pageBlockKey} FROM "Pages" p INNER JOIN (SELECT "pageID", "pageUserID" FROM "Bookmarks" WHERE "userID" = $1 AND "URLType" = 'pages' ORDER BY time DESC LIMIT 30) b ON p."ID" = b."pageID" AND p."userID" = b."pageUserID"`, [userID]);
 
   // ブックマークを取得する.
-  return NextResponse.json({ ok: true, data }, { status: 200 });
+  return NextResponse.json({ ok: true, pages }, { status: 200 });
 }

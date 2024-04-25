@@ -78,9 +78,8 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
-  const url = `${body["pageUserID"]}/${body["pageID"]}`;
 
   // ページを削除.
-  await db.any(`DELETE FROM "Bookmarks" WHERE "userID" = $1 AND "URL" = $2 AND "URLType"=$3`, [body["myID"], url, body["URLType"]]);
+  await db.any(`DELETE FROM "Bookmarks" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4`, [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

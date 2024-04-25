@@ -36,7 +36,6 @@ export async function GET(req: NextRequest) {
   const pageID = req.nextUrl.searchParams.get("pageID");
   const URLType = req.nextUrl.searchParams.get("URLType");
 
-  // TODO:userIDをpageUserIDに変更する.
   // リクエストボディに必要なキーが存在しなければ400を返す.
   if (pageUserID === null || pageID === null || URLType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
@@ -59,9 +58,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // URLを取得する.
-  const url = `${pageUserID}/${pageID}`;
-
   // 自分自身を検索する.
   let userID = "";
   try {
@@ -80,7 +76,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ブックマークを取得する.
-  const bookmarks = await db.any('SELECT * FROM "Bookmarks" WHERE "userID" = $1 AND "URL" = $2 AND "URLType" = $3', [userID, url, URLType]);
+  const bookmarks = await db.any('SELECT * FROM "Bookmarks" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [userID, pageID, pageUserID, URLType]);
   if (bookmarks.length === 0) {
     return NextResponse.json({ ok: true, isBookmark: false }, { status: 200 });
   } else {
