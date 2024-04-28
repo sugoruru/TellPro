@@ -1,9 +1,9 @@
-import NavigationBar from "../components/navigationBar";
+import HomeNav from "../components/homeNav";
 
 export default function Pages() {
   return (
     <>
-      <NavigationBar pathName="/pages"></NavigationBar>
+      <HomeNav pathName="/pages"></HomeNav>
       <div>P</div>
     </>
   );

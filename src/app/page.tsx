@@ -1,4 +1,4 @@
-import NavigationBar from "./components/navigationBar";
+import HomeNav from "./components/homeNav";
 
 // TODO:ユーザーのお知らせ
 // TODO:公式からのお知らせ
@@ -6,7 +6,7 @@ import NavigationBar from "./components/navigationBar";
 export default function Home() {
   return (
     <>
-      <NavigationBar pathName="/"></NavigationBar>
+      <HomeNav pathName="/"></HomeNav>
       <div>H</div>
     </>
   );

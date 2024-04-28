@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const NavigationBar = (props: { pathName: string }) => {
+const HomeNav = (props: { pathName: string }) => {
   const IsLocation = (path: string) => {
     if (path == props.pathName) return "location";
     return "nonLocation";
@@ -22,4 +22,4 @@ const NavigationBar = (props: { pathName: string }) => {
   );
 };
 
-export default NavigationBar;
+export default HomeNav;

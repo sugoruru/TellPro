@@ -9,18 +9,15 @@ import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import LinkBlock from "../components/linkBlock";
 import getImageBase64 from "@/modules/network/getImageBase64";
-import { stat } from "fs";
 
-// TODO: ユーザーがロードできたら、ローディング画面を終了する.
 // TODO: try-catchを使ってエラーをキャッチする.
-// TODO: PagesとQuestionsで分ける.
-// TODO: ブックマークがない場合の処理を追加する.
 export default function Bookmark() {
   const { status } = useSession();
   const me = useContext(UserContext);
   const [isLogin, setIsLogin] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [navPlace, setNavPlace] = useState("pages");
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
   useEffect(() => {
@@ -48,17 +45,34 @@ export default function Bookmark() {
     }
   }, [me]);
   return isLoading ? (
-    <Loading title="ユーザー情報を読み込み中..." />
+    <Loading title="ユーザーを読込中..." />
   ) : isLogin ? (
     <>
+      <div className="bg-white">
+        <nav className="pl-5 pb-[5.5px]">
+          <span className={`cursor-pointer px-2 ${navPlace === "pages" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("pages")}>
+            Pages
+          </span>
+          <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
+            Questions
+          </span>
+        </nav>
+      </div>
       <div className="bg-slate-100">
         {isBookmarkLoading ? (
-          pages.map((page) => (
-            <div key={returnRandomString(32)}>
-              <LinkBlock page={page} pageUser={userMap[page.userID]} me={me} />
+          navPlace === "pages" ? (
+            <div>
+              {pages.map((page) => (
+                <div key={returnRandomString(32)}>
+                  <LinkBlock page={page} pageUser={userMap[page.userID]} me={me} />
+                </div>
+              ))}
             </div>
-          ))
+          ) : (
+            <></>
+          )
         ) : (
+          // TODO: ブックマークがない場合の処理を追加する.
           <></>
         )}
       </div>

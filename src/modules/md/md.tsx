@@ -8,6 +8,7 @@ import H5 from "./header/h5";
 import H6 from "./header/h6";
 import YouTube from "react-youtube";
 import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
+import Image from "next/image";
 const head: string[] = ["#", "##", "###", "####", "#####", "######", "-[]", "-[x]"];
 
 const Lex = (props: { text: string }) => {
@@ -46,7 +47,7 @@ const Lex = (props: { text: string }) => {
         const text = elem.replace(/!\[.*\]\(.*\)/g, "");
         result.push(
           <div className="block" key={returnRandomString(64)}>
-            <img src={src} alt={alt} style={{ width: "150", height: "150" }} />
+            <Image src={src} alt={alt} style={{ width: "150", height: "150" }} />
             <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
