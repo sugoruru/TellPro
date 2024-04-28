@@ -10,7 +10,7 @@ const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
   // ipの取得
   const headersList = headers();
-  const ip = headersList.get(process.env.NODE_ENV === "development" ? "X-Forwarded-For" : "X-Nf-Client-Connection-Ip");
+  const ip = headersList.get("X-Forwarded-For");
   if (!ip) {
     return NextResponse.json({ ok: false, error: "not found your IP" }, { status: 400 });
   }
