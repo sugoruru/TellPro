@@ -1,5 +1,4 @@
 "use client";
-export const runtime = "edge";
 import "../css/globals.css";
 import Header from "./components/header";
 import { titles } from "@/modules/returnTitle";

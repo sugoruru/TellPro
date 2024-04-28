@@ -45,7 +45,7 @@ export default function Page({ params }: { params: { userID: string } }) {
     } catch (e) {
       router.replace("/");
     }
-  }, []);
+  }, [params.userID, router]);
 
   const deletePage = async () => {
     setIsDeleteSending(true);

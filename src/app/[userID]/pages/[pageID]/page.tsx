@@ -69,7 +69,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     } catch (e) {
       router.replace("/");
     }
-  }, []);
+  }, [params.pageID, params.userID, router]);
 
   const handleGoodButton = async () => {
     try {

@@ -46,7 +46,7 @@ export default function Settings() {
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status]);
+  }, [status, router]);
 
   const handleSendButton = async (dataURL: string) => {
     setIsSending(true);

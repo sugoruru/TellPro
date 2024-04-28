@@ -55,7 +55,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
-  }, []);
+  }, [router, params.pageID]);
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
@@ -99,13 +99,13 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status]);
+  }, [status, router, params.pageID, params.userID]);
 
   useEffect(() => {
     if (!isMarkdown) {
       setContent(Lex({ text: mdAreaValue }));
     }
-  }, [isMarkdown]);
+  }, [isMarkdown, mdAreaValue]);
 
   const handleImageUpload = async () => {
     setIsSendingImage(true);

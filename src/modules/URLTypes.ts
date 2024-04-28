@@ -1,1 +1,2 @@
-export default ["pages", "questions"];
+const URLTypes = ["pages", "questions"];
+export default URLTypes;

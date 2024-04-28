@@ -29,7 +29,7 @@ const MakeNewPage = () => {
       }
     };
     fetcher();
-  }, [status]);
+  }, [status, router]);
 
   return <Loading title="読み込み中..." />;
 };

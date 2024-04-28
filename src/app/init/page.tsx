@@ -52,7 +52,7 @@ export default function Init() {
       };
       fetchData();
     }
-  }, [status]);
+  }, [status, router, session?.user?.image]);
 
   // ページ名の変更.
   const handlePageNameChange = (e: ChangeEvent<HTMLInputElement>) => {
