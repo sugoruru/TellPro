@@ -23,7 +23,7 @@ const nextConfig = {
     ];
   },
   experimental: {
-    runtime: "edge",
+    runtime: "experimental-edge",
   },
   images: {
     remotePatterns: [
