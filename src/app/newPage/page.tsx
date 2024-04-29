@@ -11,6 +11,7 @@ const MakeNewPage = () => {
   const router = useRouter();
 
   useEffect(() => {
+    document.title = "新規ページ作成｜TellPro";
     const fetcher = async () => {
       if (status === "authenticated") {
         try {

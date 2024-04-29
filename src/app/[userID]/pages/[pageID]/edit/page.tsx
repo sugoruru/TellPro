@@ -20,6 +20,7 @@ import TagsDialog from "@/app/components/tagsDialog";
 import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import getImageBase64 from "@/modules/network/getImageBase64";
+import Title from "@/app/components/title";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -102,6 +103,16 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   }, [status, router, params.pageID, params.userID]);
 
   useEffect(() => {
+    if (status == "loading" || !existUser) {
+      document.title = "Loading...｜TellPro";
+    } else if (canEdit) {
+      document.title = title === "" ? "untitled" : title;
+    } else {
+      document.title = "編集権限がありません｜TellPro";
+    }
+  }, [existUser, canEdit, title, status]);
+
+  useEffect(() => {
     if (!isMarkdown) {
       setContent(Lex({ text: mdAreaValue }));
     }
@@ -174,13 +185,11 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <>
-      <title>TellPro｜ロード中...</title>
       <Loading title="読み込み中..." />
     </>
   ) : canEdit ? (
     // 編集権限がある場合.
     <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-full`}>
-      <title>{title === "" ? "untitled" : title}</title>
       <div className="bg-white">
         <button onClick={() => setIsMarkdown(true)} className={`${isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}>
           編集(Markdown)

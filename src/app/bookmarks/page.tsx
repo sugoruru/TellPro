@@ -9,6 +9,7 @@ import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import LinkBlock from "../components/linkBlock";
 import getImageBase64 from "@/modules/network/getImageBase64";
+import Title from "../components/title";
 
 // TODO: try-catchを使ってエラーをキャッチする.
 export default function Bookmark() {
@@ -44,6 +45,17 @@ export default function Bookmark() {
       fetcher();
     }
   }, [me]);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.title = "Loading...｜TellPro";
+    } else if (isLogin) {
+      document.title = "Bookmark｜TellPro";
+    } else {
+      document.title = "Not found User｜TellPro";
+    }
+  }, [isLoading, isLogin]);
+
   return isLoading ? (
     <Loading title="ユーザーを読込中..." />
   ) : isLogin ? (
@@ -79,7 +91,6 @@ export default function Bookmark() {
     </>
   ) : (
     <>
-      <title>ログインしてください｜TellPro</title>
       <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
         <div className="flex justify-center">
           <BsExclamationCircle className="text-green-500 text-6xl" />

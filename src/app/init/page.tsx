@@ -13,6 +13,7 @@ import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import getImageBase64 from "@/modules/network/getImageBase64";
 import imageSendToImgur from "@/modules/network/imageSendToImgur";
+import Loading from "../components/loading";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -53,6 +54,16 @@ export default function Init() {
       fetchData();
     }
   }, [status, router, session?.user?.image]);
+
+  useEffect(() => {
+    if (status == "loading" || (existUser && status != "unauthenticated")) {
+      document.title = "Loading...｜TellPro";
+    } else if (status == "unauthenticated") {
+      document.title = "Error｜TellPro";
+    } else {
+      document.title = "Init｜TellPro";
+    }
+  }, [status, existUser]);
 
   // ページ名の変更.
   const handlePageNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +141,11 @@ export default function Init() {
 
   // ロード中は何も表示しない.
   if (status == "loading" || (existUser && status != "unauthenticated")) {
-    return <></>;
+    return (
+      <>
+        <Loading title="ロード中..." />
+      </>
+    );
   } else if (status == "unauthenticated") {
     return (
       <>

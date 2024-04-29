@@ -58,7 +58,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           setIsExist(true);
           setPage(res.data.data as Page);
           setContent(Lex({ text: res.data.data.content }));
-          document.title = `${res.data.data.title}`;
           if (me.data.ok && me.data.exist) {
             setMyID(me.data.data.ID);
           }
@@ -70,6 +69,20 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       router.replace("/");
     }
   }, [params.pageID, params.userID, router]);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.title = "Loading...｜TellPro";
+    } else if (isExist) {
+      if (myID === params.userID || page.isPublic) {
+        document.title = `${page.title}｜TellPro`;
+      } else {
+        document.title = "ページが非公開です｜TellPro";
+      }
+    } else {
+      document.title = "ページが存在しません｜TellPro";
+    }
+  }, [isLoading, isExist, myID, page.isPublic, params.userID, page.title]);
 
   const handleGoodButton = async () => {
     try {
@@ -136,7 +149,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   // TODO: 最終ログインと比較していいねのお知らせが来るようにする.
   return isLoading ? (
     <>
-      <title>TellPro｜ロード中...</title>
       <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
@@ -195,7 +207,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     ) : (
       // ページが非公開の時.
       <>
-        <title>ページが非公開です｜TellPro</title>
         <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
           <div className="flex justify-center">
             <BsExclamationCircle className="text-green-500 text-6xl" />
@@ -214,7 +225,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   ) : (
     // ページが存在しない時.
     <>
-      <title>ページが存在しません｜TellPro</title>
       <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
         <div className="flex justify-center">
           <BsExclamationCircle className="text-green-500 text-6xl" />

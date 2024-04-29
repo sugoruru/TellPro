@@ -29,13 +29,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "i.imgur.com",
+        hostname: "*",
         port: "",
         pathname: "/**",
       },

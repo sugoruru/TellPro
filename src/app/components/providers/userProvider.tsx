@@ -1,6 +1,6 @@
 import getImageBase64 from "@/modules/network/getImageBase64";
 import axios from "axios";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { createContext, useEffect, useState } from "react";
 export const UserContext = createContext<User | null>(null);
 

@@ -34,7 +34,6 @@ export default function Page({ params }: { params: { userID: string } }) {
           setIsExist(true);
           const userIcon = await getImageBase64(userData.data.data.icon);
           setPageUser({ ...userData.data.data, icon: userIcon });
-          document.title = `${userData.data.data.username}｜TellPro`;
         }
         setIsLoading(false);
         if (pagesData.data.ok) {
@@ -45,7 +44,17 @@ export default function Page({ params }: { params: { userID: string } }) {
     } catch (e) {
       router.replace("/");
     }
-  }, [params.userID, router]);
+  }, [params.userID, router, isLoading, isExist]);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.title = "Loading...｜TellPro";
+    } else if (isExist) {
+      document.title = `${pageUser.username}｜TellPro`;
+    } else {
+      document.title = "Not found User｜TellPro";
+    }
+  }, [isLoading, isExist, pageUser.username]);
 
   const deletePage = async () => {
     setIsDeleteSending(true);
@@ -64,7 +73,6 @@ export default function Page({ params }: { params: { userID: string } }) {
 
   return isLoading ? (
     <>
-      <title>Loading...｜TellPro</title>
       <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
@@ -174,7 +182,6 @@ export default function Page({ params }: { params: { userID: string } }) {
     </>
   ) : (
     <>
-      <title>Not found User｜TellPro</title>
       <p>⚠ユーザーが存在しませんでした</p>
     </>
   );

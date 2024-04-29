@@ -31,8 +31,10 @@ const Header = () => {
               TellPro
             </Link>
             {status == "unauthenticated" ? (
-              <div className="flex items-center gap-2.5">
-                <IoSearch className="flex-shrink-0 text-lg" />
+              <div className="flex items-center gap-3">
+                <Link href="/search">
+                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer" />
+                </Link>
                 <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)}>
                   <span className="rounded-lg bg-indigo-500 px-5 py-2 text-center text-xs font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">
                     ログイン
@@ -40,7 +42,10 @@ const Header = () => {
                 </button>
               </div>
             ) : status == "authenticated" && user ? (
-              <>
+              <div className="flex items-center gap-3">
+                <Link href="/search">
+                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer" />
+                </Link>
                 <Menu>
                   <Menu.Button>
                     <Image
@@ -141,7 +146,7 @@ const Header = () => {
                     </Menu.Items>
                   </Transition>
                 </Menu>
-              </>
+              </div>
             ) : (
               <></>
             )}

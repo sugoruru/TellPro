@@ -48,6 +48,14 @@ export default function Settings() {
     }
   }, [status, router]);
 
+  useEffect(() => {
+    if (isSignIn && existUser) {
+      document.title = "Settings｜TellPro";
+    } else {
+      document.title = "Loading...｜TellPro";
+    }
+  }, [isSignIn, existUser]);
+
   const handleSendButton = async (dataURL: string) => {
     setIsSending(true);
     if (isUserNameError) {
