@@ -14,7 +14,7 @@ import { FaTag } from "react-icons/fa6";
 import { IoMdImages } from "react-icons/io";
 import Image from "next/image";
 import handleImageChange from "@/modules/handle/handleImageChange";
-import imageSendToImgur from "@/modules/network/imageSendToImgur";
+import sendImage from "@/modules/network/sendImage";
 import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
 import data from "@/modules/tags.json";
@@ -121,7 +121,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const handleImageUpload = async () => {
     setIsSendingImage(true);
     if (selectedImage !== "") {
-      const imageUrl = await imageSendToImgur(selectedImage, setSendingImageMessage);
+      const imageUrl = await sendImage(selectedImage, setSendingImageMessage);
       const imageTag = `![image](${imageUrl})`;
       setMdAreaValue(mdAreaValue + imageTag + "\n");
       setSelectedImage("");

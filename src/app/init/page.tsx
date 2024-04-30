@@ -12,7 +12,7 @@ import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySea
 import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import getImageBase64 from "@/modules/network/getImageBase64";
-import imageSendToImgur from "@/modules/network/imageSendToImgur";
+import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
 
 export default function Init() {
@@ -108,7 +108,7 @@ export default function Init() {
           return;
         }
         setStateMessage("画像データをアップロード中...");
-        const imgLink = await imageSendToImgur(dataURL);
+        const imgLink = await sendImage(dataURL);
         setStateMessage("ページ名が使用されているかを確認中...");
         const response2 = await axios.get(`/api/db/users/getAllUserID`);
         if (response2.data.ok) {

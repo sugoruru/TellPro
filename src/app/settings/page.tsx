@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import getImageBase64 from "@/modules/network/getImageBase64";
-import imageSendToImgur from "@/modules/network/imageSendToImgur";
+import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
 
 export default function Settings() {
@@ -73,7 +73,7 @@ export default function Settings() {
           return;
         }
         setStateMessage("画像データをアップロード中...");
-        const imgLink = await imageSendToImgur(dataURL, setStateMessage);
+        const imgLink = await sendImage(dataURL, setStateMessage);
         setStateMessage("データベースにデータを送信中...");
         await axios.post("/api/db/users/update", {
           ID: user.ID,
