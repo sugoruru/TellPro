@@ -12,7 +12,6 @@ import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
 import Image from "next/image";
 import { MdEditNote } from "react-icons/md";
-import getImageBase64 from "@/modules/network/getImageBase64";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
 
@@ -50,7 +49,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         }
         setIsLike(isLike.data.isLiked);
         setIsBookmark(isBookmark.data.isBookmark);
-        setUserIcon(await getImageBase64(fetchUser.data.data.icon));
+        setUserIcon(fetchUser.data.user.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
           setIsExist(false);
@@ -168,7 +167,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         </div>
         <div className="mx-auto text-base font-bold text-gray-700">
           <Link href={`/${params.userID}`} className="flex cursor-pointer">
-            <Image src={userIcon} alt="" width={24} height={24} className="mr-1" priority />
+            <img src={userIcon} alt="" width={24} height={24} className="mr-1" />
             <u>@{params.userID}</u>
           </Link>
         </div>

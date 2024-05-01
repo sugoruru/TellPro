@@ -3,9 +3,7 @@ import { Fragment, useContext, useEffect, useState } from "react";
 import Loading from "../components/loading";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Image from "next/image";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import getImageBase64 from "@/modules/network/getImageBase64";
 import { UserContext } from "../components/providers/userProvider";
 import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
@@ -31,8 +29,7 @@ export default function Page({ params }: { params: { userID: string } }) {
         const [userData, pagesData] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/pages/getPages?userID=${params.userID}`)]);
         if (userData.data.exist) {
           setIsExist(true);
-          const userIcon = await getImageBase64(userData.data.data.icon);
-          setPageUser({ ...userData.data.data, icon: userIcon });
+          setPageUser(userData.data.data as UserList);
         }
         setIsLoading(false);
         if (pagesData.data.ok) {
@@ -79,7 +76,7 @@ export default function Page({ params }: { params: { userID: string } }) {
       <div className="mb-2">
         <div className="bg-white">
           <div className="p-5 md:flex sm:block">
-            <Image alt={pageUser.username} src={pageUser.icon} width={100} height={100} priority className="md:mx-5" />
+            <img alt={pageUser.username} src={pageUser.icon} width={100} height={100} className="md:mx-5" />
             <div>
               <div>
                 <b>{pageUser.username}</b>

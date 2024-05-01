@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import handleImageChange from "@/modules/handle/handleImageChange";
-import getImageBase64 from "@/modules/network/getImageBase64";
 import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
 
@@ -32,7 +31,6 @@ export default function Settings() {
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
-            response.data.data.icon = await getImageBase64(response.data.data.icon);
             setUser(response.data.data as User);
             setAreaValue(response.data.data.statusMessage);
             setSelectedImage(response.data.data.icon);
@@ -136,14 +134,7 @@ export default function Settings() {
                 </div>
                 <div className="my-auto mx-5 text-center">
                   <span>preview</span>
-                  <Image
-                    src={selectedImage == "" ? user!.icon : selectedImage}
-                    className="border rounded-full object-cover"
-                    width={60}
-                    height={60}
-                    style={{ width: "80px", height: "80px" }}
-                    alt={""}
-                  />
+                  <img src={selectedImage == "" ? user!.icon : selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "80px", height: "80px" }} alt={""} />
                 </div>
               </div>
               <div className="sm:col-span-2">

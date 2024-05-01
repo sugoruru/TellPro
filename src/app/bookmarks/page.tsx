@@ -8,7 +8,6 @@ import { UserContext } from "../components/providers/userProvider";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import LinkBlock from "../components/linkBlock";
-import getImageBase64 from "@/modules/network/getImageBase64";
 
 export default function Bookmark() {
   const { status } = useSession();
@@ -35,9 +34,6 @@ export default function Bookmark() {
         try {
           const bookmarks = await axios.get("/api/db/bookmarks/getPages");
           setPages(bookmarks.data.pages);
-          for (const pageUser in bookmarks.data.userMap) {
-            bookmarks.data.userMap[pageUser].icon = await getImageBase64(bookmarks.data.userMap[pageUser].icon);
-          }
           setUserMap(bookmarks.data.userMap);
           setIsBookmarkLoading(true);
         } catch (e) {

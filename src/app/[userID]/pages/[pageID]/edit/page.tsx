@@ -19,8 +19,6 @@ import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
 import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import getImageBase64 from "@/modules/network/getImageBase64";
-import Title from "@/app/components/title";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -74,7 +72,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           } else {
             const tempUser = fetchMe.data.data as User;
             if (tempUser) {
-              setPrevIcon(await getImageBase64(tempUser.icon));
+              setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.ID) {
                 setCanEdit(true);
                 if (fetchPage.data.exist) {
@@ -290,7 +288,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                                 accept=".jpg, .jpeg, .png"
                               />
                             </div>
-                            <Image
+                            <img
                               src={selectedImage == "" ? "/svg/userIcon.svg" : selectedImage}
                               className={`w-full h-auto mx-auto mt-5 ${selectedImage === "" ? "hidden" : ""}`}
                               alt=""
@@ -439,7 +437,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                 if (confirm("データの保存はされませんがページを遷移しますか？")) router.replace(`/${params.userID}`);
               }}
             >
-              <Image src={prevIcon} alt="" width={24} height={24} className="mr-1" priority />
+              <img src={prevIcon} alt="" width={24} height={24} className="mr-1" />
               <u>@{params.userID}</u>
             </div>
           </div>

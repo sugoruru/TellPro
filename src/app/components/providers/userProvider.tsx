@@ -1,4 +1,3 @@
-import getImageBase64 from "@/modules/network/getImageBase64";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { createContext, useEffect, useState } from "react";
@@ -13,7 +12,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         try {
           const response = await axios.get(`/api/db/users/existMe`);
           if (response.data.exist) {
-            response.data.data.icon = await getImageBase64(response.data.data.icon);
             setUser(response.data.data as User);
           }
         } catch (error) {

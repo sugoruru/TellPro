@@ -11,7 +11,6 @@ import { quickSort } from "@/modules/algo/quickSort";
 import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySearch";
 import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
-import getImageBase64 from "@/modules/network/getImageBase64";
 import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
 
@@ -43,7 +42,7 @@ export default function Init() {
             router.replace("/");
           } else {
             if (session.user?.image) {
-              setSelectedImage(await getImageBase64(session.user.image));
+              setSelectedImage(session.user.image);
             }
             setExistUser(false);
           }
@@ -172,7 +171,7 @@ export default function Init() {
           {/*ヘッダー*/}
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="mb-10 md:mb-16">
-              <Image src="/svg/logo.svg" className="mx-auto" width={60} height={60} alt={""} />
+              <img src="/svg/logo.svg" className="mx-auto" width={60} height={60} alt={""} />
               <h2 className="text-center text-2xl font-bold text-gray-800 lg:text-3xl">Welcome to TellPro!</h2>
               <p className="mx-auto max-w-screen-md text-center text-gray-500 md:text-lg">アカウントを作成しましょう！</p>
             </div>
@@ -240,7 +239,7 @@ export default function Init() {
                 </label>
                 <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
               </div>
-              <Image src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
+              <img src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               {/*ステータスメッセージ*/}
               <div className="sm:col-span-2">
                 <label htmlFor="message" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
