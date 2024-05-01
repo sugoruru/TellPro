@@ -120,11 +120,15 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
 
   const handleImageUpload = async () => {
     setIsSendingImage(true);
-    if (selectedImage !== "") {
-      const imageUrl = await sendImage(selectedImage, setSendingImageMessage);
-      const imageTag = `![image](${imageUrl})`;
-      setMdAreaValue(mdAreaValue + imageTag + "\n");
-      setSelectedImage("");
+    try {
+      if (selectedImage !== "") {
+        const imageUrl = await sendImage(selectedImage, setSendingImageMessage);
+        const imageTag = `![image](${imageUrl})`;
+        setMdAreaValue(mdAreaValue + imageTag + "\n");
+        setSelectedImage("");
+      }
+    } catch (e) {
+      setSendingImageMessage("エラーが発生しました");
     }
     setIsSendingImage(false);
     setIsOpenImageUpload(false);
