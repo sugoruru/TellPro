@@ -11,15 +11,14 @@ import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
 import LinkBlock from "../components/linkBlock";
 
-// TODO:記事のエクスポートを実装する
-// TODO:10個ずつページを表示する
-// TODO:非公開のみの表示するボタンを実装する
+// TODO:(DEV) 記事のエクスポートを実装する
+// TODO:(UI) 全て/非公開/公開のボタンを設置する
 export default function Page({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
-  const [pageUser, setPageUser] = useState<User>({} as User);
+  const [pageUser, setPageUser] = useState<UserList>({} as UserList);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("pages");
   const [deletePageID, setDeletePageID] = useState("");

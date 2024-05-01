@@ -7,7 +7,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import { pageBlockKey, userBlockKey } from "@/modules/DBBlockKey";
 
-// TODO:ページを30件ずつ取得できるようにページIDを受け取るようにする.
+// TODO:(DEV) ページを30件ずつ取得できるようにページIDを受け取るようにする.
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
   // ipの取得.

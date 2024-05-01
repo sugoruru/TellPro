@@ -67,12 +67,12 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchUser, fetchPage] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`)]);
-          if (!fetchUser.data.exist || !fetchUser.data.data) {
+          const [fetchMe, fetchPage] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`)]);
+          if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchUser.data.data as User;
+            const tempUser = fetchMe.data.data as User;
             if (tempUser) {
               setPrevIcon(await getImageBase64(tempUser.icon));
               if (params.userID === tempUser.ID) {

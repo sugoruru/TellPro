@@ -2,9 +2,7 @@
 
 import { useEffect } from "react";
 
-// TODO: ログインしているかどうかで表示するページを変える
-// TODO: ログインしている場合は個人の履歴を表示する
-// TODO: していない場合はログインしてくださいと表示する
+//TODO:(DEV) Bookmarkと同じように作成する.
 export default function Page() {
   useEffect(() => {
     document.title = "History｜TellPro";

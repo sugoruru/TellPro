@@ -9,9 +9,7 @@ import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import LinkBlock from "../components/linkBlock";
 import getImageBase64 from "@/modules/network/getImageBase64";
-import Title from "../components/title";
 
-// TODO: try-catchを使ってエラーをキャッチする.
 export default function Bookmark() {
   const { status } = useSession();
   const me = useContext(UserContext);
@@ -34,13 +32,17 @@ export default function Bookmark() {
   useEffect(() => {
     if (me) {
       const fetcher = async () => {
-        const bookmarks = await axios.get("/api/db/bookmarks/getPages");
-        setPages(bookmarks.data.pages);
-        for (const pageUser in bookmarks.data.userMap) {
-          bookmarks.data.userMap[pageUser].icon = await getImageBase64(bookmarks.data.userMap[pageUser].icon);
+        try {
+          const bookmarks = await axios.get("/api/db/bookmarks/getPages");
+          setPages(bookmarks.data.pages);
+          for (const pageUser in bookmarks.data.userMap) {
+            bookmarks.data.userMap[pageUser].icon = await getImageBase64(bookmarks.data.userMap[pageUser].icon);
+          }
+          setUserMap(bookmarks.data.userMap);
+          setIsBookmarkLoading(true);
+        } catch (e) {
+          console.error(e);
         }
-        setUserMap(bookmarks.data.userMap);
-        setIsBookmarkLoading(true);
       };
       fetcher();
     }
@@ -84,7 +86,7 @@ export default function Bookmark() {
             <></>
           )
         ) : (
-          // TODO: ブックマークがない場合の処理を追加する.
+          // TODO:(UI) ブックマークがない場合の処理を追加する.
           <></>
         )}
       </div>

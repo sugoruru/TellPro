@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  // TODO:questionsにも対応する.
+  // TODO:(DEV) questionsにも対応する.
   // ページの存在を検索する.
   try {
     const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${pageUserID}&pageID=${pageID}`, {

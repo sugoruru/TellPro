@@ -6,7 +6,7 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 
-// TODO:関連するコメントの削除
+// TODO:(DEV) 関連するコメントの削除
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得.

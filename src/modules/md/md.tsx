@@ -45,7 +45,7 @@ const Lex = (props: { text: string }) => {
         const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
         const src = elem.match(/\(.*\)/g)![0].slice(1, -1);
         const text = elem.replace(/!\[.*\]\(.*\)/g, "");
-        // TODO:画像サイズを指定するMDを追加する.
+        // TODO:(DEV) 画像サイズを指定するMDを追加する.
         result.push(
           <div className="block" key={returnRandomString(64)}>
             <Image src={src} alt={alt} width={150} height={150} priority />

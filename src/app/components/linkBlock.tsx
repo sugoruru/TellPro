@@ -8,7 +8,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import data from "@/modules/tags.json";
 
-const LinkBlock = (props: { page: Page; pageUser: User; me: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
+const LinkBlock = (props: { page: Page; pageUser: UserList; me: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
   const router = useRouter();
   const tagJSON: Tags = data;
 

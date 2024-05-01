@@ -144,9 +144,9 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
-  // TODO: コメント機能を実装する.
-  // TODO: ページの目次(MDのheaderから)を作成する.
-  // TODO: 最終ログインと比較していいねのお知らせが来るようにする.
+  // TODO:(UI) コメント機能を実装する.
+  // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
+  // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
   return isLoading ? (
     <>
       <Loading title="読み込み中..." />

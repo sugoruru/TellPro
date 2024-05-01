@@ -11,5 +11,5 @@ export async function POST(req: NextRequest) {
     name: body.imageID,
   }
   const jwtSecret = process.env.JWT_SECRET as string;
-  return NextResponse.json({ token: sign(payload, jwtSecret, { expiresIn: "60s", algorithm: "HS256" }) }, { status: 200 });
+  return NextResponse.json({ token: sign(payload, jwtSecret, { expiresIn: "10s", algorithm: "HS256" }) }, { status: 200 });
 }

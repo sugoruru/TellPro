@@ -3,7 +3,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 
 export async function POST(req: NextRequest) {
-  const imageID = returnRandomString(128);
+  const imageID = returnRandomString(64);
   const jwtToken = await axios.post(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/img`, { imageID });
   const body = await req.json();
   const imageData = body.image as string;
