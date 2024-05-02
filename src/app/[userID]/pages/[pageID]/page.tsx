@@ -204,6 +204,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
 
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
+  // TODO:(UI) 画面サイズが小さければ、横のいいね、ブックマーク、編集ボタンをしたに移動する.
   return isLoading ? (
     <>
       <Loading title="読み込み中..." />
@@ -253,7 +254,9 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                 </div>
                 {isCommentMarkdown ? (
                   <textarea
-                    className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
+                    className={`border ${
+                      sendingMessage === "コメントを入力してください" && mdAreaValue === "" ? "border-red-500" : ""
+                    } outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
                     placeholder="コメント(Markdown)"
                     onChange={(e) => setMdAreaValue(e.target.value)}
                     value={mdAreaValue}
@@ -264,14 +267,17 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                     <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: mdAreaValue })}</div>
                   </div>
                 )}
-                <button
-                  disabled={isCommentSending}
-                  onClick={handleCommentUpload}
-                  className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded my-3 border-r"
-                >
-                  投稿する
-                  <span>{sendingMessage}</span>
-                </button>
+                <div>
+                  <b className="ml-2 text-red-600">{sendingMessage}</b>
+                  <br />
+                  <button
+                    disabled={isCommentSending}
+                    onClick={handleCommentUpload}
+                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded my-3 border-r"
+                  >
+                    投稿する
+                  </button>
+                </div>
               </>
             ) : (
               <div className="h-32 mt-2 border outline-1 outline-sky-400 text-center w-full rounded bg-gray-200 p-10">
@@ -302,33 +308,34 @@ export default function Page({ params }: { params: { userID: string; pageID: str
               </div>
             )}
           </div>
+          <div className="h-10 lg:h-0 w-full"></div>
         </div>
-        <div className="fixed right-2 bottom-2">
-          <div className="flex flex-col">
-            <div className={`text-center w-16`}>
+        <div className="fixed right-0 p-1 w-full lg:w-auto bottom-0 bg-slate-100 lg:right-2 lg:bottom-2 lg:bg-inherit">
+          <div className="flex flex-row lg:flex-col justify-center lg:justify-normal h-10 lg:h-auto">
+            <div className={`text-center lg:mr-2 flex lg:block mx-2`}>
               <button
-                className={`cursor-pointer flex flex-col items-center w-16 h-16 justify-center bg-slate-300 hover:bg-blue-200 transition rounded-full`}
+                className={`cursor-pointer w-10 lg:w-16 flex flex-col items-center h-10 lg:h-16 justify-center bg-white rounded-full border-gray-300 border`}
                 title="いいね"
                 onClick={handleGoodButton}
                 disabled={isLikeSending}
               >
-                {isLike ? <FaHeart className="inline-flex text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-3xl text-red-500" />}
+                {isLike ? <FaHeart className="inline-flex text-sm lg:text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-sm lg:text-3xl text-red-500" />}
               </button>
-              <b className="">{Number(page.likeCount)}</b>
+              <b className="ml-1 my-auto">{Number(page.likeCount)}</b>
             </div>
-            <div className="text-center mb-2">
+            <div className="text-center mb-2 lg:mr-2 mx-2">
               <button
-                className={`cursor-pointer flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full`}
+                className={`cursor-pointer flex items-center justify-center w-10 lg:w-16 h-10 lg:h-16 bg-white rounded-full border-gray-300 border`}
                 title="ブックマーク"
                 onClick={handleBookmark}
                 disabled={isBookmarkSending}
               >
-                {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
+                {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
               </button>
             </div>
-            <Link title="編集" className={`cursor-pointer ${me.ID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/pages/${params.pageID}/edit`}>
-              <div className="flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full">
-                <MdEditNote className="inline-flex text-4xl" />
+            <Link title="編集" className={`mx-2 cursor-pointer ${me.ID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/pages/${params.pageID}/edit`}>
+              <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
+                <MdEditNote className="inline-flex text-base lg:text-4xl" />
               </div>
             </Link>
           </div>
