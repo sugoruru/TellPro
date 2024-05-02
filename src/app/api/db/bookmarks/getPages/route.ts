@@ -54,10 +54,10 @@ export async function GET(req: NextRequest) {
 
   // ブックマークを取得する.
   const pages = await db.any(`SELECT p.${pageBlockKey} FROM "Pages" p INNER JOIN (SELECT "pageID", "pageUserID" FROM "Bookmarks" WHERE "userID" = $1 AND "URLType" = 'pages' ORDER BY time DESC LIMIT 30) b ON p."ID" = b."pageID" AND p."userID" = b."pageUserID"`, [userID]);
-  const userMap: { [key: string]: User } = {};
+  const userMap: { [key: string]: UserList } = {};
   if (pages.length !== 0) {
     const users: string[] = pages.map((e: Page) => e.userID);
-    const userData = await db.any(`SELECT ${userBlockKey} FROM "Users" WHERE "ID" IN ($1:csv)`, [users]) as User[];
+    const userData = await db.any(`SELECT ${userBlockKey} FROM "Users" WHERE "ID" IN ($1:csv)`, [users]) as UserList[];
     userData.forEach((e) => {
       userMap[e.ID] = e;
     });

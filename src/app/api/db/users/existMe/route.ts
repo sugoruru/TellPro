@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   const session = await getServerSession(OPTIONS);
   if (!session || !session.user) {
-    const res = NextResponse.json({ ok: false, exist: false, message: "not login" }, { status: 200 });
+    const res = NextResponse.json({ ok: true, exist: false, message: "not login" }, { status: 200 });
     return res;
   }
   const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]);

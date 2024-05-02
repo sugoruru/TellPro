@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
+
+  // 自分のページの場合は非公開のページも取得.
   try {
     const me = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
       withCredentials: true,
@@ -46,6 +48,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
+
   // 公開ページのみ取得.
   const pages = await db.any(`SELECT ${pageBlockKey} FROM "Pages" WHERE "userID" = $1 AND "isPublic" = true`, [req.nextUrl.searchParams.get("userID")]);
   const res = NextResponse.json({ ok: true, pages: pages }, { status: 200 });

@@ -21,6 +21,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [sendingMessage, setSendingMessage] = useState("");
   const [mdAreaValue, setMdAreaValue] = useState("");
   const [page, setPage] = useState<Page>({} as Page);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
@@ -28,7 +30,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isBookmarkSending, setIsBookmarkSending] = useState(false);
   const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
   const [isCommentSending, setIsCommentSending] = useState(false);
-  const [myID, setMyID] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+  const [me, setMe] = useState<UserList>({} as UserList);
   const router = useRouter();
   const tagJSON: Tags = data;
 
@@ -40,18 +43,32 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const [fetchUser, me, isLike, isBookmark] = await Promise.all([
+        const [fetchUser, me, fetchComments] = await Promise.all([
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
           axios.get(`/api/db/users/existMe`),
-          axios.get(`/api/db/likes/exist?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
-          axios.get(`/api/db/bookmarks/exist?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+          axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
         ]);
-        if (!fetchUser.data.exist || !isLike.data.ok || !isBookmark.data.ok) {
+        if (!fetchUser.data.exist || !fetchComments.data.ok || !me.data.ok) {
           router.replace("/");
           return;
         }
-        setIsLike(isLike.data.isLiked);
-        setIsBookmark(isBookmark.data.isBookmark);
+        let isLike, isBookmark;
+        if (me.data.exist) {
+          setIsLogin(true);
+          setMe(me.data.data);
+          [isLike, isBookmark] = await Promise.all([
+            axios.get(`/api/db/likes/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+            axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+          ]);
+          if (!isLike.data.ok || !isBookmark.data.ok) {
+            router.replace("/");
+            return;
+          }
+          setIsLike(isLike.data.isLiked);
+          setIsBookmark(isBookmark.data.isBookmark);
+        }
+        setComments(fetchComments.data.data as Comment[]);
+        setCommentUserMap(fetchComments.data.userMap as { [key: string]: UserList });
         setUserIcon(fetchUser.data.data.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
@@ -60,9 +77,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           setIsExist(true);
           setPage(res.data.data as Page);
           setContent(Lex({ text: res.data.data.content }));
-          if (me.data.ok && me.data.exist) {
-            setMyID(me.data.data.ID);
-          }
         }
         setIsLoading(false);
       };
@@ -76,7 +90,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     if (isLoading) {
       document.title = "Loading...｜TellPro";
     } else if (isExist) {
-      if (myID === params.userID || page.isPublic) {
+      if (me.ID === params.userID || page.isPublic) {
         document.title = `${page.title}｜TellPro`;
       } else {
         document.title = "ページが非公開です｜TellPro";
@@ -84,7 +98,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     } else {
       document.title = "ページが存在しません｜TellPro";
     }
-  }, [isLoading, isExist, myID, page.isPublic, params.userID, page.title]);
+  }, [isLoading, isExist, me.ID, page.isPublic, params.userID, page.title]);
 
   const handleGoodButton = async () => {
     try {
@@ -93,7 +107,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         setIsLike(true);
         setPage({ ...page, likeCount: Number(page.likeCount) + 1 });
         await axios.post("/api/db/likes/create", {
-          myID: myID,
+          myID: me.ID,
           pageUserID: params.userID,
           pageID: params.pageID,
           URLType: "pages",
@@ -102,7 +116,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         setIsLike(false);
         setPage({ ...page, likeCount: Number(page.likeCount) - 1 });
         await axios.post("/api/db/likes/delete", {
-          myID: myID,
+          myID: me.ID,
           pageUserID: params.userID,
           pageID: params.pageID,
           URLType: "pages",
@@ -123,7 +137,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       if (!isBookmark) {
         setIsBookmark(true);
         await axios.post("/api/db/bookmarks/create", {
-          myID: myID,
+          myID: me.ID,
           pageUserID: params.userID,
           pageID: params.pageID,
           URLType: "pages",
@@ -131,7 +145,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       } else {
         setIsBookmark(false);
         await axios.post("/api/db/bookmarks/delete", {
-          myID: myID,
+          myID: me.ID,
           pageUserID: params.userID,
           pageID: params.pageID,
           URLType: "pages",
@@ -148,10 +162,46 @@ export default function Page({ params }: { params: { userID: string; pageID: str
 
   const handleCommentUpload = async () => {
     setIsCommentSending(true);
-    setIsCommentSending(false);
+    if (mdAreaValue === "") {
+      setSendingMessage("コメントを入力してください");
+      setIsCommentSending(false);
+      return;
+    }
+    try {
+      await axios.post("/api/db/comments/create", {
+        myID: me.ID,
+        pageUserID: params.userID,
+        pageID: params.pageID,
+        URLType: "pages",
+        content: mdAreaValue,
+      });
+      setMdAreaValue("");
+      setSendingMessage("");
+      setIsCommentSending(false);
+      setComments((prev) => [
+        {
+          ID: returnRandomString(32),
+          userID: me.ID,
+          pageID: params.pageID,
+          time: Date.now(),
+          URLType: "pages",
+          pageUserID: params.userID,
+          content: mdAreaValue,
+          likeCount: 0,
+        } as Comment,
+        ...prev,
+      ]);
+      setCommentUserMap((prev) => {
+        prev[me.ID] = me;
+        return prev;
+      });
+    } catch (e) {
+      setSendingMessage("エラーが発生しました");
+      console.log(e);
+      setIsCommentSending(false);
+    }
   };
 
-  // TODO:(UI) コメント機能を実装する.
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
   return isLoading ? (
@@ -159,7 +209,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
-    myID === params.userID || page.isPublic ? (
+    me.ID === params.userID || page.isPublic ? (
       <>
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
@@ -183,37 +233,74 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           {content}
           {/* コメント */}
           <div className="mt-10 flex flex-col">
-            <b>コメント</b>
-            <div className="bg-white">
-              <button
-                onClick={() => setIsCommentMarkdown(true)}
-                className={`${isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
-              >
-                編集(Markdown)
-              </button>
-              <button
-                onClick={() => setIsCommentMarkdown(false)}
-                className={`${!isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
-              >
-                プレビュー
-              </button>
-            </div>
-            {isCommentMarkdown ? (
-              <textarea
-                className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
-                placeholder="コメント(Markdown)"
-                onChange={(e) => setMdAreaValue(e.target.value)}
-                value={mdAreaValue}
-                id="mdArea"
-              ></textarea>
+            <b>コメント({page.commentCount})</b>
+            <hr />
+            {isLogin ? (
+              <>
+                <div className="bg-white">
+                  <button
+                    onClick={() => setIsCommentMarkdown(true)}
+                    className={`${isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
+                  >
+                    編集(Markdown)
+                  </button>
+                  <button
+                    onClick={() => setIsCommentMarkdown(false)}
+                    className={`${!isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
+                  >
+                    プレビュー
+                  </button>
+                </div>
+                {isCommentMarkdown ? (
+                  <textarea
+                    className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
+                    placeholder="コメント(Markdown)"
+                    onChange={(e) => setMdAreaValue(e.target.value)}
+                    value={mdAreaValue}
+                    id="mdArea"
+                  ></textarea>
+                ) : (
+                  <div>
+                    <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: mdAreaValue })}</div>
+                  </div>
+                )}
+                <button
+                  disabled={isCommentSending}
+                  onClick={handleCommentUpload}
+                  className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded my-3 border-r"
+                >
+                  投稿する
+                  <span>{sendingMessage}</span>
+                </button>
+              </>
             ) : (
-              <div>
-                <div className="h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: mdAreaValue })}</div>
+              <div className="h-32 mt-2 border outline-1 outline-sky-400 text-center w-full rounded bg-gray-200 p-10">
+                <b>ログインをしてコミュニティに参加しましょう！</b>
+                <br />
+                <button>ログインボタン</button>
               </div>
             )}
-            <button disabled={isCommentSending} onClick={handleCommentUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded mt-3 border-r">
-              投稿する
-            </button>
+            <hr />
+            {comments.length === 0 ? (
+              <p>このページにコメントはありません</p>
+            ) : (
+              <div>
+                {comments.map((e) => (
+                  <div key={returnRandomString(64)}>
+                    <div className="p-2">
+                      <div>
+                        <Link href={`/${e.userID}`}>
+                          <img src={commentUserMap[e.userID].icon} width={30} height={30} alt="" className="inline" />
+                          <b className="ml-2">{e.userID}</b>
+                        </Link>
+                      </div>
+                      <div>{Lex({ text: e.content })}</div>
+                    </div>
+                    <hr />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="fixed right-2 bottom-2">
@@ -239,7 +326,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                 {isBookmark ? <FaBookmark className="inline-flex text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-3xl text-blue-500" />}
               </button>
             </div>
-            <Link title="編集" className={`cursor-pointer ${myID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/pages/${params.pageID}/edit`}>
+            <Link title="編集" className={`cursor-pointer ${me.ID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/pages/${params.pageID}/edit`}>
               <div className="flex items-center justify-center w-16 h-16 bg-slate-300 hover:bg-blue-200 transition rounded-full">
                 <MdEditNote className="inline-flex text-4xl" />
               </div>
