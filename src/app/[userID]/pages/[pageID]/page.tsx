@@ -301,7 +301,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                       <div className="flex justify-between">
                         <Link href={`/${e.userID}`}>
                           <img src={commentUserMap[e.userID].icon} width={30} height={30} alt="" className="inline" />
-                          <b className="ml-2">{e.userID}</b>
+                          <b className="ml-2">@{e.userID}</b>
                         </Link>
                         <Menu as="div" className="relative inline-block">
                           <div>
@@ -318,8 +318,24 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                           >
-                            <Menu.Items className="absolute right-0 mt-[-80px] w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                            <Menu.Items
+                              className={`absolute right-0 ${
+                                e.userID === me.ID ? "mt-[-120px]" : "mt-[-80px]"
+                              } w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none`}
+                            >
                               <div className="px-1 py-1">
+                                {e.userID === me.ID ? (
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <button className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                        <MdEditNote className="mr-2 h-5 w-5 text-gray-600" aria-hidden="true" />
+                                        編集
+                                      </button>
+                                    )}
+                                  </Menu.Item>
+                                ) : (
+                                  <></>
+                                )}
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
