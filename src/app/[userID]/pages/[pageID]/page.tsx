@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
-import Image from "next/image";
 import { MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
@@ -19,12 +18,16 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState<JSX.Element>(<></>);
   const [userIcon, setUserIcon] = useState<string>("");
+  const [sendingMessage, setSendingMessage] = useState("");
+  const [mdAreaValue, setMdAreaValue] = useState("");
   const [page, setPage] = useState<Page>({} as Page);
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
   const [isLikeSending, setIsLikeSending] = useState(false);
   const [isBookmarkSending, setIsBookmarkSending] = useState(false);
+  const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
+  const [isCommentSending, setIsCommentSending] = useState(false);
   const [myID, setMyID] = useState("");
   const router = useRouter();
   const tagJSON: Tags = data;
@@ -143,6 +146,11 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
+  const handleCommentUpload = async () => {
+    setIsCommentSending(true);
+    setIsCommentSending(false);
+  };
+
   // TODO:(UI) コメント機能を実装する.
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
@@ -171,7 +179,43 @@ export default function Page({ params }: { params: { userID: string; pageID: str
             <u>@{params.userID}</u>
           </Link>
         </div>
-        <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
+        <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">
+          {content}
+          {/* コメント */}
+          <div className="mt-10 flex flex-col">
+            <b>コメント</b>
+            <div className="bg-white">
+              <button
+                onClick={() => setIsCommentMarkdown(true)}
+                className={`${isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
+              >
+                編集(Markdown)
+              </button>
+              <button
+                onClick={() => setIsCommentMarkdown(false)}
+                className={`${!isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
+              >
+                プレビュー
+              </button>
+            </div>
+            {isCommentMarkdown ? (
+              <textarea
+                className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
+                placeholder="コメント(Markdown)"
+                onChange={(e) => setMdAreaValue(e.target.value)}
+                value={mdAreaValue}
+                id="mdArea"
+              ></textarea>
+            ) : (
+              <div>
+                <div className="h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: mdAreaValue })}</div>
+              </div>
+            )}
+            <button disabled={isCommentSending} onClick={handleCommentUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded mt-3 border-r">
+              投稿する
+            </button>
+          </div>
+        </div>
         <div className="fixed right-2 bottom-2">
           <div className="flex flex-col">
             <div className={`text-center w-16`}>
