@@ -49,7 +49,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         }
         setIsLike(isLike.data.isLiked);
         setIsBookmark(isBookmark.data.isBookmark);
-        setUserIcon(fetchUser.data.user.icon);
+        setUserIcon(fetchUser.data.data.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
           setIsExist(false);
