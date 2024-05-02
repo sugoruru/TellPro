@@ -6,13 +6,15 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Prism from "prismjs";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
 import data from "@/modules/tags.json";
-import { MdEditNote } from "react-icons/md";
+import { MdDelete, MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
+import { Menu, Transition } from "@headlessui/react";
+import { IoChevronDown } from "react-icons/io5";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -202,9 +204,11 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
+  const handleCommentGood = async (commentID: string) => {};
+
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
-  // TODO:(UI) 画面サイズが小さければ、横のいいね、ブックマーク、編集ボタンをしたに移動する.
+  // TODO:(DEV) 345行目/コメントにいいねしているかを取得する.
   return isLoading ? (
     <>
       <Loading title="読み込み中..." />
@@ -294,13 +298,53 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                 {comments.map((e) => (
                   <div key={returnRandomString(64)}>
                     <div className="p-2">
-                      <div>
+                      <div className="flex justify-between">
                         <Link href={`/${e.userID}`}>
                           <img src={commentUserMap[e.userID].icon} width={30} height={30} alt="" className="inline" />
                           <b className="ml-2">{e.userID}</b>
                         </Link>
+                        <Menu as="div" className="relative inline-block">
+                          <div>
+                            <Menu.Button className="inline-flex justify-center rounded-m py-2 text-sm font-medium text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                              <IoChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+                            </Menu.Button>
+                          </div>
+                          <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                          >
+                            <Menu.Items className="absolute right-0 mt-[-80px] w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                              <div className="px-1 py-1">
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <button className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                      <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+                                      Delete
+                                    </button>
+                                  )}
+                                </Menu.Item>
+                              </div>
+                            </Menu.Items>
+                          </Transition>
+                        </Menu>
                       </div>
                       <div>{Lex({ text: e.content })}</div>
+                      <div className={`text-center flex`}>
+                        <button
+                          className={`cursor-pointer w-10 flex flex-col items-center h-10 justify-center bg-white rounded-full border-gray-300 border`}
+                          title="いいね"
+                          onClick={() => handleCommentGood(e.ID)}
+                          disabled={isLikeSending}
+                        >
+                          {false ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
+                        </button>
+                        <b className="ml-1 my-auto">{Number(e.likeCount)}</b>
+                      </div>
                     </div>
                     <hr />
                   </div>
