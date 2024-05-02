@@ -54,8 +54,9 @@ const Lex = (props: { text: string }) => {
         );
       } else if (/\\\[.*\]\((.*)\).*/g.test(elem)) {
         // 別タブリンクの場合.
-        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
-        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        const e = elem.split("](");
+        const text = e[0].slice(2);
+        const href = e[1].slice(0, -1);
         result.push(
           <a href={href} key={returnRandomString(64)} className="myLink" target="_blank">
             {Text(text)}
@@ -68,8 +69,9 @@ const Lex = (props: { text: string }) => {
         result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
       } else if (/\[.*\]\((.*)\).*/g.test(elem)) {
         // リンクの場合.
-        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
-        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        const e = elem.split("](");
+        const text = e[0].slice(1);
+        const href = e[1].slice(0, -1);
         result.push(
           <a href={href} key={returnRandomString(64)} className="myLink">
             {Text(text)}
