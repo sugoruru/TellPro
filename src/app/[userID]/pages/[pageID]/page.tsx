@@ -16,6 +16,7 @@ import sleep from "@/modules/sleep";
 import { Menu, Transition } from "@headlessui/react";
 import { IoChevronDown } from "react-icons/io5";
 import DeleteCommentModal from "@/app/components/deleteCommentModal";
+import UpdateCommentModal from "@/app/components/updateCommentModal";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +25,9 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [sendingMessage, setSendingMessage] = useState("");
   const [mdAreaValue, setMdAreaValue] = useState("");
   const [deleteCommentID, setDeleteCommentID] = useState("");
+  const [updateCommentID, setUpdateCommentID] = useState("");
+  const [updateMdAreaValue, setUpdateMdAreaValue] = useState("");
+  const [updateSendingMessage, setUpdateSendingMessage] = useState("");
   const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
@@ -36,6 +40,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
   const [isCommentSending, setIsCommentSending] = useState(false);
   const [isOpenDeleteCommentModal, setIsOpenDeleteCommentModal] = useState(false);
+  const [isOpenUpdateCommentModal, setIsOpenUpdateCommentModal] = useState(false);
+  const [isUpdateSending, setIsUpdateSending] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserList>({} as UserList);
@@ -283,6 +289,36 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
+  const handleUpdateComment = async () => {
+    try {
+      setIsUpdateSending(true);
+      if (updateMdAreaValue === "") {
+        setUpdateSendingMessage("コメントを入力してください");
+        setIsUpdateSending(false);
+        return;
+      }
+      await axios.post("/api/db/comments/update", {
+        pageID: params.pageID,
+        commentID: updateCommentID,
+        userID: me.ID,
+        content: updateMdAreaValue,
+      });
+      setComments(
+        comments.map((e) => {
+          if (e.ID === updateCommentID) {
+            e.content = updateMdAreaValue;
+          }
+          return e;
+        })
+      );
+      setIsUpdateSending(false);
+      setIsOpenUpdateCommentModal(false);
+    } catch (e) {
+      console.error(e);
+      setIsUpdateSending(false);
+    }
+  };
+
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
   // TODO:(DEV) コメントに画像を添付できるようにする.
@@ -341,7 +377,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                     placeholder="コメント(Markdown)"
                     onChange={(e) => setMdAreaValue(e.target.value)}
                     value={mdAreaValue}
-                    id="mdArea"
                   ></textarea>
                 ) : (
                   <div>
@@ -404,7 +439,14 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                                 <div className="px-1 py-1">
                                   <Menu.Item>
                                     {({ active }) => (
-                                      <button className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                      <button
+                                        onClick={() => {
+                                          setUpdateMdAreaValue(e.content);
+                                          setUpdateCommentID(e.ID);
+                                          setIsOpenUpdateCommentModal(true);
+                                        }}
+                                        className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                      >
                                         <MdEditNote className="mr-2 h-5 w-5 text-gray-600" aria-hidden="true" />
                                         編集
                                       </button>
@@ -488,6 +530,14 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           isDeleteSending={isDeleteSending}
           isOpenDeleteCommentModal={isOpenDeleteCommentModal}
           stateFunc={{ setIsOpenDeleteCommentModal }}
+        />
+        <UpdateCommentModal
+          handleUpdateComment={handleUpdateComment}
+          isUpdateSending={isUpdateSending}
+          isOpenUpdateCommentModal={isOpenUpdateCommentModal}
+          updateMdAreaValue={updateMdAreaValue}
+          updateSendingMessage={updateSendingMessage}
+          stateFunc={{ setIsOpenUpdateCommentModal, setUpdateMdAreaValue }}
         />
       </>
     ) : (
