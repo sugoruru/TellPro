@@ -5,7 +5,6 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 
-// TODO:(DEV) 関連するコメントの削除
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得.
@@ -69,6 +68,7 @@ export async function POST(req: NextRequest) {
   await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
   await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
   await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]])
+  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`DELETE FROM "Comments" WHERE "pageID"=$1`, [body["pageID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
