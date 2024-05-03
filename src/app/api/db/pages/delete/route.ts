@@ -55,10 +55,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページがすでに存在していれば400を返す.
+  // ページが存在しなければ400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
-    if (data.length > 0) {
+    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
+    if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
     }
   } catch (error) {

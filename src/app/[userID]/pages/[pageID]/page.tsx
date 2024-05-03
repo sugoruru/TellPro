@@ -13,7 +13,7 @@ import data from "@/modules/tags.json";
 import { MdDelete, MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
-import { Menu, Transition } from "@headlessui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
 import { IoChevronDown } from "react-icons/io5";
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
@@ -22,6 +22,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [userIcon, setUserIcon] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState("");
   const [mdAreaValue, setMdAreaValue] = useState("");
+  const [deleteCommentID, setDeleteCommentID] = useState("");
   const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
@@ -33,6 +34,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isBookmarkSending, setIsBookmarkSending] = useState(false);
   const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
   const [isCommentSending, setIsCommentSending] = useState(false);
+  const [isOpenDeleteCommentModal, setIsOpenDeleteCommentModal] = useState(false);
+  const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserList>({} as UserList);
   const router = useRouter();
@@ -259,14 +262,24 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
-  const handleCommentDelete = async (commentID: string) => {
-    // TODO:(DEV) コメントの削除処理を書く.
-    // TODO:(DEV) これに付随するいいねも削除する.
+  const handleCommentDelete = async () => {
+    try {
+      setIsDeleteSending(true);
+      await axios.post("/api/db/comments/delete", {
+        commentID: deleteCommentID,
+        userID: me.ID,
+      });
+      setComments(comments.filter((e) => e.ID !== deleteCommentID));
+      setIsDeleteSending(false);
+      setIsOpenDeleteCommentModal(false);
+    } catch (e) {
+      console.error(e);
+      setIsDeleteSending(false);
+    }
   };
 
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
-  // TODO:(DEV) 345行目/コメントにいいねしているかを取得する.
   return isLoading ? (
     <>
       <Loading title="読み込み中..." />
@@ -394,7 +407,10 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                                   <Menu.Item>
                                     {({ active }) => (
                                       <button
-                                        onClick={() => handleCommentDelete(e.ID)}
+                                        onClick={() => {
+                                          setDeleteCommentID(e.ID);
+                                          setIsOpenDeleteCommentModal(true);
+                                        }}
                                         className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                       >
                                         <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
@@ -461,6 +477,65 @@ export default function Page({ params }: { params: { userID: string; pageID: str
             </Link>
           </div>
         </div>
+        <Transition appear show={isOpenDeleteCommentModal} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={() => setIsOpenDeleteCommentModal(false)}>
+            <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+              <div className="fixed inset-0 bg-black/25" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <Dialog.Title as="h3" className="text-lg text-center font-medium leading-6 text-gray-900">
+                      {isDeleteSending ? "削除中です..." : "本当に削除しますか？"}
+                    </Dialog.Title>
+                    {isDeleteSending ? (
+                      <>
+                        <div className="flex justify-center mt-2" aria-label="読み込み中">
+                          <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mt-2 text-center">
+                          <p className="text-sm text-gray-500">この操作はもとに戻せません</p>
+                        </div>
+                      </>
+                    )}
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        className="mr-2 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        onClick={() => {
+                          handleCommentDelete();
+                        }}
+                        disabled={isDeleteSending}
+                      >
+                        <b>削除する</b>
+                      </button>
+                      <button
+                        type="button"
+                        className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        onClick={() => setIsOpenDeleteCommentModal(false)}
+                        disabled={isDeleteSending}
+                      >
+                        <b>キャンセル</b>
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
       </>
     ) : (
       // ページが非公開の時.
