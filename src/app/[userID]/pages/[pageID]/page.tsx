@@ -25,6 +25,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
+  const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
@@ -45,12 +46,13 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const [fetchUser, me, fetchComments] = await Promise.all([
-          axios.get(`/api/db/users/exist?userID=${params.userID}`),
-          axios.get(`/api/db/users/existMe`),
-          axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
-        ]);
-        if (!fetchUser.data.exist || !fetchComments.data.ok || !me.data.ok) {
+        const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
+        if (!fetchUser.data.exist || !me.data.ok) {
+          router.replace("/");
+          return;
+        }
+        const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages&myID=${me.data.exist ? me.data.data.ID : "null"}`);
+        if (!fetchComments.data.ok) {
           router.replace("/");
           return;
         }
@@ -71,6 +73,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         }
         setComments(fetchComments.data.data as Comment[]);
         setCommentUserMap(fetchComments.data.userMap as { [key: string]: UserList });
+        setCommentLikeUserMap(fetchComments.data.likeComments as { [key: string]: boolean });
         setUserIcon(fetchUser.data.data.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
@@ -205,8 +208,55 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
-  const handleCommentGood = async (commentID: string) => {
-    // TODO:(DEV) いいねの処理を書く.
+  const handleCommentGood = async (commentID: string, pageUserID: string) => {
+    try {
+      setIsLikeSending(true);
+      if (!commentLikeUserMap[commentID]) {
+        // コメントのlikeCountを増やす.
+        setCommentLikeUserMap((prev) => {
+          prev[commentID] = true;
+          return prev;
+        });
+        const newComments = comments.map((e) => {
+          if (e.ID === commentID) {
+            e.likeCount = Number(e.likeCount) + 1;
+          }
+          return e;
+        });
+        setComments(newComments);
+        await axios.post("/api/db/likes/create", {
+          myID: me.ID,
+          pageUserID: pageUserID,
+          pageID: commentID,
+          URLType: "comments",
+        });
+      } else {
+        // コメントのlikeCountを減らす.
+        setCommentLikeUserMap((prev) => {
+          prev[commentID] = false;
+          return prev;
+        });
+        const newComments = comments.map((e) => {
+          if (e.ID === commentID) {
+            e.likeCount = Number(e.likeCount) - 1;
+          }
+          return e;
+        });
+        setComments(newComments);
+        await axios.post("/api/db/likes/delete", {
+          myID: me.ID,
+          pageUserID: pageUserID,
+          pageID: commentID,
+          URLType: "comments",
+        });
+      }
+      // 連打防止用に1秒待機.
+      await sleep(1000);
+      setIsLikeSending(false);
+    } catch (e) {
+      console.error(e);
+      setIsLikeSending(false);
+    }
   };
 
   const handleCommentDelete = async (commentID: string) => {
@@ -242,7 +292,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
             <u>@{params.userID}</u>
           </Link>
         </div>
-        <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">
+        <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
           {content}
           {/* コメント */}
           <div className="mt-10 flex flex-col">
@@ -311,28 +361,28 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                           <img src={commentUserMap[e.userID].icon} width={30} height={30} alt="" className="inline" />
                           <b className="ml-2">@{e.userID}</b>
                         </Link>
-                        <Menu as="div" className="relative inline-block">
-                          <div>
-                            <Menu.Button className="inline-flex justify-center rounded-m py-2 text-sm font-medium text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                              <IoChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-                            </Menu.Button>
-                          </div>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <Menu.Items
-                              className={`absolute right-0 ${
-                                e.userID === me.ID ? "mt-[-120px]" : "mt-[-80px]"
-                              } w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none`}
+                        {e.userID === me.ID ? (
+                          <Menu as="div" className="relative inline-block">
+                            <div>
+                              <Menu.Button className="inline-flex justify-center rounded-m py-2 text-sm font-medium text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                                <IoChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+                              </Menu.Button>
+                            </div>
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
                             >
-                              <div className="px-1 py-1">
-                                {e.userID === me.ID ? (
+                              <Menu.Items
+                                className={`absolute right-0 ${
+                                  e.userID === me.ID ? "mt-[-120px]" : "mt-[-80px]"
+                                } w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none`}
+                              >
+                                <div className="px-1 py-1">
                                   <Menu.Item>
                                     {({ active }) => (
                                       <button className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
@@ -341,34 +391,34 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                                       </button>
                                     )}
                                   </Menu.Item>
-                                ) : (
-                                  <></>
-                                )}
-                                <Menu.Item>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => handleCommentDelete(e.ID)}
-                                      className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                    >
-                                      <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
-                                      Delete
-                                    </button>
-                                  )}
-                                </Menu.Item>
-                              </div>
-                            </Menu.Items>
-                          </Transition>
-                        </Menu>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <button
+                                        onClick={() => handleCommentDelete(e.ID)}
+                                        className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                      >
+                                        <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+                                        Delete
+                                      </button>
+                                    )}
+                                  </Menu.Item>
+                                </div>
+                              </Menu.Items>
+                            </Transition>
+                          </Menu>
+                        ) : (
+                          <></>
+                        )}
                       </div>
                       <div>{Lex({ text: e.content })}</div>
                       <div className={`text-center flex`}>
                         <button
                           className={`cursor-pointer w-10 flex flex-col items-center h-10 justify-center bg-white rounded-full border-gray-300 border`}
                           title="いいね"
-                          onClick={() => handleCommentGood(e.ID)}
+                          onClick={() => handleCommentGood(e.ID, e.pageUserID)}
                           disabled={isLikeSending}
                         >
-                          {false ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
+                          {commentLikeUserMap[e.ID] ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
                         </button>
                         <b className="ml-1 my-auto">{Number(e.likeCount)}</b>
                       </div>

@@ -59,6 +59,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
+  // ページの存在を確認.
+  if (URLType === "pages") {
+    try {
+      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      if (page.length === 0) {
+        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
+      }
+    } catch (e) {
+      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    }
+  } else if (URLType === "comments") {
+    try {
+      const comment = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      if (comment.length === 0) {
+        return NextResponse.json({ ok: false, error: "Comment not found" }, { status: 400 });
+      }
+    } catch (e) {
+      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    }
+  }
+
   // いいねを取得する.
   const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [userID, pageID, pageUserID, URLType]);
   if (likes.length === 0) {

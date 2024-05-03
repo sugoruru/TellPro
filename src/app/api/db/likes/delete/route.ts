@@ -61,13 +61,24 @@ export async function POST(req: NextRequest) {
   }
 
   // ページの存在を確認.
-  try {
-    const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
-    if (page.length === 0) {
-      return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
+  if (body["URLType"] === "page") {
+    try {
+      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
+      if (page.length === 0) {
+        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
+      }
+    } catch (e) {
+      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+  } else if (body["URLType"] === "comment") {
+    try {
+      const comment = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
+      if (comment.length === 0) {
+        return NextResponse.json({ ok: false, error: "Comment not found" }, { status: 400 });
+      }
+    } catch (e) {
+      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    }
   }
 
   // ページがすでにいいねしていなければ400を返す.
@@ -82,7 +93,11 @@ export async function POST(req: NextRequest) {
 
   // ページを削除.
   await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4`, [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
-  await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  if (body["URLType"] === "page") {
+    await db.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
+    await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  } else if (body["URLType"] === "comments") {
+    await db.any(`UPDATE "Comments" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  }
   return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -22,14 +22,18 @@ export async function GET(req: NextRequest) {
     }, { status: 429 });
     return res;
   }
+  const pageUserID = req.nextUrl.searchParams.get("pageUserID");
+  const pageID = req.nextUrl.searchParams.get("pageID");
+  const URLType = req.nextUrl.searchParams.get("URLType");
+  const myID = req.nextUrl.searchParams.get("myID");
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (req.nextUrl.searchParams.get("pageUserID") === null || req.nextUrl.searchParams.get("pageID") === null || req.nextUrl.searchParams.get("URLType") === null) {
+  if (pageUserID === null || pageID === null || URLType === null || myID === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
 
-  const data = await db.any(`SELECT * FROM "Comments" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType" = $3 ORDER BY time DESC`, [req.nextUrl.searchParams.get("pageID"), req.nextUrl.searchParams.get("pageUserID"), req.nextUrl.searchParams.get("URLType")]);
+  const data = await db.any(`SELECT * FROM "Comments" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType" = $3 ORDER BY time DESC`, [pageID, pageUserID, URLType]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false, data: [], userMap: {} }, { status: 200 });
     return res;
@@ -40,7 +44,24 @@ export async function GET(req: NextRequest) {
     userData.forEach((e) => {
       userMap[e.ID] = e;
     });
-    const res = NextResponse.json({ ok: true, exist: true, data: data, userMap }, { status: 200 });
-    return res;
+    if (myID !== "null") {
+      // likeCommentを作成する→いいねしているかどうかを判定するため.
+      const likeUserMap: { [key: string]: boolean } = {}
+      const likeComments = await db.any(`
+      SELECT l.*
+      FROM "Likes" l
+      INNER JOIN "Comments" c ON l."pageID" = c."ID"
+      WHERE l."userID" = $1 
+      AND l."URLType" = 'comments'
+      AND c."pageID" = $2`, [myID, pageID]);
+      likeComments.forEach((e: Like) => {
+        likeUserMap[e.pageID] = true;
+      });
+      const res = NextResponse.json({ ok: true, exist: true, data: data, userMap, likeComments: likeUserMap }, { status: 200 });
+      return res;
+    } else {
+      const res = NextResponse.json({ ok: true, exist: true, data: data, userMap, likeComments: {} }, { status: 200 });
+      return res;
+    }
   }
 }
