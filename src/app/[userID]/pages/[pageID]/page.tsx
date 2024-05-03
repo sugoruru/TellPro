@@ -210,6 +210,12 @@ export default function Page({ params }: { params: { userID: string; pageID: str
         } as Comment,
         ...prev,
       ]);
+      setCommentLikeUserMap((prev) => {
+        return {
+          ...prev,
+          [commentID]: false,
+        };
+      });
       setCommentUserMap((prev) => {
         prev[me.ID] = me;
         return prev;
