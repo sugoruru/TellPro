@@ -50,35 +50,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
-        if (!fetchUser.data.exist || !me.data.ok) {
-          router.replace("/");
-          return;
-        }
-        const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages&myID=${me.data.exist ? me.data.data.ID : "null"}`);
-        if (!fetchComments.data.ok) {
-          router.replace("/");
-          return;
-        }
-        let isLike, isBookmark;
-        if (me.data.exist) {
-          setIsLogin(true);
-          setMe(me.data.data);
-          [isLike, isBookmark] = await Promise.all([
-            axios.get(`/api/db/likes/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
-            axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
-          ]);
-          if (!isLike.data.ok || !isBookmark.data.ok) {
-            router.replace("/");
-            return;
-          }
-          setIsLike(isLike.data.isLiked);
-          setIsBookmark(isBookmark.data.isBookmark);
-        }
-        setComments(fetchComments.data.data as Comment[]);
-        setCommentUserMap(fetchComments.data.userMap as { [key: string]: UserList });
-        setCommentLikeUserMap(fetchComments.data.likeComments as { [key: string]: boolean });
-        setUserIcon(fetchUser.data.data.icon);
         const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`);
         if (!res.data.exist) {
           setIsExist(false);
@@ -86,6 +57,37 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           setIsExist(true);
           setPage(res.data.data as Page);
           setContent(Lex({ text: res.data.data.content }));
+        }
+        const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
+        if (!fetchUser.data.exist || !me.data.ok) {
+          router.replace("/");
+          return;
+        }
+        setUserIcon(fetchUser.data.data.icon);
+        setMe(me.data.data);
+        if (res.data.exist) {
+          const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages&myID=${me.data.exist ? me.data.data.ID : "null"}`);
+          if (!fetchComments.data.ok) {
+            router.replace("/");
+            return;
+          }
+          let isLike, isBookmark;
+          if (me.data.exist) {
+            setIsLogin(true);
+            [isLike, isBookmark] = await Promise.all([
+              axios.get(`/api/db/likes/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+              axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.pageID}&URLType=pages`),
+            ]);
+            if (!isLike.data.ok || !isBookmark.data.ok) {
+              router.replace("/");
+              return;
+            }
+            setIsLike(isLike.data.isLiked);
+            setIsBookmark(isBookmark.data.isBookmark);
+          }
+          setComments(fetchComments.data.data as Comment[]);
+          setCommentUserMap(fetchComments.data.userMap as { [key: string]: UserList });
+          setCommentLikeUserMap(fetchComments.data.likeComments as { [key: string]: boolean });
         }
         setIsLoading(false);
       };
@@ -188,6 +190,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       setMdAreaValue("");
       setSendingMessage("");
       setIsCommentSending(false);
+      setPage({ ...page, commentCount: Number(page.commentCount) + 1 });
       setComments((prev) => [
         {
           ID: commentID,
@@ -273,6 +276,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       setComments(comments.filter((e) => e.ID !== deleteCommentID));
       setIsDeleteSending(false);
       setIsOpenDeleteCommentModal(false);
+      setPage({ ...page, commentCount: Number(page.commentCount) - 1 });
     } catch (e) {
       console.error(e);
       setIsDeleteSending(false);

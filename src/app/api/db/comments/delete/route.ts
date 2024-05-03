@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ページの削除.
-  await db.any(`UPDATE "Pages" SET "commentCount" = "commentCount" - 1 WHERE "ID" = $1`, [body["commentID"]]);
+  await db.any(`UPDATE "Pages" SET "commentCount" = "commentCount" - 1 WHERE "ID" = (SELECT "pageID" FROM "Comments" WHERE "ID"=$1 AND "userID"=$2)`, [body["commentID"], body["userID"]]);
   await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["commentID"], body["userID"]]);
   await db.any(`DELETE FROM "Comments" WHERE "ID"=$1 AND "userID"=$2`, [body["commentID"], body["userID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
