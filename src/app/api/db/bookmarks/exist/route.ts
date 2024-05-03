@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
-import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
@@ -28,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
   const session = await getServerSession(OPTIONS);
-  if (!session) {
+  if (!session || !session.user) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
@@ -45,32 +44,24 @@ export async function GET(req: NextRequest) {
   // TODO:(DEV) questionsにも対応する.
   // ページの存在を検索する.
   try {
-    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${pageUserID}&pageID=${pageID}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
+    if (URLType === "pages") {
+      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      if (page.length === 0) {
+        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
-    });
-    if (!existPage.data.exist) {
-      return NextResponse.json({ ok: false, error: "The page doesn't exist" }, { status: 400 });
     }
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   // 自分自身を検索する.
   let userID = "";
   try {
-    const existMe = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (!existMe.data.exist) {
+    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 400 });
     }
-    userID = existMe.data.data.ID;
+    userID = data[0].ID;
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }

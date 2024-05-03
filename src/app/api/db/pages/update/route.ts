@@ -4,7 +4,6 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import axios from "axios";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -44,14 +43,9 @@ export async function POST(req: NextRequest) {
 
   // ページが存在しない場合は400を返す.
   try {
-    const existPage = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?pageID=${body.ID}&userID=${body.userID}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (!existPage.data.exist) {
-      return NextResponse.json({ ok: false, error: "Page Not found" }, { status: 400 });
+    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
+    if (data.length === 0) {
+      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });

@@ -48,15 +48,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // ユーザーがすでに存在していれば400を返す.
+  // ユーザーがすでに存在していなければ400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe?userID=${body.ID}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (!existUser.data.exist) {
+    const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [body.ID]);
+    if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User Not found" }, { status: 400 });
     }
   } catch (error) {

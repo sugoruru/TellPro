@@ -1,10 +1,9 @@
 "use client";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Loading from "../components/loading";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { UserContext } from "../components/providers/userProvider";
 import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
 import LinkBlock from "../components/linkBlock";
@@ -17,16 +16,20 @@ export default function Page({ params }: { params: { userID: string } }) {
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [pageUser, setPageUser] = useState<UserList>({} as UserList);
+  const [me, setMe] = useState<User | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("pages");
   const [deletePageID, setDeletePageID] = useState("");
   const router = useRouter();
-  const me = useContext(UserContext);
 
   useEffect(() => {
     try {
       const fetcher = async () => {
-        const [userData, pagesData] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/pages/getPages?userID=${params.userID}`)]);
+        const [tempMe, userData, pagesData] = await Promise.all([
+          axios.get(`/api/db/users/existMe`),
+          axios.get(`/api/db/users/exist?userID=${params.userID}`),
+          axios.get(`/api/db/pages/getPages?userID=${params.userID}`),
+        ]);
         if (userData.data.exist) {
           setIsExist(true);
           setPageUser(userData.data.data as UserList);
@@ -34,6 +37,9 @@ export default function Page({ params }: { params: { userID: string } }) {
         setIsLoading(false);
         if (pagesData.data.ok) {
           setPages(pagesData.data.pages);
+        }
+        if (tempMe.data.ok && tempMe.data.exist) {
+          setMe(tempMe.data.data as User);
         }
       };
       fetcher();

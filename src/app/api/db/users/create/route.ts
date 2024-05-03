@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
-import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
@@ -49,13 +48,8 @@ export async function POST(req: NextRequest) {
 
   // ユーザーがすでに存在していれば400を返す.
   try {
-    const existUser = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/exist?userID=${body.ID}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (existUser.data.exist) {
+    const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [body.ID]);
+    if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
     }
   } catch (error) {

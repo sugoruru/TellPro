@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
-import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
   const session = await getServerSession(OPTIONS);
-  if (!session) {
+  if (!session || !session.user) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
@@ -49,31 +48,31 @@ export async function POST(req: NextRequest) {
 
   // 自分自身か確認.
   try {
-    const me = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (!me.data.exist) {
+    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (me.data.data.ID !== body["myID"]) {
+    if (data[0].ID !== body["myID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページがすでにいいねしていれば400を返す.
+  // ページの存在を確認.
   try {
-    const existLike = await axios.get(process.env.NEXTAUTH_URL + `/api/db/bookmarks/exist?pageUserID=${body["pageUserID"]}&pageID=${body["pageID"]}&URLType=${body["URLType"]}`, {
-      withCredentials: true,
-      headers: {
-        Cookie: req.headers.get("cookie")
-      }
-    });
-    if (existLike.data.isBookmark) {
+    const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
+    if (page.length === 0) {
+      return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
+    }
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+  }
+
+  // ページがすでにブックマークしていれば400を返す.
+  try {
+    const data = await db.any(`SELECT * FROM "Bookmarks" WHERE "pageUserID" = $1 AND "pageID" = $2 AND "URLType" = $3 AND "userID" = $4`, [body["pageUserID"], body["pageID"], body["URLType"], body["myID"]]);
+    if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "The page already bookmark" }, { status: 400 });
     }
   } catch (error) {
