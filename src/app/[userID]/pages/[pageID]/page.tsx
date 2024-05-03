@@ -105,8 +105,8 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const handleGoodButton = async () => {
     try {
       setIsLikeSending(true);
+      setIsLike(!isLike);
       if (!isLike) {
-        setIsLike(true);
         setPage({ ...page, likeCount: Number(page.likeCount) + 1 });
         await axios.post("/api/db/likes/create", {
           myID: me.ID,
@@ -115,7 +115,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
           URLType: "pages",
         });
       } else {
-        setIsLike(false);
         setPage({ ...page, likeCount: Number(page.likeCount) - 1 });
         await axios.post("/api/db/likes/delete", {
           myID: me.ID,
@@ -206,7 +205,14 @@ export default function Page({ params }: { params: { userID: string; pageID: str
     }
   };
 
-  const handleCommentGood = async (commentID: string) => {};
+  const handleCommentGood = async (commentID: string) => {
+    // TODO:(DEV) いいねの処理を書く.
+  };
+
+  const handleCommentDelete = async (commentID: string) => {
+    // TODO:(DEV) コメントの削除処理を書く.
+    // TODO:(DEV) これに付随するいいねも削除する.
+  };
 
   // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
@@ -340,7 +346,10 @@ export default function Page({ params }: { params: { userID: string; pageID: str
                                 )}
                                 <Menu.Item>
                                   {({ active }) => (
-                                    <button className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                    <button
+                                      onClick={() => handleCommentDelete(e.ID)}
+                                      className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                    >
                                       <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
                                       Delete
                                     </button>

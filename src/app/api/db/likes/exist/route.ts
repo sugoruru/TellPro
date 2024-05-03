@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
   }
 
   // いいねを取得する.
-  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $3', [userID, pageID, pageUserID, URLType]);
+  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [userID, pageID, pageUserID, URLType]);
   if (likes.length === 0) {
     return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
   } else {

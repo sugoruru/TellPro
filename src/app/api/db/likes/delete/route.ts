@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+
+  // URLTypeが不正な値であれば400を返す.
   if (URLTypes.indexOf(body["URLType"]) === -1) {
     return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
   }
