@@ -1,17 +1,16 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../components/loading";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { UserContext } from "../components/providers/userProvider";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import LinkBlock from "../components/linkBlock";
 
 export default function Bookmark() {
   const { status } = useSession();
-  const me = useContext(UserContext);
+  const [me, setMe] = useState<User | null>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +24,15 @@ export default function Bookmark() {
       setIsLoading(false);
       setIsLogin(true);
     }
+    const fetcher = async () => {
+      try {
+        const me = await axios.get("/api/db/users/existMe");
+        setMe(me.data.data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetcher();
   }, [status]);
 
   // ユーザー情報が取得できているか確認.
