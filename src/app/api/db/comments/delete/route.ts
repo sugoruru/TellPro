@@ -5,7 +5,6 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 
-// TODO:(DEV) 関連するコメントの削除
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
   // ipの取得.
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["pageID", "pageUserID", "userID"];
+  const required = ["commentID", "userID"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -42,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 自分自身のページであるか確認.
+  // 自分自身のアカウントであるか確認.
   try {
     const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
     if (data.length === 0) {
@@ -55,20 +54,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページが存在しなければ400を返す.
+  // コメントが存在しなければエラーを返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
+    const data = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [body["commentID"], body["userID"]]);
     if (data.length === 0) {
-      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "This comment isn't exist." }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   // ページの削除.
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]])
+  await db.any(`UPDATE "Pages" SET "commentCount" = "commentCount" - 1 WHERE "ID" = (SELECT "pageID" FROM "Comments" WHERE "ID"=$1 AND "userID"=$2)`, [body["commentID"], body["userID"]]);
+  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["commentID"], body["userID"]]);
+  await db.any(`DELETE FROM "Comments" WHERE "ID"=$1 AND "userID"=$2`, [body["commentID"], body["userID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

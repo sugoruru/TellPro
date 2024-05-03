@@ -9,6 +9,8 @@ import React from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import hideHeaderPage from "@/modules/hideHeaderPage";
 
+// TODO: (DEV)apiの軽量化(apiから別のapiに接続するのを辞める)
+// TODO: (DEV)ユーザーや記事のキャッシュを導入する
 // TODO: (NONE)CUIでの記事の投稿機能の追加
 // TODO: (NONE)コードテスト実行環境の作成
 // TODO: (NONE)問題作成ページの作成

@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
+import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import URLTypes from "@/modules/URLTypes";
 
-// TODO:(DEV) 関連するコメントの削除
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
-  // ipの取得.
+  // ipの取得
   const headersList = headers();
   const ip = headersList.get("X-Forwarded-For");
   if (!ip) {
@@ -28,47 +29,53 @@ export async function POST(req: NextRequest) {
 
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
   const session = await getServerSession(OPTIONS);
-  if (!session || !session.user) {
+  if (!session) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["pageID", "pageUserID", "userID"];
+  const required = ["ID", "myID", "pageUserID", "pageID", "URLType", "content"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+  if (URLTypes.indexOf(body["URLType"]) === -1) {
+    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
+  }
 
-  // 自分自身のページであるか確認.
+  // 自分自身か確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
-    if (data.length === 0) {
+    const me = await axios.get(process.env.NEXTAUTH_URL + `/api/db/users/existMe`, {
+      withCredentials: true,
+      headers: {
+        Cookie: req.headers.get("cookie")
+      }
+    });
+    if (!me.data.exist) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["userID"]) {
+    if (me.data.data.ID !== body["myID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページが存在しなければ400を返す.
+  // ページが存在するか確認.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
-    if (data.length === 0) {
-      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
+    const page = await axios.get(process.env.NEXTAUTH_URL + `/api/db/pages/exist?userID=${body["pageUserID"]}&pageID=${body["pageID"]}`);
+    if (!page.data.ok) {
+      return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
     }
   } catch (error) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
   }
 
-  // ページの削除.
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]])
+  // コメントを作成.
+  await db.any(`INSERT INTO "Comments" ("ID", "userID", "pageID", "time", "URLType", "pageUserID", "content", "likeCount") VALUES ($1, $2, $3, $4, $5, $6, $7, 0);`, [body["ID"], body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"], body["content"]]);
+  await db.any(`UPDATE "Pages" SET "commentCount"="commentCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

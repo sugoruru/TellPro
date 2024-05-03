@@ -4,7 +4,6 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import axios from "axios";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -34,31 +33,29 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["userName", "mail", "icon", "ID"];
+  const required = ["pageID", "commentID", "userID", "content"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
-  if (body.statusMessage === undefined) body.statusMessage = "";
 
-  // メールアドレスがセッションのユーザーのものでなければ401を返す.
-  if (session.user?.email !== body.mail) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
-
-  // ユーザーがすでに存在していなければ400を返す.
+  // コメントが存在しない場合は400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [body.ID]);
+    const data = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2 AND "pageID" = $3`, [body["commentID"], body["userID"], body["pageID"]]);
     if (data.length === 0) {
-      return NextResponse.json({ ok: false, error: "User Not found" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "The Comment isn't exist" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ユーザーをアップデート.
-  await db.any(`UPDATE "Users" SET "username"=$1, "icon"=$2, "statusMessage"=$3 WHERE "ID" = $4`, [body.userName, body.icon, body.statusMessage, body.ID]);
-  return NextResponse.json({ ok: true }, { status: 200 });
+  // コメントをアップデート.
+  try {
+    await db.any(`UPDATE "Comments" SET "content"=$1 WHERE "ID"=$2 AND "userID"=$3 AND "pageID"=$4`, [body["content"], body["commentID"], body["userID"], body["pageID"]]);
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });
+  }
 }

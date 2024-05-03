@@ -27,16 +27,16 @@ export async function GET(req: NextRequest) {
 
   const session = await getServerSession(OPTIONS);
   if (!session || !session.user) {
-    const res = NextResponse.json({ ok: false, exist: false, message: "not login" }, { status: 200 });
+    const res = NextResponse.json({ ok: true, exist: false, message: "not login" }, { status: 200 });
     return res;
   }
   const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]);
-  // 最終ログイン日時の更新.
-  await db.any(`UPDATE "Users" SET "date" = $2 WHERE mail = $1`, [session.user.email, new Date().getTime()]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
     return res;
   } else {
+    // 最終ログイン日時の更新.
+    await db.any(`UPDATE "Users" SET "date" = $2 WHERE mail = $1`, [session.user.email, new Date().getTime()]);
     const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
     return res;
   }

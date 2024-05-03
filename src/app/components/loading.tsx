@@ -1,4 +1,5 @@
-const Loading = (props:{title:string}) => {
+// TODO: できるだけ使わないようにする.
+const Loading = (props: { title: string }) => {
   return (
     <div className="flex justify-center">
       <div className="text-center my-5 w-80 h-40 ">

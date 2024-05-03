@@ -48,14 +48,7 @@ const Header = () => {
                 </Link>
                 <Menu>
                   <Menu.Button>
-                    <Image
-                      priority={false}
-                      src={user ? user.icon : "/svg/userIcon.svg"}
-                      className={`${isUserLogin ? "opacity-100" : ""} opacity-0 transition cursor-pointer`}
-                      width={40}
-                      height={40}
-                      alt={""}
-                    />
+                    <img src={user ? user.icon : "/svg/userIcon.svg"} className={`${isUserLogin ? "opacity-100" : ""} opacity-0 transition cursor-pointer`} width={40} height={40} alt={""} />
                   </Menu.Button>
                   <Transition
                     as={Fragment}
