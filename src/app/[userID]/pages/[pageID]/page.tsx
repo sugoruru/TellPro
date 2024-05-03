@@ -170,7 +170,9 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       return;
     }
     try {
+      const commentID = returnRandomString(32);
       await axios.post("/api/db/comments/create", {
+        ID: commentID,
         myID: me.ID,
         pageUserID: params.userID,
         pageID: params.pageID,
@@ -182,7 +184,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
       setIsCommentSending(false);
       setComments((prev) => [
         {
-          ID: returnRandomString(32),
+          ID: commentID,
           userID: me.ID,
           pageID: params.pageID,
           time: Date.now(),

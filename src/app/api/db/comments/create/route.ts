@@ -5,7 +5,6 @@ import axios from "axios";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import returnRandomString from "@/modules/algo/returnRandomString";
 import URLTypes from "@/modules/URLTypes";
 
 const limitChecker = LimitChecker();
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["myID", "pageUserID", "pageID", "URLType", "content"];
+  const required = ["ID", "myID", "pageUserID", "pageID", "URLType", "content"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -76,7 +75,7 @@ export async function POST(req: NextRequest) {
   }
 
   // コメントを作成.
-  await db.any(`INSERT INTO "Comments" ("ID", "userID", "pageID", "time", "URLType", "pageUserID", "content", "likeCount") VALUES ($1, $2, $3, $4, $5, $6, $7, 0);`, [returnRandomString(64), body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"], body["content"]]);
+  await db.any(`INSERT INTO "Comments" ("ID", "userID", "pageID", "time", "URLType", "pageUserID", "content", "likeCount") VALUES ($1, $2, $3, $4, $5, $6, $7, 0);`, [body["ID"], body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"], body["content"]]);
   await db.any(`UPDATE "Pages" SET "commentCount"="commentCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
