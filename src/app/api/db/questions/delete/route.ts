@@ -54,9 +54,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページが存在しなければ400を返す.
+  // 質問ページが存在しなければ400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
+    const data = await db.any(`SELECT * FROM "Questions" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
     }
@@ -65,10 +65,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ページの削除.
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Comments" WHERE "pageID"=$1 AND "pageUserID"=$2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Questions" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='questions'`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='questions'`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`DELETE FROM "Questions" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+  await db.any(`DELETE FROM "Comments" WHERE "pageID"=$1 AND "pageUserID"=$2 AND "URLType"='questions'`, [body["pageID"], body["pageUserID"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

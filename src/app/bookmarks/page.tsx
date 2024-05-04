@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import LinkBlock from "../components/linkBlock";
+import PageLinkBlock from "../components/pageLinkBlock";
 
 export default function Bookmark() {
   const { status } = useSession();
@@ -82,7 +82,7 @@ export default function Bookmark() {
             <div>
               {pages.map((page) => (
                 <div key={returnRandomString(32)}>
-                  <LinkBlock page={page} pageUser={userMap[page.userID]} me={me} />
+                  <PageLinkBlock page={page} pageUser={userMap[page.userID]} me={me} />
                 </div>
               ))}
             </div>
