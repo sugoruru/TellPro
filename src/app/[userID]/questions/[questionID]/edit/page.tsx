@@ -18,12 +18,13 @@ import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
 import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import template from "@/modules/questionTemplate";
 
-const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
+const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
   const { status } = useSession();
   const [existUser, setExistUser] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
-  const [isPageExist, setIsPageExist] = useState(false);
+  const [isQuestionExist, setIsQuestionExist] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isOpenImageUpload, setIsOpenImageUpload] = useState(false);
   const [isOpenTagEditor, setIsOpenTagEditor] = useState(false);
@@ -31,7 +32,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [sendingImageMessage, setSendingImageMessage] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
-  const [mdAreaValue, setMdAreaValue] = useState("");
+  const [mdAreaValue, setMdAreaValue] = useState(template);
   const [prevIcon, setPrevIcon] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
   const [title, setTitle] = useState("");
@@ -44,7 +45,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const tagJSON: Tags = data;
 
   useEffect(() => {
-    if (!/^[a-zA-Z]+$/.test(params.pageID)) {
+    if (!/^[a-zA-Z]+$/.test(params.questionID)) {
       router.replace("/");
       return;
     }
@@ -53,7 +54,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
-  }, [router, params.pageID]);
+  }, [router, params.questionID]);
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
@@ -64,7 +65,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchMe, fetchPage] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}`)]);
+          const [fetchMe, fetchQuestion] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/questions/exist?userID=${params.userID}&pageID=${params.questionID}`)]);
           if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
@@ -74,13 +75,13 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.ID) {
                 setCanEdit(true);
-                if (fetchPage.data.exist) {
-                  const tempPage = fetchPage.data.data as Page;
-                  setMdAreaValue(tempPage.content);
-                  setTitle(tempPage.title);
-                  setTags(tempPage.tags.map((e) => Number(e)));
-                  setIsPublic(tempPage.isPublic);
-                  setIsPageExist(true);
+                if (fetchQuestion.data.exist) {
+                  const tempQuestion = fetchQuestion.data.data as Question;
+                  setMdAreaValue(tempQuestion.content);
+                  setTitle(tempQuestion.title);
+                  setTags(tempQuestion.tags.map((e) => Number(e)));
+                  setIsPublic(tempQuestion.isPublic);
+                  setIsQuestionExist(true);
                 }
               }
             } else {
@@ -97,7 +98,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status, router, params.pageID, params.userID]);
+  }, [status, router, params.questionID, params.userID]);
 
   useEffect(() => {
     if (status == "loading" || !existUser) {
@@ -131,7 +132,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     setIsOpenImageUpload(false);
   };
 
-  const handlePageUpload = async () => {
+  const handleQuestionUpload = async () => {
     setIsSending(true);
     setSendingMessage("");
     if (title === "") {
@@ -149,32 +150,32 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       setIsSending(false);
       return;
     }
-    if (isPageExist) {
+    if (isQuestionExist) {
       try {
-        await axios.post("/api/db/pages/update", {
-          ID: params.pageID,
+        await axios.post("/api/db/questions/update", {
+          ID: params.questionID,
           userID: params.userID,
           title: title,
           content: mdAreaValue,
           tags: tags,
           isPublic: isPublic,
         });
-        router.push(`/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/questions/${params.questionID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
         setIsSending(false);
       }
     } else {
       try {
-        await axios.post("/api/db/pages/create", {
-          ID: params.pageID,
+        await axios.post("/api/db/questions/create", {
+          ID: params.questionID,
           userID: params.userID,
           title: title,
           content: mdAreaValue,
           tags: tags,
           isPublic: isPublic,
         });
-        router.push(`/${params.userID}/pages/${params.pageID}`);
+        router.push(`/${params.userID}/questions/${params.questionID}`);
       } catch (e) {
         setSendingMessage("エラーが発生しました");
         setIsSending(false);
@@ -368,7 +369,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                 </Dialog>
               </Transition>
               {/* save button */}
-              <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
+              <button disabled={isSending} onClick={handleQuestionUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
                 {isPublic ? "公開する" : "下書き"}
               </button>
               {/* 公開/非公開選択ボタン */}
@@ -462,4 +463,4 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   );
 };
 
-export default MakeNewPage;
+export default MakeNewQuestion;

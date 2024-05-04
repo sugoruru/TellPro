@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
-  // ipの取得.
+  // ipの取得
   const headersList = headers();
   const ip = headersList.get("X-Forwarded-For");
   if (!ip) {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["pageID", "pageUserID", "userID"];
+  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -54,21 +54,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページが存在しなければ400を返す.
+  // ページがすでに存在していれば400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
-    if (data.length === 0) {
-      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
+    const data = await db.any(`SELECT * FROM "Questions" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
+    if (data.length > 0) {
+      return NextResponse.json({ ok: false, error: "Question already exists" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページの削除.
-  await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  await db.any(`DELETE FROM "Comments" WHERE "pageID"=$1 AND "pageUserID"=$2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
+  // ページを作成.
+  await db.any(`INSERT INTO "Questions" ("ID", "userID", "title", "content", "likeCount", "answerCount", "isPublic", "date", "tags", "isClosed") VALUES ($1, $2, $3, $4, 0, 0, $5, $6, $7, false);`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -9,6 +9,11 @@
   padding-bottom: 0.25rem;
 }
 
+pre {
+  border-radius: 0.5em;
+  padding: 0.1em;
+}
+
 inline {
   background-color: #eee;
   border-radius: 10%;
