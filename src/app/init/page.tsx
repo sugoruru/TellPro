@@ -2,7 +2,6 @@
 import { useSession } from "next-auth/react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { BsExclamationCircle } from "react-icons/bs";
-import Image from "next/image";
 import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
@@ -13,6 +12,7 @@ import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
+import userNameKeyword from "@/modules/userNameKeyword";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -78,6 +78,10 @@ export default function Init() {
       // 二分探索でページ名が存在するか確認.
       setIsPageNameError(true);
       setPageNameErrorMessage("このページ名は既に使われています");
+    } else if (e.target.value in userNameKeyword) {
+      // ユーザー名とページ名が一致する場合.
+      setIsPageNameError(true);
+      setPageNameErrorMessage("このページ名は使用できません");
     } else {
       setIsPageNameError(false);
       setPageNameErrorMessage("");
@@ -115,6 +119,10 @@ export default function Init() {
           if (existTargetByBinarySearch(x, (document.getElementById("pageName_tellPro") as HTMLInputElement).value)) {
             setIsSending(false);
             setStateMessage("このページ名は既に使われています");
+            return;
+          } else if ((document.getElementById("pageName_tellPro") as HTMLInputElement).value in userNameKeyword) {
+            setIsSending(false);
+            setStateMessage("このページ名は使用できません");
             return;
           }
         }
