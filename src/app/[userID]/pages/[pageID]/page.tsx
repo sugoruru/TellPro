@@ -9,7 +9,6 @@ import Prism from "prismjs";
 import { Fragment, useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
-import data from "@/modules/tags.json";
 import { MdDelete, MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
@@ -46,7 +45,6 @@ export default function Page({ params }: { params: { userID: string; pageID: str
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserList>({} as UserList);
   const router = useRouter();
-  const tagJSON: Tags = data;
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -342,7 +340,7 @@ export default function Page({ params }: { params: { userID: string; pageID: str
             {page.tags.map((e) => (
               <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                 <FaTag className="inline-flex my-auto mr-1" />
-                {tagJSON.tags[Number(e)].name}
+                {e}
               </div>
             ))}
           </div>

@@ -1,45 +1,38 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
-import data from "@/modules/tags.json";
-import { UIEvent, useEffect } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { FaTag } from "react-icons/fa6";
-let scroll = 0;
 
-const TagsDialog = (props: { tags: Number[]; setTags: Function; tagSearchValue: string }) => {
-  const tagJSON: Tags = data;
-
-  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
-    scroll = e.currentTarget.scrollTop;
-  };
-
+const TagsDialog = (props: { setTagSearchValue: Function; tagSearchValue: string }) => {
+  const [tags, setTags] = useState<TagData[]>([]);
   useEffect(() => {
-    const tagDialog = document.getElementById("tagDialog");
-    if (tagDialog) tagDialog.scrollTo(0, scroll);
-  }, []);
-
+    if (props.tagSearchValue.split(" ").slice(-1)[0].length > 0) {
+      const fetcher = async () => {
+        const data = await axios.get(`/api/db/tags/search?word=${props.tagSearchValue.split(" ").slice(-1)[0]}`);
+        setTags(data.data.data);
+      };
+      fetcher();
+    }
+  }, [props.tagSearchValue]);
   return (
-    <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900" onScroll={handleScroll}>
-      {tagJSON.tags.map((e: Tag) =>
-        e.name.substring(0, props.tagSearchValue.length) === props.tagSearchValue ? (
+    <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900">
+      {tags.map((e: TagData) => {
+        return (
           <div
             onClick={() => {
-              if (props.tags.includes(e.id - 1)) {
-                if (props.tags.length <= 5) {
-                  props.setTags(props.tags.filter((tag) => tag !== e.id - 1));
-                }
-              } else if (props.tags.length < 5) {
-                props.setTags([...props.tags, e.id - 1]);
-              }
+              const newTagSearchValue = props.tagSearchValue.split(" ");
+              newTagSearchValue.pop();
+              newTagSearchValue.push(e.name);
+              props.setTagSearchValue(newTagSearchValue.join(" ") + " ");
             }}
             key={returnRandomString(16)}
-            className={`select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 ${props.tags.includes(e.id - 1) ? "bg-slate-400" : "bg-slate-200"}`}
+            className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-200"
           >
             <FaTag className="inline-flex my-auto mr-1" />
             {e.name}
           </div>
-        ) : (
-          <></>
-        )
-      )}
+        );
+      })}
     </div>
   );
 };

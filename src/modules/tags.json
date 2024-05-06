@@ -129,6 +129,96 @@
             "name": "Java",
             "id": 26,
             "description": "Java"
+        },
+        {
+            "name": "Rust",
+            "id": 27,
+            "description": "Rust"
+        },
+        {
+            "name": "FFT",
+            "id": 28,
+            "description": "高速フーリエ変換"
+        },
+        {
+            "name": "素数",
+            "id": 29,
+            "description": "素数"
+        },
+        {
+            "name": "約数",
+            "id": 30,
+            "description": "約数"
+        },
+        {
+            "name": "素因数分解",
+            "id": 31,
+            "description": "素因数分解"
+        },
+        {
+            "name": "エラトステネスの篩",
+            "id": 32,
+            "description": "エラトステネスの篩"
+        },
+        {
+            "name": "中国剰余定理",
+            "id": 33,
+            "description": "中国剰余定理"
+        },
+        {
+            "name": "拡張ユークリッドの互除法",
+            "id": 34,
+            "description": "拡張ユークリッドの互除法"
+        },
+        {
+            "name": "フェルマーの小定理",
+            "id": 35,
+            "description": "フェルマーの小定理"
+        },
+        {
+            "name": "二項係数",
+            "id": 36,
+            "description": "二項係数"
+        },
+        {
+            "name": "階乗",
+            "id": 37,
+            "description": "階乗"
+        },
+        {
+            "name": "組み合わせ",
+            "id": 38,
+            "description": "組み合わせ"
+        },
+        {
+            "name": "順列",
+            "id": 39,
+            "description": "順列"
+        },
+        {
+            "name": "重複組み合わせ",
+            "id": 40,
+            "description": "重複組み合わせ"
+        },
+        {
+            "name": "重複順列",
+            "id": 41,
+            "description": "重複順列"
+        },
+        {
+            "name": "最大公約数",
+            "id": 42,
+            "description": "最大公約数"
+        },
+        {
+            "name": "最小公倍数",
+            "id": 43,
+            "description": "最小公倍数"
+        },
+        {
+            "name": "パスグラフ",
+            "id": 44,
+            "description": "パスグラフ"
         }
     ]
 }
