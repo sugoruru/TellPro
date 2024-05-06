@@ -7,12 +7,7 @@ import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
-const PageLinkBlock = (props: {
-  page: Page;
-  pageUser: UserList;
-  me: User | null;
-  stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
-}) => {
+const PageLinkBlock = (props: { page: PageList; pageUser: UserList; me?: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
   const router = useRouter();
 
   return (

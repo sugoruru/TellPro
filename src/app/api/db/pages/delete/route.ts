@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
   const prevTags = await db.any(`SELECT "tags" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
   const tagsToUpdate = prevTags[0].tags;
   await db.any(`UPDATE "Tags" SET "pageCount"="pageCount"-1 WHERE "name" IN ($1:csv)`, [tagsToUpdate]);
+  await db.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0 AND "name" IN ($1:csv)`, [tagsToUpdate]);
   await db.any(`UPDATE "Users" SET "pageScore"="pageScore" - (SELECT "likeCount" FROM "Pages" WHERE "ID" = $1 AND "userID" = $2) WHERE "ID"=$2`, [body["pageID"], body["pageUserID"]]);
   await db.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);
   await db.any(`DELETE FROM "Bookmarks" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType"='pages'`, [body["pageID"], body["pageUserID"]]);

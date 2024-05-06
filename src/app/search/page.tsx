@@ -22,7 +22,7 @@ export default function SearchPage() {
         const data = await axios.get("/api/db/tags/get?page=1");
         setTags(data.data.data);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
-        router.push("/search");
+        router.replace("/search");
         const data = await axios.get("/api/db/tags/get?page=1");
         setTags(data.data.data);
       } else {
@@ -34,18 +34,23 @@ export default function SearchPage() {
   }, [page]);
 
   return (
-    <div className="flex">
-      {tags.map((e: TagData) => (
-        <Link key={returnRandomString(32)} href={`/search/${e.name}`} className="w-48 h-48 bg-white rounded p-3 ml-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
-          <div className="text-center">
-            <b>{e.name}</b>
-          </div>
-          <hr />
-          <div className="text-center my-auto">
-            <img src={e.image === "local" ? "/svg/tag.svg" : e.image} alt="" className="inline" width={100} />
-          </div>
-        </Link>
-      ))}
-    </div>
+    <>
+      <div className="text-center my-5">
+        <b className="text-3xl">タグ一覧</b>
+      </div>
+      <div className="flex flex-wrap justify-center">
+        {tags.map((e: TagData) => (
+          <Link key={returnRandomString(32)} href={`/search/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
+            <div className="text-center">
+              <b>{e.name}</b>
+            </div>
+            <hr />
+            <div className="text-center my-2">
+              <img src={e.image === "local" ? "/svg/tag.svg" : e.image} alt="" className="inline" width={100} />
+            </div>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }
