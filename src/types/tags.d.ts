@@ -1,9 +1,10 @@
-interface Tags {
-  "tags": Tag[]
+interface Tag {
+  [key: string]: TagData,
 }
 
-interface Tag {
+interface TagData {
   "name": string,
-  "id": number,
-  "description": string
+  "pageCount": number,
+  "questionCount": number,
+  "image": string,
 }

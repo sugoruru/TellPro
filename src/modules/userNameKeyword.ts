@@ -1,6 +1,5 @@
 const userNameKeyword = [
   "bookmarks",
-  "histories",
   "init",
   "newPage",
   "newQuestion",

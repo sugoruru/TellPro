@@ -9,7 +9,6 @@ import Prism from "prismjs";
 import { Fragment, useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
-import data from "@/modules/tags.json";
 import { MdDelete, MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
@@ -29,6 +28,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
   const [updateMdAreaValue, setUpdateMdAreaValue] = useState("");
   const [updateSendingMessage, setUpdateSendingMessage] = useState("");
   const [page, setPage] = useState<Question>({} as Question);
+  const [tagsData, setTagsData] = useState<Tag>({});
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
   const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
@@ -46,7 +46,6 @@ export default function Page({ params }: { params: { userID: string; questionID:
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserList>({} as UserList);
   const router = useRouter();
-  const tagJSON: Tags = data;
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.questionID)) {
@@ -77,6 +76,13 @@ export default function Page({ params }: { params: { userID: string; questionID:
             router.replace("/");
             return;
           }
+          const fetchTags = await axios.get("/api/db/tags/get?page=1");
+          fetchTags.data.data.forEach((e: TagData) => {
+            setTagsData((prev) => {
+              prev[e.ID] = e;
+              return prev;
+            });
+          });
           let isLike, isBookmark;
           if (me.data.exist) {
             setIsLogin(true);
@@ -342,7 +348,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
             {page.tags.map((e) => (
               <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                 <FaTag className="inline-flex my-auto mr-1" />
-                {tagJSON.tags[Number(e)].name}
+                {tagsData[e].name}
               </div>
             ))}
           </div>

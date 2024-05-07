@@ -9,4 +9,4 @@ function makeDbInstance() {
   }
 }
 makeDbInstance();
-export default (global as any).cachedDbInstance;
+export default (global as any).cachedDbInstance as pgPromise.IDatabase<any> & { any: any };

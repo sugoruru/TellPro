@@ -6,7 +6,7 @@ interface Question {
   date: string;
   likeCount: number;
   answerCount: number;
-  tags: number[];
+  tags: string[];
   isPublic: boolean;
   isClosed: boolean;
 }
@@ -18,7 +18,7 @@ interface QuestionList {
   date: string;
   likeCount: number;
   answerCount: number;
-  tags: number[];
+  tags: string[];
   isPublic: boolean;
   isClosed: boolean;
 }

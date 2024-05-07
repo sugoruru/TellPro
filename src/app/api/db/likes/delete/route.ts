@@ -92,12 +92,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ページを削除.
-  await db.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4`, [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
-  if (body["URLType"] === "pages") {
-    await db.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
-    await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  } else if (body["URLType"] === "comments") {
-    await db.any(`UPDATE "Comments" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  }
+  await db.tx(async (t) => {
+    await t.any(`DELETE FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4`, [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
+    if (body["URLType"] === "pages") {
+      await t.any(`UPDATE "Users" SET "pageScore"="pageScore"-1 WHERE "ID"=$1`, [body["pageUserID"]]);
+      await t.any(`UPDATE "Pages" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+    } else if (body["URLType"] === "comments") {
+      await t.any(`UPDATE "Comments" SET "likeCount"="likeCount"-1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+    }
+  });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

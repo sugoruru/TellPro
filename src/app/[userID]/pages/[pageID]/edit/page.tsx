@@ -16,7 +16,6 @@ import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
-import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
@@ -38,10 +37,8 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [sendingMessage, setSendingMessage] = useState("");
   const [imageValue, setImageValue] = useState<string>("");
   const [tagSearchValue, setTagSearchValue] = useState<string>("");
-  const [tags, setTags] = useState<Number[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
-  const tagJSON: Tags = data;
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -78,7 +75,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   const tempPage = fetchPage.data.data as Page;
                   setMdAreaValue(tempPage.content);
                   setTitle(tempPage.title);
-                  setTags(tempPage.tags.map((e) => Number(e)));
+                  setTagSearchValue(tempPage.tags.join(" "));
                   setIsPublic(tempPage.isPublic);
                   setIsPageExist(true);
                 }
@@ -156,7 +153,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tags,
+          tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
         });
         router.push(`/${params.userID}/pages/${params.pageID}`);
@@ -171,7 +168,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tags,
+          tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
         });
         router.push(`/${params.userID}/pages/${params.pageID}`);
@@ -181,6 +178,12 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       }
     }
   };
+  const handleSetTagValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 空白で5つまでのタグを設定する.
+    if (e.target.value.split(" ").length > 5) return;
+    setTagSearchValue(e.target.value);
+  };
+
   const TagsDialogMemo = React.memo(TagsDialog);
 
   return status == "loading" || !existUser ? (
@@ -337,23 +340,8 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                           <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                             タグの編集(5つまで)
                           </Dialog.Title>
-                          <input
-                            value={tagSearchValue}
-                            onChange={(e) => setTagSearchValue(e.currentTarget.value)}
-                            type="text"
-                            className="border w-full outline-sky-400"
-                            placeholder="タグを検索(ひらがなで入力)"
-                            maxLength={20}
-                          />
-                          <TagsDialogMemo tags={tags} setTags={setTags} tagSearchValue={tagSearchValue} />
-                          <div className="flex mt-2 px-1 flex-wrap">
-                            {tags.map((e) => (
-                              <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-400" key={returnRandomString(32)}>
-                                <FaTag className="inline-flex my-auto mr-1" />
-                                {tagJSON.tags[Number(e)].name}
-                              </div>
-                            ))}
-                          </div>
+                          <input value={tagSearchValue} onChange={handleSetTagValue} type="text" className="border w-full outline-sky-400" placeholder="タグを検索(半角スペース区切り)" />
+                          <TagsDialogMemo setTagSearchValue={setTagSearchValue} tagSearchValue={tagSearchValue} />
                           <button
                             type="button"
                             className="mx-2 mt-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -421,10 +409,10 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="mx-auto">
             <div className="flex mt-2 px-1 flex-wrap">
-              {tags.map((e) => (
+              {tagSearchValue.split(" ").map((e) => (
                 <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                   <FaTag className="inline-flex my-auto mr-1" />
-                  {tagJSON.tags[Number(e)].name}
+                  {e}
                 </div>
               ))}
             </div>

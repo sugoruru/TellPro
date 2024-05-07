@@ -3,7 +3,6 @@ import Image from "next/image";
 import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp } from "react-icons/io5";
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
-import { GoHistory } from "react-icons/go";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
@@ -77,16 +76,6 @@ const Header = () => {
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 ブックマーク
-                              </button>
-                            </Link>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <Link href="/histories">
-                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
-                                <GoHistory className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                                履歴
                               </button>
                             </Link>
                           )}

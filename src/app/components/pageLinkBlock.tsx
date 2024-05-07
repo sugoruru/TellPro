@@ -6,11 +6,9 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import data from "@/modules/tags.json";
 
-const PageLinkBlock = (props: { page: Page; pageUser: UserList; me: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
+const PageLinkBlock = (props: { page: PageList; pageUser: UserList; me?: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
   const router = useRouter();
-  const tagJSON: Tags = data;
 
   return (
     <>
@@ -35,7 +33,7 @@ const PageLinkBlock = (props: { page: Page; pageUser: UserList; me: User | null;
                 <div className="flex flex-wrap mb-2">
                   {props.page.tags.map((e) => (
                     <div className="text-xs select-none mr-1 mb-1 px-1 cursor-pointer flex rounded-sm h-4 bg-slate-300" key={returnRandomString(32)}>
-                      {tagJSON.tags[Number(e)].name}
+                      {e}
                     </div>
                   ))}
                 </div>
@@ -43,10 +41,10 @@ const PageLinkBlock = (props: { page: Page; pageUser: UserList; me: User | null;
             </div>
           </Link>
           {/* ページの管理者(Userページのみ)なら表示 */}
-          {!props.stateFunctions ? (
+          {!props.stateFunctions || props.me?.ID !== props.page.userID ? (
             <></>
           ) : (
-            <div className={`${props.me?.ID === props.page.userID ? "" : "hidden"} absolute top-3 right-3`}>
+            <div className={`absolute top-3 right-3`}>
               <div className="flex">
                 <Link title="編集" className={`cursor-pointer z-10`} href={`/${props.page.userID}/pages/${props.page.ID}/edit`}>
                   <div className="flex items-center justify-center w-8 h-8 bg-blue-100 mr-1 hover:bg-blue-200 transition rounded-full">
