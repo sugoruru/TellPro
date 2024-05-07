@@ -15,7 +15,7 @@ export default function Bookmark() {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [navPlace, setNavPlace] = useState("pages");
-  const [pages, setPages] = useState<Page[]>([] as Page[]);
+  const [pages, setPages] = useState<PageList[]>([] as PageList[]);
   const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
   useEffect(() => {
     if (status === "unauthenticated") {

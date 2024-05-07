@@ -27,11 +27,12 @@ export default function Page({ params }: { params: { userID: string } }) {
   useEffect(() => {
     try {
       const fetcher = async () => {
-        const [tempMe, userData, pagesData, questionsData] = await Promise.all([
+        const [tempMe, userData, pagesData, questionsData, fetchTags] = await Promise.all([
           axios.get(`/api/db/users/existMe`),
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
           axios.get(`/api/db/pages/getPages?userID=${params.userID}`),
           axios.get(`/api/db/questions/getPages?userID=${params.userID}`),
+          axios.get("/api/db/tags/get?page=1"),
         ]);
         if (userData.data.exist) {
           setIsExist(true);

@@ -16,7 +16,6 @@ import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import React from "react";
 import TagsDialog from "@/app/components/tagsDialog";
-import data from "@/modules/tags.json";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import template from "@/modules/questionTemplate";
 
@@ -39,10 +38,8 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
   const [sendingMessage, setSendingMessage] = useState("");
   const [imageValue, setImageValue] = useState<string>("");
   const [tagSearchValue, setTagSearchValue] = useState<string>("");
-  const [tags, setTags] = useState<Number[]>([]);
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
-  const tagJSON: Tags = data;
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.questionID)) {
@@ -79,7 +76,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
                   const tempQuestion = fetchQuestion.data.data as Question;
                   setMdAreaValue(tempQuestion.content);
                   setTitle(tempQuestion.title);
-                  setTags(tempQuestion.tags.map((e) => Number(e)));
+                  setTagSearchValue(tempQuestion.tags.join(" "));
                   setIsPublic(tempQuestion.isPublic);
                   setIsQuestionExist(true);
                 }
@@ -157,7 +154,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tags,
+          tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
         });
         router.push(`/${params.userID}/questions/${params.questionID}`);
@@ -172,7 +169,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tags,
+          tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
         });
         router.push(`/${params.userID}/questions/${params.questionID}`);
@@ -343,18 +340,10 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
                             onChange={(e) => setTagSearchValue(e.currentTarget.value)}
                             type="text"
                             className="border w-full outline-sky-400"
-                            placeholder="タグを検索(ひらがなで入力)"
+                            placeholder="タグを検索(半角スペース区切り)"
                             maxLength={20}
                           />
-                          <TagsDialogMemo tags={tags} setTags={setTags} tagSearchValue={tagSearchValue} />
-                          <div className="flex mt-2 px-1 flex-wrap">
-                            {tags.map((e) => (
-                              <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-400" key={returnRandomString(32)}>
-                                <FaTag className="inline-flex my-auto mr-1" />
-                                {tagJSON.tags[Number(e)].name}
-                              </div>
-                            ))}
-                          </div>
+                          <TagsDialogMemo setTagSearchValue={setTagSearchValue} tagSearchValue={tagSearchValue} />
                           <button
                             type="button"
                             className="mx-2 mt-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -422,10 +411,10 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="mx-auto">
             <div className="flex mt-2 px-1 flex-wrap">
-              {tags.map((e) => (
+              {tagSearchValue.split(" ").map((e) => (
                 <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                   <FaTag className="inline-flex my-auto mr-1" />
-                  {tagJSON.tags[Number(e)].name}
+                  {e}
                 </div>
               ))}
             </div>

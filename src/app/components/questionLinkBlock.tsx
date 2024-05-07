@@ -6,11 +6,14 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import data from "@/modules/tags.json";
 
-const QuestionLinkBlock = (props: { question: Question; questionUser: UserList; me: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
+const QuestionLinkBlock = (props: {
+  question: QuestionList;
+  questionUser: UserList;
+  me?: User | null;
+  stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
+}) => {
   const router = useRouter();
-  const tagJSON: Tags = data;
 
   return (
     <>
@@ -35,7 +38,7 @@ const QuestionLinkBlock = (props: { question: Question; questionUser: UserList; 
                 <div className="flex flex-wrap mb-2">
                   {props.question.tags.map((e) => (
                     <div className="text-xs select-none mr-1 mb-1 px-1 cursor-pointer flex rounded-sm h-4 bg-slate-300" key={returnRandomString(32)}>
-                      {tagJSON.tags[Number(e)].name}
+                      {e}
                     </div>
                   ))}
                 </div>

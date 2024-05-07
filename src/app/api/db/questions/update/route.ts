@@ -53,7 +53,28 @@ export async function POST(req: NextRequest) {
 
   // ページをアップデート.
   try {
-    await db.any(`UPDATE "Questions" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
+    await db.tx(async (t) => {
+      const prevTags = await t.any(`SELECT "tags" FROM "Questions" WHERE "ID"=$1 AND "userID"=$2`, [body.ID, body.userID]);
+      const tagsToUpdate = prevTags[0].tags;
+      await t.any(`UPDATE "Tags" SET "questionCount"="questionCount"-1 WHERE "name" IN ($1:csv)`, [tagsToUpdate]);
+      await t.any(`UPDATE "Questions" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
+      const tagsToUpdate2 = `{${body.tags.join(',')}}`
+      await t.any(`
+      WITH tag_data AS (
+        SELECT unnest($1::text[]) AS tag_name
+      )
+      INSERT INTO "Tags" ("name", "questionCount")
+      SELECT tag_name, 1
+      FROM tag_data
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM "Tags"
+        WHERE "name" = tag_name
+      );
+    `, [tagsToUpdate2]);
+      await t.any(`UPDATE "Tags" SET "questionCount"="questionCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
+      await t.any(`DELETE FROM "Tags" WHERE "questionCount"=0 AND "pageCount"=0 AND "name" IN ($1:csv)`, [tagsToUpdate]);
+    });
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {
     return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });
