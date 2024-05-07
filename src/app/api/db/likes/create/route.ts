@@ -93,12 +93,14 @@ export async function POST(req: NextRequest) {
   }
 
   // いいねを作成.
-  await db.any(`INSERT INTO "Likes" ("ID", "userID", "pageID", "time", "URLType", "pageUserID") VALUES ($1, $2, $3, $4, $5, $6);`, [returnRandomString(64), body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"]]);
-  if (body["URLType"] === "pages") {
-    await db.any(`UPDATE "Users" SET "pageScore"="pageScore"+1 WHERE "ID"=$1`, [body["pageUserID"]]);
-    await db.any(`UPDATE "Pages" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  } else if (body["URLType"] === "comments") {
-    await db.any(`UPDATE "Comments" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-  }
+  await db.tx(async (t) => {
+    await t.any(`INSERT INTO "Likes" ("ID", "userID", "pageID", "time", "URLType", "pageUserID") VALUES ($1, $2, $3, $4, $5, $6);`, [returnRandomString(64), body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"]]);
+    if (body["URLType"] === "pages") {
+      await t.any(`UPDATE "Users" SET "pageScore"="pageScore"+1 WHERE "ID"=$1`, [body["pageUserID"]]);
+      await t.any(`UPDATE "Pages" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+    } else if (body["URLType"] === "comments") {
+      await t.any(`UPDATE "Comments" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+    }
+  });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

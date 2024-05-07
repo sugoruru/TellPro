@@ -65,9 +65,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ページを作成.
-  await db.any(`INSERT INTO "Questions" ("ID", "userID", "title", "content", "likeCount", "answerCount", "isPublic", "date", "tags", "isClosed") VALUES ($1, $2, $3, $4, 0, 0, $5, $6, $7, false);`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
-  const tagsToUpdate = `{${body.tags.join(',')}}`
-  await db.any(`
+  await db.tx(async (t) => {
+    await t.any(`INSERT INTO "Questions" ("ID", "userID", "title", "content", "likeCount", "answerCount", "isPublic", "date", "tags", "isClosed") VALUES ($1, $2, $3, $4, 0, 0, $5, $6, $7, false);`, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
+    const tagsToUpdate = `{${body.tags.join(',')}}`
+    await t.any(`
   WITH tag_data AS (
     SELECT unnest($1::text[]) AS tag_name
   )
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
     WHERE "name" = tag_name
   );
 `, [tagsToUpdate]);
-  await db.any(`UPDATE "Tags" SET "questionCount"="questionCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
+    await t.any(`UPDATE "Tags" SET "questionCount"="questionCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
+  });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

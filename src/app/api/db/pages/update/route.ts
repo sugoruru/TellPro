@@ -53,12 +53,16 @@ export async function POST(req: NextRequest) {
 
   // ページをアップデート.
   try {
-    const prevTags = await db.any(`SELECT "tags" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body.ID, body.userID]);
-    const tagsToUpdate = prevTags[0].tags;
-    await db.any(`UPDATE "Tags" SET "pageCount"="pageCount"-1 WHERE "name" IN ($1:csv)`, [tagsToUpdate]);
-    await db.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
-    const tagsToUpdate2 = `{${body.tags.join(',')}}`
-    await db.any(`
+    await db.tx(async (t) => {
+      const prevTags = await t.any(`SELECT "tags" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body.ID, body.userID]);
+      const tagsToUpdate = prevTags[0].tags;
+      if (tagsToUpdate.length !== 0) {
+        await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"-1 WHERE "name" IN ($1:csv)`, [tagsToUpdate]);
+      }
+      await t.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
+      const tagsToUpdate2 = `{${body.tags.join(',')}}`;
+      if (tagsToUpdate2.length !== 0) {
+        await t.any(`
       WITH tag_data AS (
         SELECT unnest($1::text[]) AS tag_name
       )
@@ -71,10 +75,15 @@ export async function POST(req: NextRequest) {
         WHERE "name" = tag_name
       );
     `, [tagsToUpdate2]);
-    await db.any(`UPDATE "Tags" SET "pageCount"="pageCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
-    await db.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0 AND "name" IN ($1:csv)`, [tagsToUpdate]);
+        await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
+      }
+      if (tagsToUpdate.length !== 0) {
+        await t.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0 AND "name" IN ($1:csv)`, [tagsToUpdate]);
+      }
+    });
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {
+    console.error(e);
     return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
