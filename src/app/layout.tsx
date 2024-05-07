@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
-import React from "react";
+import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import hideHeaderPage from "@/modules/hideHeaderPage";
 
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             showAtBottom={false}
           />
           <UserProvider>{hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}</UserProvider>
-          <>{children}</>
+          <Suspense>{children}</Suspense>
         </SessionProvider>
       </body>
     </html>
