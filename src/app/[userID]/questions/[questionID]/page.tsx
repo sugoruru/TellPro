@@ -28,7 +28,6 @@ export default function Page({ params }: { params: { userID: string; questionID:
   const [updateMdAreaValue, setUpdateMdAreaValue] = useState("");
   const [updateSendingMessage, setUpdateSendingMessage] = useState("");
   const [page, setPage] = useState<Question>({} as Question);
-  const [tagsData, setTagsData] = useState<Tag>({});
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
   const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
@@ -76,13 +75,6 @@ export default function Page({ params }: { params: { userID: string; questionID:
             router.replace("/");
             return;
           }
-          const fetchTags = await axios.get("/api/db/tags/get?page=1");
-          fetchTags.data.data.forEach((e: TagData) => {
-            setTagsData((prev) => {
-              prev[e.ID] = e;
-              return prev;
-            });
-          });
           let isLike, isBookmark;
           if (me.data.exist) {
             setIsLogin(true);
@@ -348,7 +340,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
             {page.tags.map((e) => (
               <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
                 <FaTag className="inline-flex my-auto mr-1" />
-                {tagsData[e].name}
+                {e}
               </div>
             ))}
           </div>
