@@ -4,6 +4,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -66,25 +67,9 @@ export async function POST(req: NextRequest) {
 
   // ページを作成.
   await db.tx(async (t) => {
-    await t.any(`
-    INSERT INTO "Pages" ("ID", "userID", "title", "content", "likeCount", "commentCount", "isPublic", "date", "tags") 
-    VALUES ($1, $2, $3, $4, 0, 0, $5, $6, $7);
-  `, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags]);
     const tagsToUpdate = `{${body.tags.join(',')}}`;
-    await t.any(`
-    WITH tag_data AS (
-      SELECT unnest($1::text[]) AS tag_name
-    )
-    INSERT INTO "Tags" ("name", "pageCount")
-    SELECT tag_name, 0
-    FROM tag_data
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM "Tags"
-      WHERE "name" = tag_name
-    );
-  `, [tagsToUpdate]);
-    await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
+    const sql = fs.readFileSync("src/sql/pages/create.sql").toString();
+    await t.any(sql, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags, tagsToUpdate]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

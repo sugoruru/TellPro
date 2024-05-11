@@ -77,9 +77,7 @@ export async function POST(req: NextRequest) {
     `, [tagsToUpdate2]);
         await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
       }
-      if (tagsToUpdate.length !== 0) {
-        await t.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0 AND "name" IN ($1:csv)`, [tagsToUpdate]);
-      }
+      await t.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0`, []);
     });
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {
