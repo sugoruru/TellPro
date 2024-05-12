@@ -41,11 +41,15 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  // TODO:(DEV) questionsにも対応する.
   // ページの存在を検索する.
   try {
     if (URLType === "pages") {
       const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      if (page.length === 0) {
+        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
+      }
+    } else if (URLType === "questions") {
+      const page = await db.any(`SELECT * FROM "Questions" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
       if (page.length === 0) {
         return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
