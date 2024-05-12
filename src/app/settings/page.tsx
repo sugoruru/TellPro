@@ -4,7 +4,6 @@ import axios from "axios";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import Loading from "../components/loading";
@@ -20,6 +19,7 @@ export default function Settings() {
   const [areaValue, setAreaValue] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
   const [stateMessage, setStateMessage] = useState("");
+  const [deleteAccountStateMessage, setDeleteAccountStateMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -95,6 +95,41 @@ export default function Settings() {
     }
   };
 
+  const handleDeleteAccountButton = async () => {
+    setIsSending(true);
+    try {
+      if (session && user && existUser && session.user) {
+        setDeleteAccountStateMessage("ユーザーが存在するかを確認中...");
+        const existUser = await axios.get(`/api/db/users/existMe`);
+        if (!existUser.data.exist) {
+          router.replace("/");
+          setIsSending(false);
+          return;
+        }
+        const confirmMessage = confirm("アカウントを削除しますか？");
+        if (confirmMessage === true) {
+          setDeleteAccountStateMessage("アカウントを削除中...");
+        } else {
+          setDeleteAccountStateMessage("");
+          setIsSending(false);
+          return;
+        }
+        await axios.post("/api/db/users/delete", {
+          userID: user.ID,
+        });
+        signOut();
+        setIsSending(false);
+        router.replace("/");
+      } else {
+        setIsSending(false);
+        return;
+      }
+    } catch (err) {
+      setIsSending(false);
+      return;
+    }
+  };
+
   return (
     <>
       {isSignIn && existUser ? (
@@ -104,6 +139,7 @@ export default function Settings() {
               <h2 className="text-center text-2xl font-bold text-gray-800 lg:text-3xl">Settings</h2>
               <h4 className="text-center font-bold text-gray-800">(ヘッダーロゴを押すとホームに戻れます)</h4>
             </div>
+            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl">アカウント設定</div>
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="userName_tellPro" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
@@ -154,7 +190,7 @@ export default function Settings() {
               </div>
             </div>
             {/*送信ボタン*/}
-            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
+            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mb-5">
               <div className="flex items-center justify-between sm:col-span-2">
                 <button
                   onClick={() => handleSendButton(selectedImage)}
@@ -164,6 +200,25 @@ export default function Settings() {
                   Send
                 </button>
                 <p>{stateMessage}</p>
+              </div>
+            </div>
+            <hr />
+            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mt-5 font-bold text-2xl text-red-600">アカウント削除設定</div>
+            <div className="mx-auto max-w-screen-md gap-10 sm:grid-cols-2 w-full">
+              <div className="h-64 w-full">
+                <p className="text-xl my-2 font-bold">削除したアカウントはもとに戻すことができません！！</p>
+                <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mb-5">
+                  <div className="flex items-center justify-between sm:col-span-2">
+                    <button
+                      onClick={() => handleDeleteAccountButton()}
+                      disabled={isSending}
+                      className="inline-block rounded-lg bg-red-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-red-300 transition duration-100 hover:bg-red-600 focus-visible:ring active:bg-red-700 md:text-base"
+                    >
+                      アカウントを削除する
+                    </button>
+                    <p>{deleteAccountStateMessage}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

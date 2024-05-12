@@ -8,7 +8,7 @@ import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
-  // ipの取得
+  // ipの取得.
   const headersList = headers();
   const ip = headersList.get("X-Forwarded-For");
   if (!ip) {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
+  const required = ["userID"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -55,21 +55,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページがすでに存在していれば400を返す.
-  try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
-    if (data.length > 0) {
-      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
-    }
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
-  }
-
-  // ページを作成.
+  // ページの削除.
   await db.tx(async (t) => {
-    const tagsToUpdate = `{${body.tags.join(',')}}`;
-    const sql = fs.readFileSync("src/sql/pages/create.sql").toString();
-    await t.any(sql, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags, tagsToUpdate]);
-  });
+    const sql = fs.readFileSync("src/sql/users/delete.sql").toString();
+    await t.none(sql, [body["userID"]]);
+  })
   return NextResponse.json({ ok: true }, { status: 200 });
 }
