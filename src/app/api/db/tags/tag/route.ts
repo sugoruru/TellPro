@@ -30,21 +30,21 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
+  let data, pages, questions, userMap: { [key: string]: UserList } = {};
   await db.tx(async (t) => {
-    const data = await t.any(`SELECT * FROM "Tags" WHERE "name"=$1`, [name]);
-    const pages = await t.any(`
+    data = await t.any(`SELECT * FROM "Tags" WHERE "name"=$1`, [name]);
+    pages = await t.any(`
   SELECT ${pageBlockKey} FROM "Pages" 
   WHERE "tags" @> ARRAY[$1] AND "isPublic"=true
   ORDER BY "likeCount" DESC 
   LIMIT 30 OFFSET (($2 - 1) * 30);
   `, [name, page]);
-    const questions = await t.any(`
+    questions = await t.any(`
   SELECT ${questionBlockKey} FROM "Questions" 
   WHERE "tags" @> ARRAY[$1] AND "isPublic"=true
   ORDER BY "likeCount" DESC
   LIMIT 30 OFFSET (($2 - 1) * 30);
   `, [name, page]);
-    const userMap: { [key: string]: UserList } = {};
     if (pages.length !== 0) {
       let users: string[] = [pages.map((e: Page) => e.userID), questions.map((e: Question) => e.userID)].flat(1);
       const usersSet = new Set(users);
@@ -54,7 +54,11 @@ export async function GET(req: NextRequest) {
         userMap[e.ID] = e;
       });
     }
-    const res = NextResponse.json({ ok: true, exist: true, data: data[0], pages, questions, userMap }, { status: 200 });
-    return res;
   });
+  if (data === undefined || pages === undefined || questions === undefined) {
+    const res = NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    return res;
+  }
+  const res = NextResponse.json({ ok: true, exist: true, data: data[0], pages, questions, userMap }, { status: 200 });
+  return res;
 }
