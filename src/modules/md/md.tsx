@@ -9,6 +9,7 @@ import H6 from "./header/h6";
 import YouTube from "react-youtube";
 import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
 import Image from "next/image";
+import { Fragment } from "react";
 const head: string[] = ["#", "##", "###", "####", "#####", "######", "-[]", "-[x]"];
 
 const Lex = (props: { text: string }) => {
@@ -43,12 +44,25 @@ const Lex = (props: { text: string }) => {
       } else if (/!\[.*\]\((.*)\).*/g.test(elem)) {
         // 画像の場合.
         const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
-        const src = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        const src = elem
+          .match(/\(.*\)/g)![0]
+          .slice(1, -1)
+          .split(" ")[0];
+        const param1 = elem
+          .match(/\(.*\)/g)![0]
+          .slice(1, -1)
+          .split(" ")[1];
         const text = elem.replace(/!\[.*\]\(.*\)/g, "");
-        // TODO:(DEV) 画像サイズを指定するMDを追加する.
+        const opt = { size: 150 };
+        if (param1 !== undefined) {
+          if (param1.startsWith("size=")) {
+            const size = param1.split("=")[1];
+            opt.size = Number(size);
+          }
+        }
         result.push(
           <div className="block" key={returnRandomString(64)}>
-            <Image src={src} alt={alt} width={150} height={150} priority />
+            <Image src={src} alt={alt} width={opt.size} height={150} priority />
             <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
@@ -58,9 +72,12 @@ const Lex = (props: { text: string }) => {
         const text = e[0].slice(2);
         const href = e[1].slice(0, -1);
         result.push(
-          <a href={href} key={returnRandomString(64)} className="myLink" target="_blank">
-            {Text(text)}
-          </a>
+          <Fragment key={returnRandomString(64)}>
+            <a href={href} className="myLink" target="_blank">
+              {Text(text)}
+            </a>
+            <br />
+          </Fragment>
         );
       } else if (/@\[youtube\]\((.*)\).*/g.test(elem)) {
         // メンションの場合.
@@ -73,9 +90,12 @@ const Lex = (props: { text: string }) => {
         const text = e[0].slice(1);
         const href = e[1].slice(0, -1);
         result.push(
-          <a href={href} key={returnRandomString(64)} className="myLink">
-            {Text(text)}
-          </a>
+          <Fragment key={returnRandomString(64)}>
+            <a href={href} className="myLink">
+              {Text(text)}
+            </a>
+            <br />
+          </Fragment>
         );
       } else {
         // 通常のテキストの場合.
@@ -112,7 +132,7 @@ const Text = (text: string): JSX.Element => {
     output = output.replace(/\~([^*]+?)\~/g, "<s>$1</s>"); // strike
     output = output.replace(/\*([^*]+?)\*/g, "<i>$1</i>"); // italic
     output = output.replace(/\`([^*]+?)\`/g, "<inline>$1</inline>"); // inline
-    return <div className="" dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
+    return <span dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
   };
 
   return decorateText(text);

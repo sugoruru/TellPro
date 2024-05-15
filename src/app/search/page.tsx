@@ -11,6 +11,7 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get("page");
   const [tags, setTags] = useState<TagData[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     document.title = "Search｜TellPro";
@@ -29,6 +30,7 @@ export default function SearchPage() {
         const data = await axios.get(`/api/db/tags/get?page=${page}`);
         setTags(data.data.data);
       }
+      setIsLoaded(true);
     };
     fetcher();
   }, [page]);
@@ -36,7 +38,11 @@ export default function SearchPage() {
   return (
     <>
       {tags.length === 0 ? (
-        <>このページにタグは存在しません</>
+        isLoaded ? (
+          <div className="text-center my-5">タグが見つかりませんでした。</div>
+        ) : (
+          <div className="text-center my-5">読み込み中...</div>
+        )
       ) : (
         <>
           <div className="text-center my-5">
