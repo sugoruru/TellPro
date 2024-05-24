@@ -1,13 +1,13 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
-import PageLinkBlock from "../components/pageLinkBlock";
-import QuestionLinkBlock from "../components/questionLinkBlock";
+import PageLinkBlock from "../components/articles/pageLinkBlock";
+import QuestionLinkBlock from "../components/articles/questionLinkBlock";
 
 // TODO:(DEV) 記事のエクスポートを実装する
 // TODO:(UI) 全て/非公開/公開のボタンを設置する

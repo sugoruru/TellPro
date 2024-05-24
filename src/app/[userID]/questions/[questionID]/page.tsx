@@ -1,5 +1,5 @@
 "use client";
-import Loading from "@/app/components/loading";
+import Loading from "@/app/components/main/loading";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
@@ -14,8 +14,8 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
 import { Menu, Transition } from "@headlessui/react";
 import { IoChevronDown } from "react-icons/io5";
-import DeleteCommentModal from "@/app/components/deleteCommentModal";
-import UpdateCommentModal from "@/app/components/updateCommentModal";
+import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
+import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
 
 export default function Page({ params }: { params: { userID: string; questionID: string } }) {
   const [isLoading, setIsLoading] = useState(true);

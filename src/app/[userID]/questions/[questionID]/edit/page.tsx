@@ -3,7 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/components/loading";
+import Loading from "@/app/components/main/loading";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
@@ -15,7 +15,7 @@ import { IoMdImages } from "react-icons/io";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import React from "react";
-import TagsDialog from "@/app/components/tagsDialog";
+import TagsDialog from "@/app/components/articles/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import template from "@/modules/questionTemplate";
 

@@ -1,7 +1,7 @@
 "use client";
-import Loading from "@/app/components/loading";
-import PageLinkBlock from "@/app/components/pageLinkBlock";
-import QuestionLinkBlock from "@/app/components/questionLinkBlock";
+import Loading from "@/app/components/main/loading";
+import PageLinkBlock from "@/app/components/articles/pageLinkBlock";
+import QuestionLinkBlock from "@/app/components/articles/questionLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import returnRandomString from "@/modules/algo/returnRandomString";

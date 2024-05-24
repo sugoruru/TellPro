@@ -7,7 +7,7 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { UserContext } from "./providers/userProvider";
+import { UserContext } from "../providers/userProvider";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);

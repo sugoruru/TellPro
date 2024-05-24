@@ -11,7 +11,7 @@ import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySea
 import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 import userNameKeyword from "@/modules/userNameKeyword";
 
 export default function Init() {

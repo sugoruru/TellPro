@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import PageLinkBlock from "../components/pageLinkBlock";
+import PageLinkBlock from "../components/articles/pageLinkBlock";
 
 export default function Bookmark() {
   const { status } = useSession();
