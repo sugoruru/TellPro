@@ -44,11 +44,12 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のページであるか確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql").toString();
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["userID"]) {
+    if (data[0].id !== body["userID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {

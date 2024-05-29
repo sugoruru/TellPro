@@ -1,11 +1,11 @@
 "use client";
 import Loading from "@/app/components/main/loading";
 import PageLinkBlock from "@/app/components/articles/pageLinkBlock";
-import QuestionLinkBlock from "@/app/components/articles/questionLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PageList } from "@/types/page";
 
 // 検索ページ.
 export default function SearchPage({ params }: { params: { tag: string } }) {
@@ -14,7 +14,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   const page = searchParams.get("page");
   const [tag, setTag] = useState<TagData | null>(null);
   const [pages, setPages] = useState<PageList[]>([]);
-  const [questions, setQuestions] = useState<QuestionList[]>([]);
+  const [questions, setQuestions] = useState<PageList[]>([]);
   const [navPlace, setNavPlace] = useState("pages");
   const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
 
@@ -55,7 +55,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
               </div>
               <div>
                 <span>
-                  <b>{tag === undefined ? 0 : Number(tag.pageCount) + Number(tag.questionCount)}</b> Scores
+                  <b>{tag === undefined ? 0 : Number(tag.page_count) + Number(tag.question_count)}</b> Scores
                 </span>
               </div>
             </div>
@@ -67,10 +67,10 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
               <div className="bg-white">
                 <nav className="pl-5 pb-1">
                   <span className={`cursor-pointer px-2 ${navPlace === "pages" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("pages")}>
-                    Pages({tag.pageCount})
+                    Pages({tag.page_count})
                   </span>
                   <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
-                    Questions({tag.questionCount})
+                    Questions({tag.question_count})
                   </span>
                 </nav>
               </div>
@@ -79,7 +79,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                   <div className="bg-slate-100">
                     {pages.map((page) => (
                       <div key={returnRandomString(32)}>
-                        <PageLinkBlock page={page} pageUser={userMap[page.userID]} />
+                        <PageLinkBlock page={page} pageUser={userMap[page.user_id]} pageType="articles" />
                       </div>
                     ))}
                   </div>
@@ -87,7 +87,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                   <div className="bg-slate-100">
                     {questions.map((question) => (
                       <div key={returnRandomString(32)}>
-                        <QuestionLinkBlock question={question} questionUser={userMap[question.userID]} />
+                        <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" />
                       </div>
                     ))}
                   </div>

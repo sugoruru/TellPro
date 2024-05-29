@@ -1,23 +1,27 @@
+import { PageType } from "@/modules/pageTypes";
+
 interface Page {
-  ID: string,
-  userID: string,
+  id: string,
+  user_id: string,
   title: string,
   content: string,
-  likeCount: number,
-  commentCount: number,
+  like_count: number,
+  comment_count: number,
   tags: string[],
-  isPublic: boolean,
-  date: string
+  is_public: boolean,
+  date: string,
+  page_type: PageType,
 }
 
 // contentなどを省略して軽量化したPage型.
 interface PageList {
-  ID: string,
-  userID: string,
+  id: string,
+  user_id: string,
   title: string,
-  likeCount: number,
-  commentCount: number,
+  like_count: number,
+  comment_count: number,
   tags: string[],
-  isPublic: boolean,
-  date: string
+  is_public: boolean,
+  date: string,
+  page_type: PageType,
 }

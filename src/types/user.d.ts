@@ -1,19 +1,21 @@
 interface User {
-  ID: string;
+  id: string;
   username: string;
   mail: string;
   icon: string;
-  statusMessage: string;
-  answerScore: number;
-  pageScore: number;
+  status_message: string;
+  answer_score: number;
+  page_score: number;
+  last_login_at: string;
 }
 
 // mailなどを省略して個人情報をなくしたUser型.
-interface UserList {
-  ID: string;
+interface UserPublic {
+  id: string;
   username: string;
   icon: string;
-  statusMessage: string;
-  answerScore: number;
-  pageScore: number;
+  status_message: string;
+  answer_score: number;
+  page_score: number;
+  last_login_at: string;
 }

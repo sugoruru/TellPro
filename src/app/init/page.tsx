@@ -143,7 +143,7 @@ export default function Init() {
           userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
           mail: session?.user?.email,
           icon: imgLink,
-          statusMessage: areaValue,
+          status_message: areaValue,
         });
         setIsSending(false);
         router.replace("/");

@@ -5,6 +5,7 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
+import pageTypes from "@/modules/pageTypes";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -34,21 +35,25 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
+  const required = ["ID", "userID", "title", "content", "tags", "isPublic", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+  if (!pageTypes.includes(body.pageType)) {
+    return NextResponse.json({ ok: false, error: "Invalid pageType" }, { status: 400 });
+  }
 
   // 自分自身のページであるか確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["userID"]) {
+    if (data[0].id !== body["userID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
@@ -57,7 +62,8 @@ export async function POST(req: NextRequest) {
 
   // ページがすでに存在していれば400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
+    const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+    const data = await db.any(sql, [body["ID"], body["userID"], body["pageType"]]);
     if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
     }
@@ -68,8 +74,8 @@ export async function POST(req: NextRequest) {
   // ページを作成.
   await db.tx(async (t) => {
     const tagsToUpdate = `{${body.tags.join(',')}}`;
-    const sql = fs.readFileSync("src/sql/pages/create.sql").toString();
-    await t.any(sql, [body.ID, body.userID, body.title, body.content, body.isPublic, new Date().toISOString().split("T")[0], body.tags, tagsToUpdate]);
+    const sql = fs.readFileSync("src/sql/pages/create.sql", "utf-8");
+    await t.any(sql, [body.ID, body.userID, body.title, body.content, tagsToUpdate, body.isPublic, body.pageType]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

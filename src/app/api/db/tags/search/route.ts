@@ -1,11 +1,9 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
-import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from 'path';
 
-const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
   // ipの取得
   const headersList = headers();
@@ -14,16 +12,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "not found your IP" }, { status: 400 });
   }
 
-  // 毎分100requestの制限.
-  try {
-    await limitChecker.check(100, ip);
-  } catch (error) {
-    const res = NextResponse.json({
-      ok: false,
-      error: "Too many requests",
-    }, { status: 429 });
-    return res;
-  }
   const word = req.nextUrl.searchParams.get("word");
   if (word === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
@@ -40,12 +28,12 @@ export async function GET(req: NextRequest) {
     const cacheFile = fs.readFileSync(cacheFilePath, 'utf-8');
     const cacheData = JSON.parse(cacheFile);
     if (cacheData.time !== fiveMinutes) {
-      const data = await db.any(`SELECT * FROM "Tags"`);
+      const data = await db.any(`select * from tags`);
       const cacheData = { time: fiveMinutes, data: data };
       fs.writeFileSync(cacheFilePath, JSON.stringify(cacheData));
     }
   } else {
-    const data = await db.any(`SELECT * FROM "Tags"`);
+    const data = await db.any(`select * from tags`);
     const cacheData = { time: fiveMinutes, data: data };
     fs.writeFileSync(cacheFilePath, JSON.stringify(cacheData));
   }

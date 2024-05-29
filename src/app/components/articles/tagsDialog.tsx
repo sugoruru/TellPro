@@ -1,19 +1,31 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 import { FaTag } from "react-icons/fa6";
 
-const TagsDialog = (props: { setTagSearchValue: Function; tagSearchValue: string }) => {
+const TagsDialog = (props: { setTagSearchValue: Function; tagSearchValue: string; lastAPICalled: MutableRefObject<number> }) => {
   const [tags, setTags] = useState<TagData[]>([]);
+
   useEffect(() => {
-    if (props.tagSearchValue.split(" ").slice(-1)[0].length > 0) {
-      const fetcher = async () => {
-        const data = await axios.get(`/api/db/tags/search?word=${props.tagSearchValue.split(" ").slice(-1)[0]}`);
-        setTags(data.data.data);
-      };
-      fetcher();
+    const lastWord = props.tagSearchValue.split(" ").slice(-1)[0];
+    if (lastWord.length > 0) {
+      const now = Date.now();
+      if (now - props.lastAPICalled.current > 750) {
+        // 500ms以上経過しているかチェック.
+        props.lastAPICalled.current = now;
+        const fetchTags = async () => {
+          try {
+            const data = await axios.get(`/api/db/tags/search?word=${lastWord}`);
+            setTags(data.data.data);
+          } catch (error) {
+            console.error("Failed to fetch tags", error);
+          }
+        };
+        fetchTags();
+      }
     }
   }, [props.tagSearchValue]);
+
   return (
     <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900">
       {tags.map((e: TagData) => {

@@ -5,7 +5,8 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import URLTypes from "@/modules/URLTypes";
+import pageTypes from "@/modules/pageTypes";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["myID", "pageUserID", "pageID", "URLType"];
+  const required = ["myID", "pageUserID", "pageID", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -43,18 +44,19 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // URLTypeが正しいか確認.
-  if (URLTypes.indexOf(body["URLType"]) === -1) {
-    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
+  // pageTypeが正しいか確認.
+  if (pageTypes.indexOf(body["pageType"]) === -1) {
+    return NextResponse.json({ ok: false, error: "Invalid pageType" }, { status: 400 });
   }
 
   // 自分自身か確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["myID"]) {
+    if (data[0].id !== body["myID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
@@ -62,31 +64,38 @@ export async function POST(req: NextRequest) {
   }
 
   // ページの存在を確認.
-  if (body["URLType"] === "pages") {
-    try {
-      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
+  try {
+    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+      const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+      const page = await db.any(sql, [body["pageID"], body["pageUserID"], body["pageType"]]);
       if (page.length === 0) {
         return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
-    } catch (e) {
-      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
-    }
-  } else if (body["URLType"] === "comments") {
-    try {
-      const comment = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["pageUserID"]]);
-      if (comment.length === 0) {
-        return NextResponse.json({ ok: false, error: "Comment not found" }, { status: 400 });
+    } else if (body["pageType"] === "comments") {
+      const sql = fs.readFileSync("src/sql/comments/exist.sql", "utf-8");
+      const page = await db.any(sql, [body["pageID"], body["pageUserID"]]);
+      if (page.length === 0) {
+        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
-    } catch (e) {
-      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   // ページがすでにいいねしていれば400を返す.
   try {
-    const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [body["myID"], body["pageID"], body["pageUserID"], body["URLType"]]);
-    if (likes.length > 0) {
-      return NextResponse.json({ ok: false, error: "The page already liked" }, { status: 400 });
+    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+      const sql = fs.readFileSync("src/sql/likes/exist.sql", "utf-8");
+      const likes = await db.any(sql, [body["myID"], body["pageID"], body["pageType"]]);
+      if (likes.length > 0) {
+        return NextResponse.json({ ok: false, error: "The page already liked" }, { status: 400 });
+      }
+    } else if (body["pageType"] === "comments") {
+      const sql = fs.readFileSync("src/sql/comment_likes/exist.sql", "utf-8");
+      const likes = await db.any(sql, [body["myID"], body["pageID"]]);
+      if (likes.length > 0) {
+        return NextResponse.json({ ok: false, error: "The page already liked" }, { status: 400 });
+      }
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
@@ -94,12 +103,20 @@ export async function POST(req: NextRequest) {
 
   // いいねを作成.
   await db.tx(async (t) => {
-    await t.any(`INSERT INTO "Likes" ("ID", "userID", "pageID", "time", "URLType", "pageUserID") VALUES ($1, $2, $3, $4, $5, $6);`, [returnRandomString(64), body["myID"], body["pageID"], new Date().getTime(), body["URLType"], body["pageUserID"]]);
-    if (body["URLType"] === "pages") {
-      await t.any(`UPDATE "Users" SET "pageScore"="pageScore"+1 WHERE "ID"=$1`, [body["pageUserID"]]);
-      await t.any(`UPDATE "Pages" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-    } else if (body["URLType"] === "comments") {
-      await t.any(`UPDATE "Comments" SET "likeCount"="likeCount"+1 WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
+    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+      // ページの場合.
+      const create = fs.readFileSync("src/sql/likes/create.sql", "utf-8");
+      await t.any(create, [returnRandomString(64), body["myID"], body["pageType"], body["pageID"]]);
+      const updateUsers = fs.readFileSync("src/sql/users/increment_page_score.sql", "utf-8");
+      await t.any(updateUsers, [body["pageUserID"]]);
+      const updatePages = fs.readFileSync("src/sql/pages/increment_like_count.sql", "utf-8");
+      await t.any(updatePages, [body["pageID"], body["pageType"], body["pageUserID"]]);
+    } else if (body["pageType"] === "comments") {
+      // コメントの場合.
+      const create = fs.readFileSync("src/sql/comment_likes/create.sql", "utf-8");
+      await t.any(create, [returnRandomString(64), body["myID"], body["pageID"]]);
+      const updateComments = fs.readFileSync("src/sql/comments/increment_like_count.sql", "utf-8");
+      await t.any(updateComments, [body["pageID"], body["pageUserID"]]);
     }
   });
   return NextResponse.json({ ok: true }, { status: 200 });

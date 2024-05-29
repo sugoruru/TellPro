@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { pageBlockKey } from "@/modules/DBBlockKey";
 import { getServerSession } from "next-auth";
 import OPTIONS from "@/app/api/auth/[...nextauth]/options";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -25,8 +26,10 @@ export async function GET(req: NextRequest) {
     }, { status: 429 });
     return res;
   }
-  if (req.nextUrl.searchParams.get("userID") === null) {
-    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+  const userID = req.nextUrl.searchParams.get("userID");
+  const pageType = req.nextUrl.searchParams.get("pageType");
+  if (userID === null || pageType === null) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request1' }, { status: 400 });
     return res;
   }
 
@@ -35,22 +38,23 @@ export async function GET(req: NextRequest) {
   if (!(!session || !session.user)) {
     // 自分のページの場合は非公開のページも取得.
     try {
-      const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+      const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+      const data = await db.any(sql, [session.user.email]) as User[];
       if (data.length > 0) {
-        if (data[0].ID === req.nextUrl.searchParams.get("userID")) {
+        if (data[0].id === userID) {
           // 非公開のページも取得.
-          const pages = await db.any(`SELECT ${pageBlockKey} FROM "Pages" WHERE "userID" = $1`, [req.nextUrl.searchParams.get("userID")]);
+          const pages = await db.any(`SELECT ${pageBlockKey} FROM pages WHERE user_id = $1 AND page_type = $2`, [userID, pageType]);
           const res = NextResponse.json({ ok: true, pages: pages }, { status: 200 });
           return res;
         }
       }
     } catch (error) {
-      return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Invalid request2" }, { status: 400 });
     }
   }
 
   // 公開ページのみ取得.
-  const pages = await db.any(`SELECT ${pageBlockKey} FROM "Pages" WHERE "userID" = $1 AND "isPublic" = true`, [req.nextUrl.searchParams.get("userID")]);
+  const pages = await db.any(`SELECT ${pageBlockKey} FROM pages WHERE user_id = $1 AND is_public = true AND page_type = $2`, [userID, pageType]);
   const res = NextResponse.json({ ok: true, pages: pages }, { status: 200 });
   return res;
 }

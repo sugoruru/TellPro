@@ -16,8 +16,10 @@ import { Menu, Transition } from "@headlessui/react";
 import { IoChevronDown } from "react-icons/io5";
 import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
+import { Page } from "@/types/page";
+import { Comment } from "@/types/comment";
 
-export default function Page({ params }: { params: { userID: string; questionID: string } }) {
+export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState<JSX.Element>(<></>);
   const [userIcon, setUserIcon] = useState<string>("");
@@ -27,9 +29,9 @@ export default function Page({ params }: { params: { userID: string; questionID:
   const [updateCommentID, setUpdateCommentID] = useState("");
   const [updateMdAreaValue, setUpdateMdAreaValue] = useState("");
   const [updateSendingMessage, setUpdateSendingMessage] = useState("");
-  const [page, setPage] = useState<Question>({} as Question);
+  const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserList }>({} as { [key: string]: UserList });
+  const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserPublic }>({} as { [key: string]: UserPublic });
   const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
@@ -43,7 +45,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
   const [isUpdateSending, setIsUpdateSending] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
-  const [me, setMe] = useState<UserList>({} as UserList);
+  const [me, setMe] = useState<UserPublic>({} as UserPublic);
   const router = useRouter();
 
   useEffect(() => {
@@ -54,12 +56,12 @@ export default function Page({ params }: { params: { userID: string; questionID:
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const res = await axios.get(`/api/db/questions/exist?userID=${params.userID}&pageID=${params.questionID}`);
+        const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.questionID}&pageType=questions`);
         if (!res.data.exist) {
           setIsExist(false);
         } else {
           setIsExist(true);
-          setPage(res.data.data as Question);
+          setPage(res.data.data as Page);
           setContent(Lex({ text: res.data.data.content }));
         }
         const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
@@ -70,7 +72,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
         setUserIcon(fetchUser.data.data.icon);
         setMe(me.data.data);
         if (res.data.exist) {
-          const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.questionID}&URLType=questions&myID=${me.data.exist ? me.data.data.ID : "null"}`);
+          const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.questionID}&pageType=questions&myID=${me.data.exist ? me.data.data.id : "null"}`);
           if (!fetchComments.data.ok) {
             router.replace("/");
             return;
@@ -79,8 +81,8 @@ export default function Page({ params }: { params: { userID: string; questionID:
           if (me.data.exist) {
             setIsLogin(true);
             [isLike, isBookmark] = await Promise.all([
-              axios.get(`/api/db/likes/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.questionID}&URLType=questions`),
-              axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.ID}&pageUserID=${params.userID}&pageID=${params.questionID}&URLType=questions`),
+              axios.get(`/api/db/likes/exist?myID=${me.data.data.id}&pageUserID=${params.userID}&pageID=${params.questionID}&pageType=questions`),
+              axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.id}&pageUserID=${params.userID}&pageID=${params.questionID}&pageType=questions`),
             ]);
             if (!isLike.data.ok || !isBookmark.data.ok) {
               router.replace("/");
@@ -90,8 +92,18 @@ export default function Page({ params }: { params: { userID: string; questionID:
             setIsBookmark(isBookmark.data.isBookmark);
           }
           setComments(fetchComments.data.data as Comment[]);
-          setCommentUserMap(fetchComments.data.userMap as { [key: string]: UserList });
-          setCommentLikeUserMap(fetchComments.data.likeComments as { [key: string]: boolean });
+          const _commentUserMap = fetchComments.data.userData as UserPublic[];
+          const commentUserMap2: { [key: string]: UserPublic } = {};
+          _commentUserMap.forEach((e) => {
+            commentUserMap2[e.id] = e;
+          });
+          setCommentUserMap(commentUserMap2);
+          const _likeComments = fetchComments.data.likeComments as { comment_id: string }[];
+          const likeComments2: { [key: string]: boolean } = {};
+          _likeComments.forEach((e) => {
+            likeComments2[e.comment_id] = true;
+          });
+          setCommentLikeUserMap(likeComments2);
         }
         setIsLoading(false);
       };
@@ -105,7 +117,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
     if (isLoading) {
       document.title = "Loading...｜TellPro";
     } else if (isExist) {
-      if (me.ID === params.userID || page.isPublic) {
+      if (me.id === params.userID || page.is_public) {
         document.title = `${page.title}｜TellPro`;
       } else {
         document.title = "ページが非公開です｜TellPro";
@@ -113,27 +125,27 @@ export default function Page({ params }: { params: { userID: string; questionID:
     } else {
       document.title = "ページが存在しません｜TellPro";
     }
-  }, [isLoading, isExist, me.ID, page.isPublic, params.userID, page.title]);
+  }, [isLoading, isExist, me.id, page.is_public, params.userID, page.title]);
 
   const handleGoodButton = async () => {
     try {
       setIsLikeSending(true);
       setIsLike(!isLike);
       if (!isLike) {
-        setPage({ ...page, likeCount: Number(page.likeCount) + 1 });
+        setPage({ ...page, like_count: Number(page.like_count) + 1 });
         await axios.post("/api/db/likes/create", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: params.userID,
           pageID: params.questionID,
-          URLType: "questions",
+          pageType: "questions",
         });
       } else {
-        setPage({ ...page, likeCount: Number(page.likeCount) - 1 });
+        setPage({ ...page, like_count: Number(page.like_count) - 1 });
         await axios.post("/api/db/likes/delete", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: params.userID,
           pageID: params.questionID,
-          URLType: "questions",
+          pageType: "questions",
         });
       }
       // 連打防止用に1秒待機.
@@ -151,18 +163,18 @@ export default function Page({ params }: { params: { userID: string; questionID:
       if (!isBookmark) {
         setIsBookmark(true);
         await axios.post("/api/db/bookmarks/create", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: params.userID,
           pageID: params.questionID,
-          URLType: "questions",
+          pageType: "questions",
         });
       } else {
         setIsBookmark(false);
         await axios.post("/api/db/bookmarks/delete", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: params.userID,
           pageID: params.questionID,
-          URLType: "questions",
+          pageType: "questions",
         });
       }
       // 連打防止用に1秒待機.
@@ -185,26 +197,26 @@ export default function Page({ params }: { params: { userID: string; questionID:
       const commentID = returnRandomString(32);
       await axios.post("/api/db/comments/create", {
         ID: commentID,
-        myID: me.ID,
+        myID: me.id,
         pageUserID: params.userID,
         pageID: params.questionID,
-        URLType: "questions",
+        pageType: "questions",
         content: mdAreaValue,
       });
       setMdAreaValue("");
       setSendingMessage("");
       setIsCommentSending(false);
-      setPage({ ...page, answerCount: Number(page.answerCount) + 1 });
+      setPage({ ...page, comment_count: Number(page.comment_count) + 1 });
       setComments((prev) => [
         {
-          ID: commentID,
-          userID: me.ID,
-          pageID: params.questionID,
-          time: Date.now(),
-          URLType: "questions",
-          pageUserID: params.userID,
+          id: commentID,
+          user_id: me.id,
           content: mdAreaValue,
-          likeCount: 0,
+          like_count: 0,
+          page_id: params.questionID,
+          page_type: "questions",
+          page_user_id: params.userID,
+          created_at: new Date().toISOString(),
         } as Comment,
         ...prev,
       ]);
@@ -215,7 +227,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
         };
       });
       setCommentUserMap((prev) => {
-        prev[me.ID] = me;
+        prev[me.id] = me;
         return prev;
       });
     } catch (e) {
@@ -225,7 +237,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
     }
   };
 
-  const handleCommentGood = async (commentID: string, pageUserID: string) => {
+  const handleCommentGood = async (commentID: string) => {
     try {
       setIsLikeSending(true);
       if (!commentLikeUserMap[commentID]) {
@@ -234,18 +246,20 @@ export default function Page({ params }: { params: { userID: string; questionID:
           prev[commentID] = true;
           return prev;
         });
+        let pageUserID = "";
         const newComments = comments.map((e) => {
-          if (e.ID === commentID) {
-            e.likeCount = Number(e.likeCount) + 1;
+          if (e.id === commentID) {
+            e.like_count = Number(e.like_count) + 1;
+            pageUserID = e.user_id;
           }
           return e;
         });
         setComments(newComments);
         await axios.post("/api/db/likes/create", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: pageUserID,
           pageID: commentID,
-          URLType: "comments",
+          pageType: "comments",
         });
       } else {
         // 回答のlikeCountを減らす.
@@ -253,18 +267,20 @@ export default function Page({ params }: { params: { userID: string; questionID:
           prev[commentID] = false;
           return prev;
         });
+        let pageUserID = "";
         const newComments = comments.map((e) => {
-          if (e.ID === commentID) {
-            e.likeCount = Number(e.likeCount) - 1;
+          if (e.id === commentID) {
+            e.like_count = Number(e.like_count) - 1;
+            pageUserID = e.user_id;
           }
           return e;
         });
         setComments(newComments);
         await axios.post("/api/db/likes/delete", {
-          myID: me.ID,
+          myID: me.id,
           pageUserID: pageUserID,
           pageID: commentID,
-          URLType: "comments",
+          pageType: "comments",
         });
       }
       // 連打防止用に1秒待機.
@@ -281,12 +297,14 @@ export default function Page({ params }: { params: { userID: string; questionID:
       setIsDeleteSending(true);
       await axios.post("/api/db/comments/delete", {
         commentID: deleteCommentID,
-        userID: me.ID,
+        userID: me.id,
+        pageID: params.questionID,
+        pageType: "questions",
       });
-      setComments(comments.filter((e) => e.ID !== deleteCommentID));
+      setComments(comments.filter((e) => e.id !== deleteCommentID));
       setIsDeleteSending(false);
       setIsOpenDeleteCommentModal(false);
-      setPage({ ...page, answerCount: Number(page.answerCount) - 1 });
+      setPage({ ...page, comment_count: Number(page.comment_count) - 1 });
     } catch (e) {
       console.error(e);
       setIsDeleteSending(false);
@@ -304,12 +322,13 @@ export default function Page({ params }: { params: { userID: string; questionID:
       await axios.post("/api/db/comments/update", {
         pageID: params.questionID,
         commentID: updateCommentID,
-        userID: me.ID,
+        userID: me.id,
         content: updateMdAreaValue,
+        pageType: "questions",
       });
       setComments(
         comments.map((e) => {
-          if (e.ID === updateCommentID) {
+          if (e.id === updateCommentID) {
             e.content = updateMdAreaValue;
           }
           return e;
@@ -331,7 +350,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
       <Loading title="読み込み中..." />
     </>
   ) : isExist ? (
-    me.ID === params.userID || page.isPublic ? (
+    me.id === params.userID || page.is_public ? (
       <>
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
@@ -355,7 +374,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
           {content}
           {/* 回答 */}
           <div className="mt-10 flex flex-col">
-            <b>回答({page.answerCount})</b>
+            <b>回答({page.comment_count})</b>
             <hr />
             {isLogin ? (
               <>
@@ -413,11 +432,11 @@ export default function Page({ params }: { params: { userID: string; questionID:
                   <div key={returnRandomString(64)}>
                     <div className="p-2">
                       <div className="flex justify-between">
-                        <Link href={`/${e.userID}`}>
-                          <img src={commentUserMap[e.userID].icon} width={30} height={30} alt="" className="inline" />
-                          <b className="ml-2">@{e.userID}</b>
+                        <Link href={`/${e.user_id}`}>
+                          <img src={commentUserMap[e.user_id].icon} width={30} height={30} alt="" className="inline" />
+                          <b className="ml-2">@{e.user_id}</b>
                         </Link>
-                        {e.userID === me.ID ? (
+                        {e.user_id === me.id ? (
                           <Menu as="div" className="relative inline-block">
                             <div>
                               <Menu.Button className="inline-flex justify-center rounded-m py-2 text-sm font-medium text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
@@ -435,7 +454,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
                             >
                               <Menu.Items
                                 className={`absolute right-0 ${
-                                  e.userID === me.ID ? "mt-[-120px]" : "mt-[-80px]"
+                                  e.user_id === me.id ? "mt-[-120px]" : "mt-[-80px]"
                                 } w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none`}
                               >
                                 <div className="px-1 py-1">
@@ -444,7 +463,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
                                       <button
                                         onClick={() => {
                                           setUpdateMdAreaValue(e.content);
-                                          setUpdateCommentID(e.ID);
+                                          setUpdateCommentID(e.id);
                                           setIsOpenUpdateCommentModal(true);
                                         }}
                                         className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
@@ -458,7 +477,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
                                     {({ active }) => (
                                       <button
                                         onClick={() => {
-                                          setDeleteCommentID(e.ID);
+                                          setDeleteCommentID(e.id);
                                           setIsOpenDeleteCommentModal(true);
                                         }}
                                         className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
@@ -481,12 +500,12 @@ export default function Page({ params }: { params: { userID: string; questionID:
                         <button
                           className={`cursor-pointer w-10 flex flex-col items-center h-10 justify-center bg-white rounded-full border-gray-300 border`}
                           title="いいね"
-                          onClick={() => handleCommentGood(e.ID, e.pageUserID)}
+                          onClick={() => handleCommentGood(e.id)}
                           disabled={isLikeSending}
                         >
-                          {commentLikeUserMap[e.ID] ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
+                          {commentLikeUserMap[e.id] ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
                         </button>
-                        <b className="ml-1 my-auto">{Number(e.likeCount)}</b>
+                        <b className="ml-1 my-auto">{Number(e.like_count)}</b>
                       </div>
                     </div>
                     <hr />
@@ -508,7 +527,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
               >
                 {isLike ? <FaHeart className="inline-flex text-sm lg:text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-sm lg:text-3xl text-red-500" />}
               </button>
-              <b className="ml-1 my-auto">{Number(page.likeCount)}</b>
+              <b className="ml-1 my-auto">{Number(page.like_count)}</b>
             </div>
             <div className="text-center mb-2 lg:mr-2 mx-2">
               <button
@@ -520,7 +539,7 @@ export default function Page({ params }: { params: { userID: string; questionID:
                 {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
               </button>
             </div>
-            <Link title="編集" className={`mx-2 cursor-pointer ${me.ID === params.userID ? "" : "hidden"}`} href={`/${params.userID}/questions/${params.questionID}/edit`}>
+            <Link title="編集" className={`mx-2 cursor-pointer ${me.id === params.userID ? "" : "hidden"}`} href={`/${params.userID}/questions/${params.questionID}/edit`}>
               <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
                 <MdEditNote className="inline-flex text-base lg:text-4xl" />
               </div>

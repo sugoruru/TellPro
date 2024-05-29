@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import { pageBlockKey, questionBlockKey, userBlockKey } from "@/modules/DBBlockKey";
+import { Page } from "@/types/page";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -30,28 +31,28 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  let data, pages, questions, userMap: { [key: string]: UserList } = {};
+  let data, pages, questions, userMap: { [key: string]: UserPublic } = {};
   await db.tx(async (t) => {
-    data = await t.any(`SELECT * FROM "Tags" WHERE "name"=$1`, [name]);
+    data = await t.any(`SELECT * FROM tags WHERE name=$1`, [name]);
     pages = await t.any(`
-  SELECT ${pageBlockKey} FROM "Pages" 
-  WHERE "tags" @> ARRAY[$1] AND "isPublic"=true
-  ORDER BY "likeCount" DESC 
+  SELECT ${pageBlockKey} FROM pages 
+  WHERE tags @> ARRAY[$1] AND is_public=true and page_type='articles'
+  ORDER BY like_count DESC 
   LIMIT 30 OFFSET (($2 - 1) * 30);
   `, [name, page]);
     questions = await t.any(`
-  SELECT ${questionBlockKey} FROM "Questions" 
-  WHERE "tags" @> ARRAY[$1] AND "isPublic"=true
-  ORDER BY "likeCount" DESC
+  SELECT ${questionBlockKey} FROM pages 
+  WHERE tags @> ARRAY[$1] AND is_public=true AND page_type='questions'
+  ORDER BY like_count DESC
   LIMIT 30 OFFSET (($2 - 1) * 30);
   `, [name, page]);
     if (pages.length !== 0) {
-      let users: string[] = [pages.map((e: Page) => e.userID), questions.map((e: Question) => e.userID)].flat(1);
+      let users: string[] = [pages.map((e: Page) => e.user_id), questions.map((e: Page) => e.user_id)].flat(1);
       const usersSet = new Set(users);
       users = Array.from(usersSet);
-      const userData = await t.any(`SELECT ${userBlockKey} FROM "Users" WHERE "ID" IN ($1:csv)`, [users]) as UserList[];
+      const userData = await t.any(`SELECT ${userBlockKey} FROM users WHERE id IN ($1:csv)`, [users]) as UserPublic[];
       userData.forEach((e) => {
-        userMap[e.ID] = e;
+        userMap[e.id] = e;
       });
     }
   });

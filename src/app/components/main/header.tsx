@@ -8,6 +8,7 @@ import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { UserContext } from "../providers/userProvider";
+import returnRandomString from "@/modules/algo/returnRandomString";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
@@ -62,7 +63,7 @@ const Header = () => {
                       <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
-                            <Link href={`/${user.ID}`}>
+                            <Link href={`/${user.id}`}>
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <FaRegCircleUser className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 ユーザー
@@ -84,7 +85,7 @@ const Header = () => {
                       <div className="px-1 py-1">
                         <Menu.Item>
                           {({ active }) => (
-                            <Link href="/newPage">
+                            <Link href={`/${user.id}/articles/${returnRandomString(32)}/edit`}>
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <IoDocumentTextSharp className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 記事の作成
@@ -94,7 +95,7 @@ const Header = () => {
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <Link href="/newQuestion">
+                            <Link href={`/${user.id}/questions/${returnRandomString(32)}/edit`}>
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <RiQuestionnaireLine className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 質問の作成

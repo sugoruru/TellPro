@@ -4,7 +4,8 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import URLTypes from "@/modules/URLTypes";
+import pageTypes from "@/modules/pageTypes";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -34,44 +35,45 @@ export async function GET(req: NextRequest) {
   }
   const pageUserID = req.nextUrl.searchParams.get("pageUserID");
   const pageID = req.nextUrl.searchParams.get("pageID");
-  const URLType = req.nextUrl.searchParams.get("URLType");
+  const pageType = req.nextUrl.searchParams.get("pageType");
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (pageUserID === null || pageID === null || URLType === null) {
+  if (pageUserID === null || pageID === null || pageType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
 
-  // URLTypeが正しいか確認する.
-  if (URLTypes.indexOf(URLType) === -1) {
-    return NextResponse.json({ ok: false, error: "Invalid URLType" }, { status: 400 });
+  // pageTypeが正しいか確認する.
+  if (pageTypes.indexOf(pageType) === -1) {
+    return NextResponse.json({ ok: false, error: "Invalid pageType" }, { status: 400 });
   }
 
   // 自分自身を検索する.
   let userID = "";
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 400 });
     }
-    userID = data[0].ID;
+    userID = data[0].id;
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   // ページの存在を確認.
-  if (URLType === "pages") {
+  if (pageType === "articles" || pageType === "questions") {
     try {
-      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      const page = await db.any(`SELECT * FROM pages WHERE id = $1 AND user_id = $2`, [pageID, pageUserID]);
       if (page.length === 0) {
         return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
     } catch (e) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
-  } else if (URLType === "comments") {
+  } else if (pageType === "comments") {
     try {
-      const comment = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
+      const comment = await db.any(`SELECT * FROM comments WHERE id = $1 AND user_id = $2`, [pageID, pageUserID]);
       if (comment.length === 0) {
         return NextResponse.json({ ok: false, error: "Comment not found" }, { status: 400 });
       }
@@ -81,10 +83,19 @@ export async function GET(req: NextRequest) {
   }
 
   // いいねを取得する.
-  const likes = await db.any('SELECT * FROM "Likes" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [userID, pageID, pageUserID, URLType]);
-  if (likes.length === 0) {
-    return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
-  } else {
-    return NextResponse.json({ ok: true, isLiked: true }, { status: 200 });
+  if (pageType === "articles" || pageType === "questions") {
+    const likes = await db.any('SELECT * FROM likes WHERE user_id = $1 AND page_id = $2 AND page_type = $3', [userID, pageID, pageType]);
+    if (likes.length === 0) {
+      return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
+    } else {
+      return NextResponse.json({ ok: true, isLiked: true }, { status: 200 });
+    }
+  } else if (pageType === "comments") {
+    const likes = await db.any('SELECT * FROM comment_likes WHERE user_id = $1 AND page_id = $2', [userID, pageID]);
+    if (likes.length === 0) {
+      return NextResponse.json({ ok: true, isLiked: false }, { status: 200 });
+    } else {
+      return NextResponse.json({ ok: true, isLiked: true }, { status: 200 });
+    }
   }
 }

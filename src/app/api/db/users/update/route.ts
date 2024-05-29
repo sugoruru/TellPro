@@ -4,7 +4,6 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import axios from "axios";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
-  if (body.statusMessage === undefined) body.statusMessage = "";
+  if (body.status_message === undefined) body.status_message = "";
 
   // メールアドレスがセッションのユーザーのものでなければ401を返す.
   if (session.user?.email !== body.mail) {
@@ -50,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // ユーザーがすでに存在していなければ400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [body.ID]);
+    const data = await db.any(`SELECT * FROM users WHERE id = $1`, [body.ID]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User Not found" }, { status: 400 });
     }
@@ -59,6 +58,6 @@ export async function POST(req: NextRequest) {
   }
 
   // ユーザーをアップデート.
-  await db.any(`UPDATE "Users" SET "username"=$1, "icon"=$2, "statusMessage"=$3 WHERE "ID" = $4`, [body.userName, body.icon, body.statusMessage, body.ID]);
+  await db.any(`UPDATE users SET username=$1, icon=$2, status_message=$3 WHERE id = $4`, [body.userName, body.icon, body.status_message, body.ID]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

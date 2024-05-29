@@ -2,6 +2,7 @@ import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  const data = await db.any(`WITH numbered_tags AS (SELECT *, "pageCount" + "questionCount" AS "totalCount", ROW_NUMBER() OVER (ORDER BY "pageCount" + "questionCount" DESC) AS row_num FROM "Tags") SELECT * FROM numbered_tags WHERE row_num > (($1 - 1) * 30) AND row_num <= ($1 * 30);`, [Number(page)]);
+  const sql = fs.readFileSync("src/sql/tags/get.sql", "utf-8");
+  const data = await db.any(sql, [Number(page)]);
   const res = NextResponse.json({ ok: true, exist: true, data: data }, { status: 200 });
   return res;
 }

@@ -7,40 +7,39 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
 import PageLinkBlock from "../components/articles/pageLinkBlock";
-import QuestionLinkBlock from "../components/articles/questionLinkBlock";
+import { Page } from "@/types/page";
 
 // TODO:(DEV) 記事のエクスポートを実装する
 // TODO:(UI) 全て/非公開/公開のボタンを設置する
-export default function Page({ params }: { params: { userID: string } }) {
+export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
-  const [pageUser, setPageUser] = useState<UserList>({} as UserList);
+  const [pageUser, setPageUser] = useState<UserPublic>({} as UserPublic);
   const [me, setMe] = useState<User | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
-  const [questions, setQuestions] = useState<Question[]>([] as Question[]);
-  const [navPlace, setNavPlace] = useState("pages");
+  const [questions, setQuestions] = useState<Page[]>([] as Page[]);
+  const [navPlace, setNavPlace] = useState("articles");
   const [deletePageID, setDeletePageID] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     try {
       const fetcher = async () => {
-        const [tempMe, userData, pagesData, questionsData, fetchTags] = await Promise.all([
+        const [tempMe, userData, articlesData, questionsData] = await Promise.all([
           axios.get(`/api/db/users/existMe`),
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
-          axios.get(`/api/db/pages/getPages?userID=${params.userID}`),
-          axios.get(`/api/db/questions/getPages?userID=${params.userID}`),
-          axios.get("/api/db/tags/get?page=1"),
+          axios.get(`/api/db/pages/getPages?userID=${params.userID}&pageType=articles`),
+          axios.get(`/api/db/pages/getPages?userID=${params.userID}&pageType=questions`),
         ]);
         if (userData.data.exist) {
           setIsExist(true);
-          setPageUser(userData.data.data as UserList);
+          setPageUser(userData.data.data as UserPublic);
         }
         setIsLoading(false);
-        if (pagesData.data.ok) {
-          setPages(pagesData.data.pages);
+        if (articlesData.data.ok) {
+          setPages(articlesData.data.pages);
         }
         if (tempMe.data.ok && tempMe.data.exist) {
           setMe(tempMe.data.data as User);
@@ -71,9 +70,10 @@ export default function Page({ params }: { params: { userID: string } }) {
     await axios.post("/api/db/pages/delete", {
       pageID: deletePageID,
       pageUserID: params.userID,
-      userID: me.ID,
+      userID: me.id,
+      pageType: "articles",
     });
-    setPages(pages.filter((e) => e.ID !== deletePageID));
+    setPages(pages.filter((e) => e.id !== deletePageID));
     setIsOpenDeletePageModal(false);
     // 削除ボタン連打防止.
     await sleep(1000);
@@ -83,12 +83,13 @@ export default function Page({ params }: { params: { userID: string } }) {
   const deleteQuestion = async () => {
     setIsDeleteSending(true);
     if (!me) return;
-    await axios.post("/api/db/questions/delete", {
+    await axios.post("/api/db/pages/delete", {
       pageID: deletePageID,
       pageUserID: params.userID,
-      userID: me.ID,
+      userID: me.id,
+      pageType: "questions",
     });
-    setQuestions(questions.filter((e) => e.ID !== deletePageID));
+    setQuestions(questions.filter((e) => e.id !== deletePageID));
     setIsOpenDeletePageModal(false);
     // 削除ボタン連打防止.
     await sleep(1000);
@@ -109,18 +110,18 @@ export default function Page({ params }: { params: { userID: string } }) {
               <div>
                 <b>{pageUser.username}</b>
               </div>
-              <div>{pageUser.statusMessage}</div>
+              <div>{pageUser.status_message}</div>
               <div>
                 <span>
-                  <b>{Number(pageUser.answerScore) + Number(pageUser.pageScore)}</b> Scores
+                  <b>{Number(pageUser.answer_score) + Number(pageUser.page_score)}</b> Scores
                 </span>
               </div>
             </div>
           </div>
           <div className="bg-white">
             <nav className="pl-5 pb-1">
-              <span className={`cursor-pointer px-2 ${navPlace === "pages" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("pages")}>
-                Pages
+              <span className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
+                Articles
               </span>
               <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
                 Questions
@@ -129,11 +130,11 @@ export default function Page({ params }: { params: { userID: string } }) {
           </div>
         </div>
         <div className="bg-slate-100">
-          {navPlace === "pages" ? (
+          {navPlace === "articles" ? (
             <div className="bg-slate-100">
               {pages.map((page) => (
                 <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={page} pageUser={pageUser} me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  <PageLinkBlock page={page} pageUser={pageUser} pageType="articles" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
                 </div>
               ))}
             </div>
@@ -141,7 +142,7 @@ export default function Page({ params }: { params: { userID: string } }) {
             <div className="bg-slate-100">
               {questions.map((question) => (
                 <div key={returnRandomString(32)}>
-                  <QuestionLinkBlock question={question} questionUser={pageUser} me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  <PageLinkBlock page={question} pageUser={pageUser} pageType="questions" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
                 </div>
               ))}
             </div>
@@ -184,7 +185,7 @@ export default function Page({ params }: { params: { userID: string } }) {
                           type="button"
                           className="mr-2 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                           onClick={() => {
-                            if (navPlace === "pages") {
+                            if (navPlace === "articles") {
                               deletePage();
                             } else {
                               deleteQuestion();

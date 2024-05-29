@@ -4,6 +4,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -33,26 +34,20 @@ export async function GET(req: NextRequest) {
   }
   const pageUserID = req.nextUrl.searchParams.get("pageUserID");
   const pageID = req.nextUrl.searchParams.get("pageID");
-  const URLType = req.nextUrl.searchParams.get("URLType");
+  const pageType = req.nextUrl.searchParams.get("pageType");
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (pageUserID === null || pageID === null || URLType === null) {
+  if (pageUserID === null || pageID === null || pageType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
 
   // ページの存在を検索する.
   try {
-    if (URLType === "pages") {
-      const page = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
-      if (page.length === 0) {
-        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
-      }
-    } else if (URLType === "questions") {
-      const page = await db.any(`SELECT * FROM "Questions" WHERE "ID" = $1 AND "userID" = $2`, [pageID, pageUserID]);
-      if (page.length === 0) {
-        return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
-      }
+    const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+    const data = await db.any(sql, [pageID, pageUserID, pageType]);
+    if (data.length === 0) {
+      return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
     }
   } catch (e) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
@@ -61,17 +56,18 @@ export async function GET(req: NextRequest) {
   // 自分自身を検索する.
   let userID = "";
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 400 });
     }
-    userID = data[0].ID;
+    userID = data[0].id;
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   // ブックマークを取得する.
-  const bookmarks = await db.any('SELECT * FROM "Bookmarks" WHERE "userID" = $1 AND "pageID" = $2 AND "pageUserID" = $3 AND "URLType" = $4', [userID, pageID, pageUserID, URLType]);
+  const bookmarks = await db.any('SELECT * FROM bookmarks WHERE user_id = $1 AND page_id = $2 AND page_type = $3', [userID, pageID, pageType]);
   if (bookmarks.length === 0) {
     return NextResponse.json({ ok: true, isBookmark: false }, { status: 200 });
   } else {
