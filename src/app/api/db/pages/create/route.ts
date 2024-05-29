@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import pageTypes from "@/modules/pageTypes";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のページであるか確認.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでに存在していれば400を返す.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/exist.sql", "utf-8");
     const data = await db.any(sql, [body["ID"], body["userID"], body["pageType"]]);
     if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
   // ページを作成.
   await db.tx(async (t) => {
     const tagsToUpdate = `{${body.tags.join(',')}}`;
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/create.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/create.sql", "utf-8");
     await t.any(sql, [body.ID, body.userID, body.title, body.content, tagsToUpdate, body.isPublic, body.pageType]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });

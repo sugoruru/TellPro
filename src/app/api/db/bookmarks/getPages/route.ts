@@ -4,9 +4,10 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
-import { pageBlockKey, userBlockKey } from "@/modules/DBBlockKey";
+import { userBlockKey } from "@/modules/DBBlockKey";
 import { Page } from "@/types/page";
 import fs from "fs";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
   // 自分自身か確認.
   let userID = "";
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ブックマークを取得する.
-  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/bookmarks/get_pages.sql", "utf-8");
+  const sql = fs.readFileSync(path.resolve("./public") + "/sql/bookmarks/get_pages.sql", "utf-8");
   const pages = await db.any(sql, [userID, pageType]);
   let userData: UserPublic[] = [];
   if (pages.length !== 0) {

@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import fs from "fs";
 import pageTypes from "@/modules/pageTypes";
 import { Comment } from "@/types/comment";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   // コメントが存在しない場合は400を返す.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/exist.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/comments/exist.sql", "utf-8");
     const data = await db.any(sql, [body["commentID"], body["userID"]]) as Comment[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "The Comment isn't exist" }, { status: 400 });
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
 
   // コメントをアップデート.
   try {
-    const updateComment = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/update.sql", "utf-8");
+    const updateComment = fs.readFileSync(path.resolve("./public") + "/sql/comments/update.sql", "utf-8");
     await db.any(updateComment, [body["content"], body["commentID"], body["userID"], body["pageID"]]);
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {

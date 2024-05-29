@@ -6,6 +6,7 @@ import { pageBlockKey } from "@/modules/DBBlockKey";
 import { getServerSession } from "next-auth";
 import OPTIONS from "@/app/api/auth/[...nextauth]/options";
 import fs from "fs";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
   if (!(!session || !session.user)) {
     // 自分のページの場合は非公開のページも取得.
     try {
-      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
+      const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
       const data = await db.any(sql, [session.user.email]) as User[];
       if (data.length > 0) {
         if (data[0].id === userID) {

@@ -5,6 +5,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
-  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_all_user_id.sql", "utf-8");
+  const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_all_user_id.sql", "utf-8");
   const data = await db.any(sql);
   const res = NextResponse.json({ ok: true, data: data.map((x: { [s: string]: string; } | ArrayLike<string>) => Object.values(x)).flat() });
   return res;

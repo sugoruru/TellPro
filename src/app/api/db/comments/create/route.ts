@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import pageTypes from "@/modules/pageTypes";
 import fs from "fs";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身か確認.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでに存在していれば400を返す.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/exist.sql", "utf-8");
     const data = await db.any(sql, [body["pageID"], body["pageUserID"], body["pageType"]]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "There isn't page" }, { status: 400 });
@@ -73,8 +74,8 @@ export async function POST(req: NextRequest) {
 
   // コメントを作成.
   await db.tx(async (t) => {
-    const sql1 = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/create.sql", "utf-8");
-    const sql2 = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/increment_comment_count.sql", "utf-8");
+    const sql1 = fs.readFileSync(path.resolve("./public") + "/sql/comments/create.sql", "utf-8");
+    const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pages/increment_comment_count.sql", "utf-8");
     await t.none(sql1, [body["ID"], body["myID"], body["content"], body["pageID"], body["pageType"]]);
     await t.none(sql2, [body["pageID"], body["pageType"]]);
   });

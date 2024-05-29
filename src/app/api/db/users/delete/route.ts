@@ -5,6 +5,7 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
+import path from "path";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のページであるか確認.
   try {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql").toString();
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql").toString();
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   // ページの削除.
   await db.tx(async (t) => {
-    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/delete.sql").toString();
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/delete.sql").toString();
     await t.none(sql, [body["userID"]]);
   })
   return NextResponse.json({ ok: true }, { status: 200 });
