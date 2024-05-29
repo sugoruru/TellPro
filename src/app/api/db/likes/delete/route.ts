@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身か確認.
   try {
-    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -65,13 +65,13 @@ export async function POST(req: NextRequest) {
   // ページの存在を確認.
   try {
     if (body["pageType"] === "articles" || body["pageType"] === "questions") {
-      const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
       const page = await db.any(sql, [body["pageID"], body["pageUserID"], body["pageType"]]);
       if (page.length === 0) {
         return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
       }
     } else if (body["pageType"] === "comments") {
-      const sql = fs.readFileSync("src/sql/comments/exist.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/exist.sql", "utf-8");
       const page = await db.any(sql, [body["pageID"], body["pageUserID"]]);
       if (page.length === 0) {
         return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
@@ -84,13 +84,13 @@ export async function POST(req: NextRequest) {
   // ページがすでにいいねしていなければ400を返す.
   try {
     if (body["pageType"] === "articles" || body["pageType"] === "questions") {
-      const sql = fs.readFileSync("src/sql/likes/exist.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/likes/exist.sql", "utf-8");
       const likes = await db.any(sql, [body["myID"], body["pageID"], body["pageType"]]);
       if (likes.length === 0) {
         return NextResponse.json({ ok: false, error: "The page isn't liked" }, { status: 400 });
       }
     } else if (body["pageType"] === "comments") {
-      const sql = fs.readFileSync("src/sql/comment_likes/exist.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comment_likes/exist.sql", "utf-8");
       const likes = await db.any(sql, [body["myID"], body["pageID"]]);
       if (likes.length === 0) {
         return NextResponse.json({ ok: false, error: "The page isn't liked" }, { status: 400 });
@@ -103,16 +103,16 @@ export async function POST(req: NextRequest) {
   // ページを削除.
   await db.tx(async (t) => {
     if (body["pageType"] === "articles" || body["pageType"] === "questions") {
-      const del = fs.readFileSync("src/sql/likes/delete.sql", "utf-8");
+      const del = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/likes/delete.sql", "utf-8");
       await t.any(del, [body["pageID"], body["pageType"], body["myID"]]);
-      const updateUsers = fs.readFileSync("src/sql/users/decrement_page_score.sql", "utf-8");
+      const updateUsers = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/decrement_page_score.sql", "utf-8");
       await t.any(updateUsers, [body["pageUserID"]]);
-      const updatePages = fs.readFileSync("src/sql/pages/decrement_like_count.sql", "utf-8");
+      const updatePages = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/decrement_like_count.sql", "utf-8");
       await t.any(updatePages, [body["pageID"], body["pageType"], body["pageUserID"]]);
     } else if (body["pageType"] === "comments") {
-      const del = fs.readFileSync("src/sql/comment_likes/delete.sql", "utf-8");
+      const del = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comment_likes/delete.sql", "utf-8");
       await t.any(del, [body["pageID"], body["myID"]]);
-      const updateComments = fs.readFileSync("src/sql/comments/decrement_like_count.sql", "utf-8");
+      const updateComments = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/decrement_like_count.sql", "utf-8");
       await t.any(updateComments, [body["pageID"], body["pageUserID"]]);
     }
   });

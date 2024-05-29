@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  const sql = fs.readFileSync("src/sql/comments/get.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/get.sql", "utf-8");
   const data = await db.any(sql, [pageID, pageType]) as Comment[];
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false, data: [], userData: [], likeComments: [] }, { status: 200 });
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     const users: string[] = data.map((e: Comment) => e.user_id);
     userData = await db.any(`select ${userBlockKey} from users where id in ($1:csv)`, [users]) as UserPublic[];
     let likeComments: string[] = [];
-    const sql = fs.readFileSync("src/sql/comment_likes/get_like_comments.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comment_likes/get_like_comments.sql", "utf-8");
     likeComments = await db.any(sql, [myID, pageID, pageType]) as string[];
     const res = NextResponse.json({ ok: true, exist: true, data, userData, likeComments }, { status: 200 });
     return res;

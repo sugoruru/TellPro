@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  const sql = fs.readFileSync("src/sql/users/exist.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/exist.sql", "utf-8");
   const data = await db.any(sql, [userID]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });

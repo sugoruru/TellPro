@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 
   // ページの存在を検索する.
   try {
-    const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
     const data = await db.any(sql, [pageID, pageUserID, pageType]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   // 自分自身を検索する.
   let userID = "";
   try {
-    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 400 });

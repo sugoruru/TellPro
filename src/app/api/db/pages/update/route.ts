@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   // ページをアップデート.
   try {
     await db.tx(async (t) => {
-      const sql = fs.readFileSync("src/sql/pages/update.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/update.sql", "utf-8");
       await t.any(sql, [body.title, body.content, body.tags, body.isPublic, body.ID, body.userID, body.pageType]);
     });
     return NextResponse.json({ ok: true }, { status: 200 });

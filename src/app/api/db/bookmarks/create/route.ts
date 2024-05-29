@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身か確認.
   try {
-    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   // ページの存在を確認.
   try {
-    const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
     const page = await db.any(sql, [body["pageID"], body["pageUserID"], body["pageType"]]);
     if (page.length === 0) {
       return NextResponse.json({ ok: false, error: "Page not found" }, { status: 400 });
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにブックマークしていれば400を返す.
   try {
-    const sql = fs.readFileSync("src/sql/bookmarks/exist.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/bookmarks/exist.sql", "utf-8");
     const data = await db.any(sql, [body["pageID"], body["myID"], body["pageType"]]);
     if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "The page already bookmark" }, { status: 400 });
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ブックマークを作成.
-  const sql = fs.readFileSync("src/sql/bookmarks/create.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/bookmarks/create.sql", "utf-8");
   await db.any(sql, [returnRandomString(64), body["myID"], body["pageID"], body["pageType"]]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

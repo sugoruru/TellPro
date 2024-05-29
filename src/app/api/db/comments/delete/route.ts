@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のアカウントであるか確認.
   try {
-    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
     const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
   // コメントが存在しなければエラーを返す.
   try {
-    const sql = fs.readFileSync("src/sql/comments/exist.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/exist.sql", "utf-8");
     const data = await db.any(sql, [body["commentID"], body["userID"]]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "This comment isn't exist." }, { status: 400 });
@@ -69,9 +69,9 @@ export async function POST(req: NextRequest) {
 
   // コメントの削除.
   await db.tx(async (t) => {
-    const sql1 = fs.readFileSync("src/sql/pages/decrement_comment_count.sql", "utf-8");
+    const sql1 = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/decrement_comment_count.sql", "utf-8");
     await t.any(sql1, [body["pageID"], body["pageType"]]);
-    const sql2 = fs.readFileSync("src/sql/comments/delete.sql", "utf-8");
+    const sql2 = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/comments/delete.sql", "utf-8");
     await t.any(sql2, [body["commentID"], body["userID"], body["pageType"]]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });

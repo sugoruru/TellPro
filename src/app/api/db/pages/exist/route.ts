@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
-  const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/pages/exist.sql", "utf-8");
   const data = await db.any(sql, [pageID, userID, pageType]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });

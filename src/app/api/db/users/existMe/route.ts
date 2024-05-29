@@ -31,14 +31,14 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: true, exist: false, message: "not login" }, { status: 200 });
     return res;
   }
-  const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
   const data = await db.any(sql, [session.user.email]);
   if (data.length === 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
     return res;
   } else {
     // 最終ログイン日時の更新.
-    const sql = fs.readFileSync("src/sql/users/update_last_login_at.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/update_last_login_at.sql", "utf-8");
     await db.any(sql, [session.user.email]);
     const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
     return res;

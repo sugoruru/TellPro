@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   if (!(!session || !session.user)) {
     // 自分のページの場合は非公開のページも取得.
     try {
-      const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+      const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_email.sql", "utf-8");
       const data = await db.any(sql, [session.user.email]) as User[];
       if (data.length > 0) {
         if (data[0].id === userID) {

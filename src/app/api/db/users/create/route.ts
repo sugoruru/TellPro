@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // ユーザーIDがすでに存在していれば400を返す.
   try {
-    const sql = fs.readFileSync("src/sql/users/get_user_by_id.sql", "utf-8");
+    const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/get_user_by_id.sql", "utf-8");
     const data = await db.any(sql, [body.id]);
     if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ユーザーを作成.
-  const sql = fs.readFileSync("src/sql/users/create.sql", "utf-8");
+  const sql = fs.readFileSync((process.env.NODE_ENV === "development" ? "public/" : "") + "sql/users/create.sql", "utf-8");
   await db.any(sql, [body.id, body.userName, body.mail, body.icon, body.status_message]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }
