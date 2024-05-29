@@ -4,6 +4,9 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
+import pageTypes from "@/modules/pageTypes";
+import { Comment } from "@/types/comment";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -33,19 +36,26 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["pageID", "commentID", "userID", "content"];
+  const required = ["pageID", "commentID", "userID", "content", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+  if (!pageTypes.includes(body["pageType"])) {
+    return NextResponse.json({ ok: false, error: "Invalid pageType" }, { status: 400 });
+  }
 
   // コメントが存在しない場合は400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2 AND "pageID" = $3`, [body["commentID"], body["userID"], body["pageID"]]);
+    const sql = fs.readFileSync("src/sql/comments/exist.sql", "utf-8");
+    const data = await db.any(sql, [body["commentID"], body["userID"]]) as Comment[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "The Comment isn't exist" }, { status: 400 });
+    }
+    if (data[0].user_id !== body["userID"]) {
+      return NextResponse.json({ ok: false, error: "You are not the owner of the comment" }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
@@ -53,7 +63,8 @@ export async function POST(req: NextRequest) {
 
   // コメントをアップデート.
   try {
-    await db.any(`UPDATE "Comments" SET "content"=$1 WHERE "ID"=$2 AND "userID"=$3 AND "pageID"=$4`, [body["content"], body["commentID"], body["userID"], body["pageID"]]);
+    const updateComment = fs.readFileSync("src/sql/comments/update.sql", "utf-8");
+    await db.any(updateComment, [body["content"], body["commentID"], body["userID"], body["pageID"]]);
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {
     return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });

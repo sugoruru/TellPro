@@ -3,8 +3,8 @@ interface Tag {
 }
 
 interface TagData {
-  "name": string,
-  "pageCount": number,
-  "questionCount": number,
-  "image": string,
+  name: string,
+  page_count: number,
+  question_count: number,
+  image: string,
 }

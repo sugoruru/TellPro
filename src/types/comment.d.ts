@@ -1,10 +1,11 @@
+import { PageType } from "@/modules/pageTypes";
+
 interface Comment {
-  ID: string,
-  userID: string,
-  pageID: string,
-  time: number,
-  URLType: string,
-  pageUserID: string,
+  id: string,
+  user_id: string,
   content: string,
-  likeCount: number,
+  like_count: number,
+  page_id: string,
+  page_type: PageType,
+  created_at: string,
 }

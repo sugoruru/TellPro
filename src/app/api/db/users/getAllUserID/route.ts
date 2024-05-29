@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -30,7 +31,8 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     return res;
   }
-  const data = await db.any(`SELECT "ID" FROM "Users"`);
+  const sql = fs.readFileSync("src/sql/users/get_all_user_id.sql", "utf-8");
+  const data = await db.any(sql);
   const res = NextResponse.json({ ok: true, data: data.map((x: { [s: string]: string; } | ArrayLike<string>) => Object.values(x)).flat() });
   return res;
 }

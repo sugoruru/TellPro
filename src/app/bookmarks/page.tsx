@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import PageLinkBlock from "../components/pageLinkBlock";
+import PageLinkBlock from "../components/articles/pageLinkBlock";
+import { PageList } from "@/types/page";
 
 export default function Bookmark() {
   const { status } = useSession();
@@ -14,9 +15,10 @@ export default function Bookmark() {
   const [isLogin, setIsLogin] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [navPlace, setNavPlace] = useState("pages");
-  const [pages, setPages] = useState<PageList[]>([] as PageList[]);
-  const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
+  const [navPlace, setNavPlace] = useState("articles");
+  const [articles, setArticles] = useState<PageList[]>([] as PageList[]);
+  const [questions, setQuestions] = useState<PageList[]>([] as PageList[]);
+  const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
   useEffect(() => {
     if (status === "unauthenticated") {
       setIsLoading(false);
@@ -40,9 +42,19 @@ export default function Bookmark() {
     if (me) {
       const fetcher = async () => {
         try {
-          const bookmarks = await axios.get("/api/db/bookmarks/getPages");
-          setPages(bookmarks.data.pages);
-          setUserMap(bookmarks.data.userMap);
+          const [_articles, _questions] = await Promise.all([axios.get(`/api/db/bookmarks/getPages?pageType=articles`), axios.get(`/api/db/bookmarks/getPages?pageType=questions`)]);
+          setArticles(_articles.data.pages);
+          setQuestions(_questions.data.pages);
+          const userDataOfArticles = _articles.data.userData as UserPublic[];
+          const userDataOfQuestions = _questions.data.userData as UserPublic[];
+          const _userMap: { [key: string]: UserPublic } = {};
+          userDataOfArticles.forEach((user) => {
+            _userMap[user.id] = user;
+          });
+          userDataOfQuestions.forEach((user) => {
+            _userMap[user.id] = user;
+          });
+          setUserMap(_userMap);
           setIsBookmarkLoading(true);
         } catch (e) {
           console.error(e);
@@ -68,8 +80,8 @@ export default function Bookmark() {
     <>
       <div className="bg-white">
         <nav className="pl-5 pb-[5.5px]">
-          <span className={`cursor-pointer px-2 ${navPlace === "pages" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("pages")}>
-            Pages
+          <span className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
+            Articles
           </span>
           <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
             Questions
@@ -78,16 +90,22 @@ export default function Bookmark() {
       </div>
       <div className="bg-slate-100">
         {isBookmarkLoading ? (
-          navPlace === "pages" ? (
+          navPlace === "articles" ? (
             <div>
-              {pages.map((page) => (
+              {articles.map((article) => (
                 <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={page} pageUser={userMap[page.userID]} me={me} />
+                  <PageLinkBlock page={article} pageUser={userMap[article.user_id]} pageType="articles" me={me} />
                 </div>
               ))}
             </div>
           ) : (
-            <></>
+            <div>
+              {questions.map((question) => (
+                <div key={returnRandomString(32)}>
+                  <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" me={me} />
+                </div>
+              ))}
+            </div>
           )
         ) : (
           // TODO:(UI) ブックマークがない場合の処理を追加する.

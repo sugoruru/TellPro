@@ -1,6 +1,6 @@
 "use client";
 import "../css/globals.css";
-import Header from "./components/header";
+import Header from "./components/main/header";
 import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";

@@ -1,9 +1,9 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/components/loading";
+import Loading from "@/app/components/main/loading";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
@@ -15,9 +15,10 @@ import { IoMdImages } from "react-icons/io";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import React from "react";
-import TagsDialog from "@/app/components/tagsDialog";
+import TagsDialog from "@/app/components/articles/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import template from "@/modules/questionTemplate";
+import { Page } from "@/types/page";
 
 const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
   const { status } = useSession();
@@ -40,6 +41,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
   const [tagSearchValue, setTagSearchValue] = useState<string>("");
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
+  const lastTagsAPICalled = useRef(0);
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.questionID)) {
@@ -62,7 +64,10 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchMe, fetchQuestion] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/questions/exist?userID=${params.userID}&pageID=${params.questionID}`)]);
+          const [fetchMe, fetchQuestion] = await Promise.all([
+            axios.get(`/api/db/users/existMe`),
+            axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.questionID}&pageType=questions`),
+          ]);
           if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
@@ -70,14 +75,14 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
             const tempUser = fetchMe.data.data as User;
             if (tempUser) {
               setPrevIcon(tempUser.icon);
-              if (params.userID === tempUser.ID) {
+              if (params.userID === tempUser.id) {
                 setCanEdit(true);
                 if (fetchQuestion.data.exist) {
-                  const tempQuestion = fetchQuestion.data.data as Question;
+                  const tempQuestion = fetchQuestion.data.data as Page;
                   setMdAreaValue(tempQuestion.content);
                   setTitle(tempQuestion.title);
                   setTagSearchValue(tempQuestion.tags.join(" "));
-                  setIsPublic(tempQuestion.isPublic);
+                  setIsPublic(tempQuestion.is_public);
                   setIsQuestionExist(true);
                 }
               }
@@ -149,13 +154,14 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     }
     if (isQuestionExist) {
       try {
-        await axios.post("/api/db/questions/update", {
+        await axios.post("/api/db/pages/update", {
           ID: params.questionID,
           userID: params.userID,
           title: title,
           content: mdAreaValue,
           tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
+          pageType: "questions",
         });
         router.push(`/${params.userID}/questions/${params.questionID}`);
       } catch (e) {
@@ -164,13 +170,14 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
       }
     } else {
       try {
-        await axios.post("/api/db/questions/create", {
+        await axios.post("/api/db/pages/create", {
           ID: params.questionID,
           userID: params.userID,
           title: title,
           content: mdAreaValue,
           tags: tagSearchValue.trim().split(" "),
           isPublic: isPublic,
+          pageType: "questions",
         });
         router.push(`/${params.userID}/questions/${params.questionID}`);
       } catch (e) {
@@ -343,7 +350,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
                             placeholder="タグを検索(半角スペース区切り)"
                             maxLength={20}
                           />
-                          <TagsDialogMemo setTagSearchValue={setTagSearchValue} tagSearchValue={tagSearchValue} />
+                          <TagsDialogMemo setTagSearchValue={setTagSearchValue} tagSearchValue={tagSearchValue} lastAPICalled={lastTagsAPICalled} />
                           <button
                             type="button"
                             className="mx-2 mt-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"

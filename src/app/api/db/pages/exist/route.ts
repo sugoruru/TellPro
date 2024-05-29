@@ -2,6 +2,7 @@ import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -23,11 +24,15 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  if (req.nextUrl.searchParams.get("userID") === null || req.nextUrl.searchParams.get("pageID") === null) {
+  const userID = req.nextUrl.searchParams.get("userID");
+  const pageID = req.nextUrl.searchParams.get("pageID");
+  const pageType = req.nextUrl.searchParams.get("pageType");
+  if (userID === null || pageID === null || pageType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
-  const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [req.nextUrl.searchParams.get("pageID"), req.nextUrl.searchParams.get("userID")]);
+  const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+  const data = await db.any(sql, [pageID, userID, pageType]);
   if (data.length == 0) {
     const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
     return res;

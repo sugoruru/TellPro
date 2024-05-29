@@ -2,6 +2,9 @@ import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
+import { Comment } from "@/types/comment";
+import { userBlockKey } from "@/modules/DBBlockKey";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -24,44 +27,29 @@ export async function GET(req: NextRequest) {
   }
   const pageUserID = req.nextUrl.searchParams.get("pageUserID");
   const pageID = req.nextUrl.searchParams.get("pageID");
-  const URLType = req.nextUrl.searchParams.get("URLType");
+  const pageType = req.nextUrl.searchParams.get("pageType");
   const myID = req.nextUrl.searchParams.get("myID");
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  if (pageUserID === null || pageID === null || URLType === null || myID === null) {
+  if (pageUserID === null || pageID === null || pageType === null || myID === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
 
-  const data = await db.any(`SELECT * FROM "Comments" WHERE "pageID" = $1 AND "pageUserID" = $2 AND "URLType" = $3 ORDER BY time DESC`, [pageID, pageUserID, URLType]);
+  const sql = fs.readFileSync("src/sql/comments/get.sql", "utf-8");
+  const data = await db.any(sql, [pageID, pageType]) as Comment[];
   if (data.length == 0) {
-    const res = NextResponse.json({ ok: true, exist: false, data: [], userMap: {} }, { status: 200 });
+    const res = NextResponse.json({ ok: true, exist: false, data: [], userData: [], likeComments: [] }, { status: 200 });
     return res;
   } else {
-    const userMap: { [key: string]: UserList } = {};
-    const users = data.map((e: Comment) => e.userID);
-    const userData = await db.any(`SELECT * FROM "Users" WHERE "ID" IN ($1:csv)`, [users]) as UserList[];
-    userData.forEach((e) => {
-      userMap[e.ID] = e;
-    });
-    if (myID !== "null") {
-      // likeCommentを作成する→いいねしているかどうかを判定するため.
-      const likeUserMap: { [key: string]: boolean } = {}
-      const likeComments = await db.any(`
-      SELECT l.*
-      FROM "Likes" l
-      INNER JOIN "Comments" c ON l."pageID" = c."ID"
-      WHERE l."userID" = $1 
-      AND l."URLType" = 'comments'
-      AND c."pageID" = $2`, [myID, pageID]);
-      likeComments.forEach((e: Like) => {
-        likeUserMap[e.pageID] = true;
-      });
-      const res = NextResponse.json({ ok: true, exist: true, data: data, userMap, likeComments: likeUserMap }, { status: 200 });
-      return res;
-    } else {
-      const res = NextResponse.json({ ok: true, exist: true, data: data, userMap, likeComments: {} }, { status: 200 });
-      return res;
-    }
+    // userMap・likeCommentsの作成.
+    let userData: UserPublic[] = [];
+    const users: string[] = data.map((e: Comment) => e.user_id);
+    userData = await db.any(`select ${userBlockKey} from users where id in ($1:csv)`, [users]) as UserPublic[];
+    let likeComments: string[] = [];
+    const sql = fs.readFileSync("src/sql/comment_likes/get_like_comments.sql", "utf-8");
+    likeComments = await db.any(sql, [myID, pageID, pageType]) as string[];
+    const res = NextResponse.json({ ok: true, exist: true, data, userData, likeComments }, { status: 200 });
+    return res;
   }
 }

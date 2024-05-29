@@ -5,6 +5,7 @@ import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
+import { Page } from "@/types/page";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["pageID", "pageUserID", "userID"];
+  const required = ["pageID", "pageUserID", "userID", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -44,11 +45,12 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のページであるか確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["userID"]) {
+    if (data[0].id !== body["userID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
@@ -56,10 +58,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ページが存在しなければ400を返す.
+  let tags;
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["pageID"], body["userID"]]);
+    const sql = fs.readFileSync("src/sql/pages/exist.sql", "utf-8");
+    const data = await db.any(sql, [body["pageID"], body["userID"], body["pageType"]]) as Page[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
+    } else {
+      tags = data[0].tags;
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
@@ -67,10 +73,8 @@ export async function POST(req: NextRequest) {
 
   // ページの削除.
   await db.tx(async (t) => {
-    const prevTags = await t.any(`SELECT "tags" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body["pageID"], body["pageUserID"]]);
-    const tagsToUpdate = prevTags[0].tags;
     const sql = fs.readFileSync("src/sql/pages/delete.sql").toString();
-    await t.none(sql, [tagsToUpdate, body["pageID"], body["pageUserID"]]);
+    await t.none(sql, [body["pageID"], body["pageUserID"], body["pageType"], tags]);
   })
   return NextResponse.json({ ok: true }, { status: 200 });
 }

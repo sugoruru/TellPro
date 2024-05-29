@@ -4,6 +4,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -40,15 +41,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
-  if (body.statusMessage === undefined) body.statusMessage = "";
+  if (body.status_message === undefined) body.status_message = "";
 
   if (!session.user) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // ユーザーがすでに存在していれば400を返す.
+  // ユーザーIDがすでに存在していれば400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE "ID" = $1`, [body.ID]);
+    const sql = fs.readFileSync("src/sql/users/get_user_by_id.sql", "utf-8");
+    const data = await db.any(sql, [body.id]);
     if (data.length > 0) {
       return NextResponse.json({ ok: false, error: "User already exists" }, { status: 400 });
     }
@@ -57,6 +59,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ユーザーを作成.
-  await db.any(`INSERT INTO "Users" ("ID", "username", "mail", "icon", "statusMessage", "answerScore", "pageScore", "date") VALUES ($1, $2, $3, $4, $5, 0, 0, $6);`, [body.ID, body.userName, body.mail, body.icon, body.statusMessage, new Date().getTime()]);
+  const sql = fs.readFileSync("src/sql/users/create.sql", "utf-8");
+  await db.any(sql, [body.id, body.userName, body.mail, body.icon, body.status_message]);
   return NextResponse.json({ ok: true }, { status: 200 });
 }

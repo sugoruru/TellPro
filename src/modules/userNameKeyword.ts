@@ -3,7 +3,7 @@ const userNameKeyword = [
   "init",
   "newPage",
   "newQuestion",
-  "pages",
+  "articles",
   "questions",
   "search",
   "settings",

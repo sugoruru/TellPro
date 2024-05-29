@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import Loading from "../components/loading";
+import Loading from "../components/main/loading";
 
 export default function Settings() {
   const { data: session, status } = useSession();
@@ -32,7 +32,7 @@ export default function Settings() {
             signOut();
           } else {
             setUser(response.data.data as User);
-            setAreaValue(response.data.data.statusMessage);
+            setAreaValue(response.data.data.status_message);
             setSelectedImage(response.data.data.icon);
             setExistUser(true);
           }
@@ -74,11 +74,11 @@ export default function Settings() {
         const imgLink = await sendImage(dataURL, setStateMessage);
         setStateMessage("データベースにデータを送信中...");
         await axios.post("/api/db/users/update", {
-          ID: user.ID,
+          ID: user.id,
           userName: (document.getElementById("userName_tellPro") as HTMLInputElement).value,
           mail: session.user.email,
           icon: imgLink,
-          statusMessage: areaValue,
+          status_message: areaValue,
         });
         setIsSending(false);
         setStateMessage("完了しました");
@@ -115,7 +115,7 @@ export default function Settings() {
           return;
         }
         await axios.post("/api/db/users/delete", {
-          userID: user.ID,
+          userID: user.id,
         });
         signOut();
         setIsSending(false);

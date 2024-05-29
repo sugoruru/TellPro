@@ -76,8 +76,8 @@ ID:主キー(UUID)
 username:ユーザー名
 mail:Googleのメールアドレス
 icon:ユーザーのアイコン
-answerScore:回答スコア
-pageScore:記事のスコア
+answer_score:回答スコア
+page_score:記事のスコア
 likeTags:int[]
 
 ✨️Pages(ttps://.../userName/pages/...で接続)

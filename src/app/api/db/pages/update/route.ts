@@ -4,6 +4,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["ID", "userID", "title", "content", "tags", "isPublic"];
+  const required = ["ID", "userID", "title", "content", "tags", "isPublic", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -43,9 +44,9 @@ export async function POST(req: NextRequest) {
 
   // ページが存在しない場合は400を返す.
   try {
-    const data = await db.any(`SELECT * FROM "Pages" WHERE "ID" = $1 AND "userID" = $2`, [body["ID"], body["userID"]]);
+    const data = await db.any(`SELECT * FROM pages WHERE id = $1 AND user_id = $2 AND page_type = $3`, [body["ID"], body["userID"], body["pageType"]]);
     if (data.length === 0) {
-      return NextResponse.json({ ok: false, error: "Page already exists" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "There isn't page." }, { status: 400 });
     }
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
@@ -54,30 +55,8 @@ export async function POST(req: NextRequest) {
   // ページをアップデート.
   try {
     await db.tx(async (t) => {
-      const prevTags = await t.any(`SELECT "tags" FROM "Pages" WHERE "ID"=$1 AND "userID"=$2`, [body.ID, body.userID]);
-      const tagsToUpdate = prevTags[0].tags;
-      if (tagsToUpdate.length !== 0) {
-        await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"-1 WHERE "name" IN ($1:csv)`, [tagsToUpdate]);
-      }
-      await t.any(`UPDATE "Pages" SET "title"=$1, "content"=$2, "tags"=$3, "isPublic"=$4, "date"=$5 WHERE "ID"=$6 AND "userID"=$7`, [body.title, body.content, body.tags, body.isPublic, new Date().toISOString().split("T")[0], body.ID, body.userID]);
-      const tagsToUpdate2 = `{${body.tags.join(',')}}`;
-      if (tagsToUpdate2.length !== 0) {
-        await t.any(`
-      WITH tag_data AS (
-        SELECT unnest($1::text[]) AS tag_name
-      )
-      INSERT INTO "Tags" ("name", "pageCount")
-      SELECT tag_name, 1
-      FROM tag_data
-      WHERE NOT EXISTS (
-        SELECT 1
-        FROM "Tags"
-        WHERE "name" = tag_name
-      );
-    `, [tagsToUpdate2]);
-        await t.any(`UPDATE "Tags" SET "pageCount"="pageCount"+1 WHERE "name" IN ($1:csv)`, [body.tags]);
-      }
-      await t.any(`DELETE FROM "Tags" WHERE "pageCount"=0 AND "questionCount"=0`, []);
+      const sql = fs.readFileSync("src/sql/pages/update.sql", "utf-8");
+      await t.any(sql, [body.title, body.content, body.tags, body.isPublic, body.ID, body.userID, body.pageType]);
     });
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e) {

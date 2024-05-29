@@ -4,6 +4,7 @@ import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import fs from "fs";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["commentID", "userID"];
+  const required = ["commentID", "userID", "pageID", "pageType"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
@@ -43,11 +44,12 @@ export async function POST(req: NextRequest) {
 
   // 自分自身のアカウントであるか確認.
   try {
-    const data = await db.any(`SELECT * FROM "Users" WHERE mail = $1`, [session.user.email]) as User[];
+    const sql = fs.readFileSync("src/sql/users/get_user_by_email.sql", "utf-8");
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }
-    if (data[0].ID !== body["userID"]) {
+    if (data[0].id !== body["userID"]) {
       return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     }
   } catch (error) {
@@ -56,7 +58,8 @@ export async function POST(req: NextRequest) {
 
   // コメントが存在しなければエラーを返す.
   try {
-    const data = await db.any(`SELECT * FROM "Comments" WHERE "ID" = $1 AND "userID" = $2`, [body["commentID"], body["userID"]]);
+    const sql = fs.readFileSync("src/sql/comments/exist.sql", "utf-8");
+    const data = await db.any(sql, [body["commentID"], body["userID"]]);
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "This comment isn't exist." }, { status: 400 });
     }
@@ -64,11 +67,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ページの削除.
+  // コメントの削除.
   await db.tx(async (t) => {
-    await t.any(`UPDATE "Pages" SET "commentCount" = "commentCount" - 1 WHERE "ID" = (SELECT "pageID" FROM "Comments" WHERE "ID"=$1 AND "userID"=$2)`, [body["commentID"], body["userID"]]);
-    await t.any(`DELETE FROM "Likes" WHERE "pageID" = $1 AND "pageUserID" = $2`, [body["commentID"], body["userID"]]);
-    await t.any(`DELETE FROM "Comments" WHERE "ID"=$1 AND "userID"=$2`, [body["commentID"], body["userID"]]);
+    const sql1 = fs.readFileSync("src/sql/pages/decrement_comment_count.sql", "utf-8");
+    await t.any(sql1, [body["pageID"], body["pageType"]]);
+    const sql2 = fs.readFileSync("src/sql/comments/delete.sql", "utf-8");
+    await t.any(sql2, [body["commentID"], body["userID"], body["pageType"]]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });
 }
