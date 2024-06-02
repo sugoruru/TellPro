@@ -20,7 +20,7 @@ const PageLinkBlock = (props: {
   return (
     <>
       <div className="border-gray-200">
-        <div className="bg-white transition border-b relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto">
+        <div className="bg-white transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto">
           <Link href={`/${props.page.user_id}/${props.pageType}/${props.page.id}`} prefetch className="min-h-40 block">
             <div className="flex p-5">
               <div>

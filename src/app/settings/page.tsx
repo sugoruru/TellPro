@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import Loading from "../components/main/loading";
 
 export default function Settings() {
   const { data: session, status } = useSession();
@@ -15,6 +14,7 @@ export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isUserNameError, setIsUserNameError] = useState(false);
+  const [isChangeImage, setIsChangeImage] = useState(false);
   const [userNameErrorMessage, setUserNameErrorMessage] = useState("");
   const [areaValue, setAreaValue] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
@@ -70,8 +70,11 @@ export default function Settings() {
           setIsSending(false);
           return;
         }
-        setStateMessage("画像データをアップロード中...");
-        const imgLink = await sendImage(dataURL, setStateMessage);
+        let imgLink = selectedImage;
+        if (isChangeImage) {
+          setStateMessage("画像データをアップロード中...");
+          imgLink = await sendImage(dataURL, setStateMessage);
+        }
         setStateMessage("データベースにデータを送信中...");
         await axios.post("/api/db/users/update", {
           ID: user.id,
@@ -166,7 +169,17 @@ export default function Settings() {
                     </svg>
                     <span className="text-gray-600 font-medium">Upload file</span>
                   </label>
-                  <input id="upload" type="file" className="hidden" disabled={isSending} accept=".jpg, .jpeg, .png" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
+                  <input
+                    id="upload"
+                    type="file"
+                    className="hidden"
+                    disabled={isSending}
+                    accept=".jpg, .jpeg, .png"
+                    onChange={async (e) => {
+                      setSelectedImage(await handleImageChange(e));
+                      setIsChangeImage(true);
+                    }}
+                  />
                 </div>
                 <div className="my-auto mx-5 text-center">
                   <span>preview</span>
@@ -224,7 +237,7 @@ export default function Settings() {
           </div>
         </div>
       ) : (
-        <Loading title="読み込み中..." />
+        <></>
       )}
     </>
   );

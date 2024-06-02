@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Loading from "../components/main/loading";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -75,7 +74,7 @@ export default function Bookmark() {
   }, [isLoading, isLogin]);
 
   return isLoading ? (
-    <Loading title="ユーザーを読込中..." />
+    <></>
   ) : isLogin ? (
     <>
       <div className="bg-white">

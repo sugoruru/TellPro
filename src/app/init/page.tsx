@@ -11,7 +11,6 @@ import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySea
 import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import Loading from "../components/main/loading";
 import userNameKeyword from "@/modules/userNameKeyword";
 
 export default function Init() {
@@ -159,11 +158,7 @@ export default function Init() {
 
   // ロード中は何も表示しない.
   if (status == "loading" || (existUser && status != "unauthenticated")) {
-    return (
-      <>
-        <Loading title="ロード中..." />
-      </>
-    );
+    return <></>;
   } else if (status == "unauthenticated") {
     return (
       <>

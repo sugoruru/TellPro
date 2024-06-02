@@ -1,6 +1,5 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
-import Loading from "../components/main/loading";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
@@ -97,9 +96,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   };
 
   return isLoading ? (
-    <>
-      <Loading title="読み込み中..." />
-    </>
+    <></>
   ) : isExist ? (
     <>
       <div className="mb-2">

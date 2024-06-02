@@ -1,5 +1,4 @@
 "use client";
-import Loading from "@/app/components/main/loading";
 import PageLinkBlock from "@/app/components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
@@ -44,7 +43,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   return (
     <>
       {tag === null ? (
-        <Loading title="読み込み中..." />
+        <></>
       ) : (
         <>
           <div className="p-5 md:flex sm:block bg-white">
