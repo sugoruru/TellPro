@@ -11,11 +11,11 @@ const HomeNav = (props: { pathName: string }) => {
         <li className={"px-2 font-medium" + " " + IsLocation("/")}>
           <Link href="/">Home</Link>
         </li>
-        <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
-          <Link href="/questions">Questions</Link>
-        </li>
         <li className={"px-2 font-medium" + " " + IsLocation("/articles")}>
           <Link href="/articles">Articles</Link>
+        </li>
+        <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
+          <Link href="/questions">Questions</Link>
         </li>
       </ul>
     </nav>

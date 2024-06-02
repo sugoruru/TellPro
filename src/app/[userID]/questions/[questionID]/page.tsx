@@ -1,5 +1,4 @@
 "use client";
-import Loading from "@/app/components/main/loading";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
@@ -346,9 +345,7 @@ export default function Questions({ params }: { params: { userID: string; questi
   // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
   // TODO:(DEV) コメントに画像を添付できるようにする.
   return isLoading ? (
-    <>
-      <Loading title="読み込み中..." />
-    </>
+    <></>
   ) : isExist ? (
     me.id === params.userID || page.is_public ? (
       <>

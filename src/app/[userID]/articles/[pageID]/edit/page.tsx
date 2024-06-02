@@ -3,7 +3,6 @@ import { signOut, useSession } from "next-auth/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/components/main/loading";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
@@ -192,9 +191,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
 
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
-    <>
-      <Loading title="読み込み中..." />
-    </>
+    <></>
   ) : canEdit ? (
     // 編集権限がある場合.
     <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-full`}>

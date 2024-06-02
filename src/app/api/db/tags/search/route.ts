@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
-  // 5分おきに更新されるファイル名
   const time = new Date().getTime();
   const fiveMinutes = Math.floor(time / 300000);
   const cacheFilePath = path.resolve(`/tmp/cache/tags.json`);
