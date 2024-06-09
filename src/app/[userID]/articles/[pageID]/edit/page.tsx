@@ -180,7 +180,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     <></>
   ) : canEdit ? (
     // 編集権限がある場合.
-    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-full`}>
+    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-screen`}>
       <div className="bg-white">
         <button onClick={() => setIsMarkdown(true)} className={`${isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}>
           編集(Markdown)

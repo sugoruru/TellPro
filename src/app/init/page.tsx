@@ -12,6 +12,7 @@ import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import userNameKeyword from "@/modules/userNameKeyword";
+import TermsOfService from "../termsOfService/page";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -100,17 +101,32 @@ export default function Init() {
 
   // アカウントの作成.
   async function sendDataToDB(dataURL: string) {
+    {
+      if (isUserNameError) {
+        setStateMessage("ユーザー名が正しく入力されていません");
+        const input = document.getElementById("userName_tellPro") as HTMLInputElement;
+        input.focus();
+        setIsSending(false);
+        return;
+      }
+    }
+    {
+      if (isPageNameError) {
+        setStateMessage("ページ名が正しく入力されていません");
+        const input = document.getElementById("pageName_tellPro") as HTMLInputElement;
+        input.focus();
+        setIsSending(false);
+        return;
+      }
+    }
+    {
+      const input = document.getElementById("termsOfService-checkbox") as HTMLInputElement;
+      if (!input.checked) {
+        setStateMessage("利用規約に同意してください");
+        return;
+      }
+    }
     setIsSending(true);
-    if (isUserNameError) {
-      setStateMessage("ユーザー名が正しく入力されていません");
-      setIsSending(false);
-      return;
-    }
-    if (isPageNameError) {
-      setStateMessage("ページ名が正しく入力されていません");
-      setIsSending(false);
-      return;
-    }
     try {
       if (session) {
         setStateMessage("ユーザーが存在するかを確認中...");
@@ -271,6 +287,22 @@ export default function Init() {
                 ></textarea>
               </div>
             </form>
+            <div className="mb-8 mt-4">
+              <div className="overflow-y-scroll h-64 w-max mx-auto">
+                <TermsOfService />
+              </div>
+              <div className="flex justify-center mt-4">
+                <input
+                  id="termsOfService-checkbox"
+                  type="checkbox"
+                  value=""
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label htmlFor="termsOfService-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                  利用規約に同意します
+                </label>
+              </div>
+            </div>
             {/*送信ボタン*/}
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="flex items-center justify-between sm:col-span-2">
@@ -281,7 +313,7 @@ export default function Init() {
                 >
                   Send
                 </button>
-                <p>{stateMessage}</p>
+                <p className="font-semibold text-red-500 text-xl">{stateMessage}</p>
               </div>
             </div>
           </div>
