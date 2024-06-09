@@ -8,6 +8,7 @@ import Prism from "prismjs";
 import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import hideHeaderPage from "@/modules/hideHeaderPage";
+import Footer from "./components/main/footer";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -39,8 +40,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             zIndex={1600}
             showAtBottom={false}
           />
-          <UserProvider>{hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}</UserProvider>
-          <Suspense>{children}</Suspense>
+          <div>
+            <UserProvider>{hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}</UserProvider>
+            <Suspense>{<div className="min-h-screen">{children}</div>}</Suspense>
+          </div>
+          {hideHeaderPage.includes(pathname) ? null : <Footer />}
         </SessionProvider>
       </body>
     </html>

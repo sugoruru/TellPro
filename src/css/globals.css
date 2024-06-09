@@ -9,6 +9,11 @@
   padding-bottom: 0.25rem;
 }
 
+.terms > p,
+ul {
+  color: #444;
+}
+
 pre {
   border-radius: 0.5em;
   padding: 0.1em;

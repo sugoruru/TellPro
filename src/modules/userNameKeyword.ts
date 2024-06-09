@@ -9,6 +9,8 @@ const userNameKeyword = [
   "search",
   "settings",
   "api",
+  "termsOfService",
+  "privacyPolicy",
   "null",
   "undefined",
 ];

@@ -350,7 +350,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
       <>
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
-        <div className="mx-auto">
+        <div className="flex justify-center">
           <div className="flex mt-2 px-1 flex-wrap">
             {page.tags.map((e) =>
               e === "" ? (
@@ -364,7 +364,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
             )}
           </div>
         </div>
-        <div className="mx-auto text-base font-bold text-gray-700">
+        <div className="flex justify-center text-base font-bold text-gray-700">
           <Link href={`/${params.userID}`} className="flex cursor-pointer">
             <img src={userIcon} alt="" width={24} height={24} className="mr-1" />
             <u>@{params.userID}</u>
