@@ -8,15 +8,14 @@ import Prism from "prismjs";
 import { Fragment, useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import { FaTag } from "react-icons/fa6";
-import { MdDelete, MdEditNote } from "react-icons/md";
+import { MdEditNote } from "react-icons/md";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
-import { Menu, Transition } from "@headlessui/react";
-import { IoChevronDown } from "react-icons/io5";
 import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
 import { Page } from "@/types/page";
 import { Comment } from "@/types/comment";
+import SendComment from "@/app/components/articles/sendComment";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -37,14 +36,13 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   const [isBookmark, setIsBookmark] = useState(false);
   const [isLikeSending, setIsLikeSending] = useState(false);
   const [isBookmarkSending, setIsBookmarkSending] = useState(false);
-  const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
   const [isCommentSending, setIsCommentSending] = useState(false);
   const [isOpenDeleteCommentModal, setIsOpenDeleteCommentModal] = useState(false);
   const [isOpenUpdateCommentModal, setIsOpenUpdateCommentModal] = useState(false);
   const [isUpdateSending, setIsUpdateSending] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
-  const [me, setMe] = useState<UserPublic>({} as UserPublic);
+  const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
   const router = useRouter();
 
   useEffect(() => {
@@ -63,13 +61,18 @@ export default function Articles({ params }: { params: { userID: string; pageID:
           setPage(res.data.data as Page);
           setContent(Lex({ text: res.data.data.content }));
         }
+        setIsLoading(false);
         const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
         if (!fetchUser.data.exist || !me.data.ok) {
           router.replace("/");
           return;
         }
         setUserIcon(fetchUser.data.data.icon);
-        setMe(me.data.data);
+        if (!me.data.exist) {
+          setMe({ id: "" } as UserPublic);
+        } else {
+          setMe(me.data.data);
+        }
         if (res.data.exist) {
           const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&pageType=articles&myID=${me.data.exist ? me.data.data.id : "null"}`);
           if (!fetchComments.data.ok) {
@@ -104,7 +107,6 @@ export default function Articles({ params }: { params: { userID: string; pageID:
           });
           setLikeComments(likeComments2);
         }
-        setIsLoading(false);
       };
       fetch();
     } catch (e) {
@@ -341,9 +343,6 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     }
   };
 
-  // TODO:(DEV) ページの目次(MDのheaderから)を作成する.
-  // TODO:(DEV) 最終ログインと比較していいねのお知らせが来るようにする.
-  // TODO:(DEV) コメントに画像を添付できるようにする.
   return isLoading ? (
     <></>
   ) : isExist ? (
@@ -353,12 +352,16 @@ export default function Articles({ params }: { params: { userID: string; pageID:
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
         <div className="mx-auto">
           <div className="flex mt-2 px-1 flex-wrap">
-            {page.tags.map((e) => (
-              <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
-                <FaTag className="inline-flex my-auto mr-1" />
-                {e}
-              </div>
-            ))}
+            {page.tags.map((e) =>
+              e === "" ? (
+                <Fragment key={returnRandomString(64)}></Fragment>
+              ) : (
+                <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
+                  <FaTag className="inline-flex my-auto mr-1" />
+                  {e}
+                </div>
+              )
+            )}
           </div>
         </div>
         <div className="mx-auto text-base font-bold text-gray-700">
@@ -370,150 +373,26 @@ export default function Articles({ params }: { params: { userID: string; pageID:
         <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
           {content}
           {/* コメント */}
-          <div className="mt-10 flex flex-col">
-            <b>コメント({page.comment_count})</b>
-            <hr />
-            {isLogin ? (
-              <>
-                <div className="bg-white">
-                  <button
-                    onClick={() => setIsCommentMarkdown(true)}
-                    className={`${isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
-                  >
-                    編集(Markdown)
-                  </button>
-                  <button
-                    onClick={() => setIsCommentMarkdown(false)}
-                    className={`${!isCommentMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
-                  >
-                    プレビュー
-                  </button>
-                </div>
-                {isCommentMarkdown ? (
-                  <textarea
-                    className={`border ${
-                      sendingMessage === "コメントを入力してください" && mdAreaValue === "" ? "border-red-500" : ""
-                    } outline-1 resize-none rounded h-72 mt-2 outline-sky-400 p-1 w-full`}
-                    placeholder="コメント(Markdown)"
-                    onChange={(e) => setMdAreaValue(e.target.value)}
-                    value={mdAreaValue}
-                  ></textarea>
-                ) : (
-                  <div>
-                    <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: mdAreaValue })}</div>
-                  </div>
-                )}
-                <div>
-                  <b className="ml-2 text-red-600">{sendingMessage}</b>
-                  <br />
-                  <button
-                    disabled={isCommentSending}
-                    onClick={handleCommentUpload}
-                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 w-28 px-4 rounded my-3 border-r"
-                  >
-                    投稿する
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="h-32 mt-2 border outline-1 outline-sky-400 text-center w-full rounded bg-gray-200 p-10">
-                <b>ログインをしてコミュニティに参加しましょう！</b>
-                <br />
-                <button>ログインボタン</button>
-              </div>
-            )}
-            <hr />
-            {comments.length === 0 ? (
-              <p>このページにコメントはありません</p>
-            ) : (
-              <div>
-                {comments.map((e) => (
-                  <div key={returnRandomString(64)}>
-                    <div className="p-2">
-                      <div className="flex justify-between">
-                        <Link href={`/${e.user_id}`}>
-                          <img src={commentUserMap[e.user_id].icon} width={30} height={30} alt="" className="inline" />
-                          <b className="ml-2">@{e.user_id}</b>
-                        </Link>
-                        {e.user_id === me.id ? (
-                          <Menu as="div" className="relative inline-block">
-                            <div>
-                              <Menu.Button className="inline-flex justify-center rounded-m py-2 text-sm font-medium text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                                <IoChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-                              </Menu.Button>
-                            </div>
-                            <Transition
-                              as={Fragment}
-                              enter="transition ease-out duration-100"
-                              enterFrom="transform opacity-0 scale-95"
-                              enterTo="transform opacity-100 scale-100"
-                              leave="transition ease-in duration-75"
-                              leaveFrom="transform opacity-100 scale-100"
-                              leaveTo="transform opacity-0 scale-95"
-                            >
-                              <Menu.Items
-                                className={`absolute right-0 ${
-                                  e.user_id === me.id ? "mt-[-120px]" : "mt-[-80px]"
-                                } w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none`}
-                              >
-                                <div className="px-1 py-1">
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <button
-                                        onClick={() => {
-                                          setUpdateMdAreaValue(e.content);
-                                          setUpdateCommentID(e.id);
-                                          setIsOpenUpdateCommentModal(true);
-                                        }}
-                                        className={`${active ? "bg-red-100" : ""} text-gray-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                      >
-                                        <MdEditNote className="mr-2 h-5 w-5 text-gray-600" aria-hidden="true" />
-                                        編集
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <button
-                                        onClick={() => {
-                                          setDeleteCommentID(e.id);
-                                          setIsOpenDeleteCommentModal(true);
-                                        }}
-                                        className={`${active ? "bg-red-100" : ""} text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                      >
-                                        <MdDelete className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
-                                        Delete
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                </div>
-                              </Menu.Items>
-                            </Transition>
-                          </Menu>
-                        ) : (
-                          <></>
-                        )}
-                      </div>
-                      <div>{Lex({ text: e.content })}</div>
-                      <div className={`text-center flex`}>
-                        <button
-                          className={`cursor-pointer w-10 flex flex-col items-center h-10 justify-center bg-white rounded-full border-gray-300 border`}
-                          title="いいね"
-                          onClick={() => handleCommentGood(e.id)}
-                          disabled={isLikeSending}
-                        >
-                          {likeComments[e.id] ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}
-                        </button>
-                        <b className="ml-1 my-auto">{Number(e.like_count)}</b>
-                      </div>
-                    </div>
-                    <hr />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="h-10 lg:h-0 w-full"></div>
+          <SendComment
+            page={page}
+            isLogin={isLogin}
+            sendingMessage={sendingMessage}
+            mdAreaValue={mdAreaValue}
+            isCommentSending={isCommentSending}
+            isLikeSending={isLikeSending}
+            comments={comments}
+            me={me}
+            commentUserMap={commentUserMap}
+            likeComments={likeComments}
+            setUpdateMdAreaValue={setUpdateMdAreaValue}
+            setUpdateCommentID={setUpdateCommentID}
+            setIsOpenUpdateCommentModal={setIsOpenUpdateCommentModal}
+            setDeleteCommentID={setDeleteCommentID}
+            setIsOpenDeleteCommentModal={setIsOpenDeleteCommentModal}
+            setMdAreaValue={setMdAreaValue}
+            handleCommentGood={handleCommentGood}
+            handleCommentUpload={handleCommentUpload}
+          ></SendComment>
         </div>
         <div className="fixed right-0 p-1 w-full lg:w-auto bottom-0 bg-slate-100 lg:right-2 lg:bottom-2 lg:bg-inherit">
           <div className="flex flex-row lg:flex-col justify-center lg:justify-normal h-10 lg:h-auto">
@@ -522,7 +401,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
                 className={`cursor-pointer w-10 lg:w-16 flex flex-col items-center h-10 lg:h-16 justify-center bg-white rounded-full border-gray-300 border`}
                 title="いいね"
                 onClick={handleGoodButton}
-                disabled={isLikeSending}
+                disabled={isLikeSending || !isLogin}
               >
                 {isLike ? <FaHeart className="inline-flex text-sm lg:text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-sm lg:text-3xl text-red-500" />}
               </button>
@@ -533,7 +412,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
                 className={`cursor-pointer flex items-center justify-center w-10 lg:w-16 h-10 lg:h-16 bg-white rounded-full border-gray-300 border`}
                 title="ブックマーク"
                 onClick={handleBookmark}
-                disabled={isBookmarkSending}
+                disabled={isBookmarkSending || !isLogin}
               >
                 {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
               </button>

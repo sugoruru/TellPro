@@ -7,25 +7,33 @@ import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/sleep";
 import PageLinkBlock from "../components/articles/pageLinkBlock";
 import { Page } from "@/types/page";
+import { IoShieldCheckmark } from "react-icons/io5";
+import { SiCodeforces } from "react-icons/si";
+import { BsTwitterX } from "react-icons/bs";
+import Link from "next/link";
+import { getAtCoderColors, getCodeforcesColors } from "@/modules/getColors";
 
-// TODO:(DEV) 記事のエクスポートを実装する
-// TODO:(UI) 全て/非公開/公開のボタンを設置する
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [pageUser, setPageUser] = useState<UserPublic>({} as UserPublic);
-  const [me, setMe] = useState<User | null>(null);
+  const [me, setMe] = useState<UserPublic | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [questions, setQuestions] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("articles");
   const [deletePageID, setDeletePageID] = useState("");
+  const [codeforcesRatingColor, setCodeforcesRatingColor] = useState("#000000");
+  const [atcoderRatingColor, setAtcoderRatingColor] = useState("#000000");
   const router = useRouter();
+  let isFetched = false;
 
   useEffect(() => {
     try {
       const fetcher = async () => {
+        if (isFetched) return;
+        isFetched = true;
         const [tempMe, userData, articlesData, questionsData] = await Promise.all([
           axios.get(`/api/db/users/existMe`),
           axios.get(`/api/db/users/exist?userID=${params.userID}`),
@@ -41,10 +49,24 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           setPages(articlesData.data.pages);
         }
         if (tempMe.data.ok && tempMe.data.exist) {
-          setMe(tempMe.data.data as User);
+          setMe(tempMe.data.data as UserPublic);
         }
         if (questionsData.data.ok) {
           setQuestions(questionsData.data.pages);
+        }
+        if (userData.data.exist) {
+          if (userData.data.data.atcoder_id !== "") {
+            axios.get(`https://kenkoooo.com/atcoder/proxy/users/${userData.data.data.atcoder_id}/history/json`).then((res) => {
+              const rate = res.data.slice(-1)[0].NewRating;
+              setAtcoderRatingColor(getAtCoderColors(rate) as string);
+            });
+          }
+          if (userData.data.data.codeforces_id !== "") {
+            axios.get(`https://codeforces.com/api/user.info?handles=${userData.data.data.codeforces_id}&checkHistoricHandles=false`).then((res) => {
+              const rate = res.data.result[0].rating;
+              setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
+            });
+          }
         }
       };
       fetcher();
@@ -102,16 +124,51 @@ export default function UserPage({ params }: { params: { userID: string } }) {
       <div className="mb-2">
         <div className="bg-white">
           <div className="p-5 md:flex sm:block">
-            <img alt={pageUser.username} src={pageUser.icon} width={100} height={100} className="md:mx-5" />
-            <div>
+            <img alt={pageUser.username} src={pageUser.icon} width={100} height={100} className="md:mx-5 w-24 h-24" />
+            <div className="flex mt-3 md:mt-0">
               <div>
-                <b>{pageUser.username}</b>
+                <div className="flex">
+                  <b>{pageUser.username}</b>
+                  {pageUser.is_admin ? <IoShieldCheckmark className="text-purple-700 text-xl" title="Admin"></IoShieldCheckmark> : <></>}
+                </div>
+                <div>{pageUser.status_message}</div>
+                <div>
+                  <span>
+                    <b>{Number(pageUser.answer_score) + Number(pageUser.page_score)}</b> Scores
+                  </span>
+                </div>
               </div>
-              <div>{pageUser.status_message}</div>
-              <div>
-                <span>
-                  <b>{Number(pageUser.answer_score) + Number(pageUser.page_score)}</b> Scores
-                </span>
+              <div className="ml-4">
+                {pageUser.atcoder_id === "" ? (
+                  <></>
+                ) : (
+                  <div className="flex mb-1">
+                    <img src="/svg/atcoder.png" alt="atcoder:" width={25} height={25} />
+                    <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
+                      {pageUser.atcoder_id}
+                    </Link>
+                  </div>
+                )}
+                {pageUser.codeforces_id === "" ? (
+                  <></>
+                ) : (
+                  <div className="flex mb-1">
+                    <SiCodeforces width={25} height={25} className={`text-xl mx-1`} />
+                    <Link href={`https://codeforces.com/profile/${pageUser.codeforces_id}`} target="_blank" style={{ color: `${codeforcesRatingColor}` }}>
+                      {pageUser.codeforces_id}
+                    </Link>
+                  </div>
+                )}
+                {pageUser.x_id === "" ? (
+                  <></>
+                ) : (
+                  <div className="flex mb-1">
+                    <BsTwitterX width={25} height={25} className="text-xl mx-1" />
+                    <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
+                      {pageUser.x_id}
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -128,13 +185,19 @@ export default function UserPage({ params }: { params: { userID: string } }) {
         </div>
         <div className="bg-slate-100">
           {navPlace === "articles" ? (
-            <div className="bg-slate-100">
-              {pages.map((page) => (
-                <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={page} pageUser={pageUser} pageType="articles" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
-                </div>
-              ))}
-            </div>
+            pages.length === 0 ? (
+              <div className="m-5">記事はありません</div>
+            ) : (
+              <div className="bg-slate-100">
+                {pages.map((page) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={page} pageUser={pageUser} pageType="articles" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  </div>
+                ))}
+              </div>
+            )
+          ) : questions.length === 0 ? (
+            <div className="m-5">質問はありません</div>
           ) : (
             <div className="bg-slate-100">
               {questions.map((question) => (

@@ -32,6 +32,10 @@ export async function GET(req: NextRequest) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
     return res;
   }
+  if (!/^[a-zA-Z]+$/.test(pageID)) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+    return res;
+  }
   const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/exist.sql", "utf-8");
   const data = await db.any(sql, [pageID, userID, pageType]);
   if (data.length == 0) {

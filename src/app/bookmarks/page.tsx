@@ -10,7 +10,7 @@ import { PageList } from "@/types/page";
 
 export default function Bookmark() {
   const { status } = useSession();
-  const [me, setMe] = useState<User | null>(null);
+  const [me, setMe] = useState<UserPublic | null>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,13 +90,19 @@ export default function Bookmark() {
       <div className="bg-slate-100">
         {isBookmarkLoading ? (
           navPlace === "articles" ? (
-            <div>
-              {articles.map((article) => (
-                <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={article} pageUser={userMap[article.user_id]} pageType="articles" me={me} />
-                </div>
-              ))}
-            </div>
+            articles.length === 0 ? (
+              <p className="mt-4 text-center">記事のブックマークは存在しません</p>
+            ) : (
+              <div>
+                {articles.map((article) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={article} pageUser={userMap[article.user_id]} pageType="articles" me={me} />
+                  </div>
+                ))}
+              </div>
+            )
+          ) : questions.length === 0 ? (
+            <p className="mt-4 text-center">質問のブックマークは存在しません</p>
           ) : (
             <div>
               {questions.map((question) => (
@@ -107,7 +113,6 @@ export default function Bookmark() {
             </div>
           )
         ) : (
-          // TODO:(UI) ブックマークがない場合の処理を追加する.
           <></>
         )}
       </div>

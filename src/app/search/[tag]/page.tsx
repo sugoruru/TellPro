@@ -15,7 +15,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   const [pages, setPages] = useState<PageList[]>([]);
   const [questions, setQuestions] = useState<PageList[]>([]);
   const [navPlace, setNavPlace] = useState("pages");
-  const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
+  const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
 
   useEffect(() => {
     document.title = "Tag｜TellPro";

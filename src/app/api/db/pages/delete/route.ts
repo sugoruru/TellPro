@@ -43,11 +43,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+  if (!/^[a-zA-Z]+$/.test(body["pageID"])) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+    return res;
+  }
 
   // 自分自身のページであるか確認.
   try {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
-    const data = await db.any(sql, [session.user.email]) as User[];
+    const data = await db.any(sql, [session.user.email]) as UserPublic[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }

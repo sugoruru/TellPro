@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   let userID = "";
   try {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
-    const data = await db.any(sql, [session.user.email]) as User[];
+    const data = await db.any(sql, [session.user.email]) as UserPublic[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }

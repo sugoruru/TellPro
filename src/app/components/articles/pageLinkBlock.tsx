@@ -13,7 +13,7 @@ const PageLinkBlock = (props: {
   page: PageList;
   pageUser: UserPublic;
   pageType: PageType;
-  me?: User | null;
+  me?: UserPublic | null;
   stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
 }) => {
   const router = useRouter();

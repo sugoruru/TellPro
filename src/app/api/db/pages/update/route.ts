@@ -42,6 +42,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
   }
+  if (!/^[a-zA-Z]+$/.test(body["ID"])) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+    return res;
+  }
 
   // ページが存在しない場合は400を返す.
   try {

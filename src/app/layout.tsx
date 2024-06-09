@@ -9,12 +9,6 @@ import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import hideHeaderPage from "@/modules/hideHeaderPage";
 
-// TODO: (DEV)ユーザーや記事のキャッシュを導入する
-// TODO: (NONE)CUIでの記事の投稿機能の追加
-// TODO: (NONE)コードテスト実行環境の作成
-// TODO: (NONE)問題作成ページの作成
-// TODO: (NONE)自動採点システムの作成
-// TODO: (NONE)他のサイトのAPIを活用して、コンテストをほかサイトの問題から引っ張って作成できるようにする
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   Prism.manual = true;

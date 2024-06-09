@@ -7,9 +7,6 @@ import { Page } from "@/types/page";
 import PageLinkBlock from "./components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
-// TODO:(DEV) お知らせを更新するボタンをadminのみに表示する
-// TODO:(UI) トレンドページを5つ表示する([いいね数/時間]でトレンド指数を導出して、高いものを10件表示)→PageList(types/page.d.ts)型があるからそれベースで
-// TODO:(UI) おすすめユーザーを10件表示する(いいね数が多いユーザー)→UserPublic(types/user.d.ts)型があるからそれベース
 export default function Home() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [trendPages, setTrendPages] = useState<Page[]>([]);

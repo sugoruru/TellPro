@@ -5,9 +5,11 @@ const userNameKeyword = [
   "newQuestion",
   "articles",
   "questions",
+  "problems",
   "search",
   "settings",
   "api",
-  "null"
+  "null",
+  "undefined",
 ];
 export default userNameKeyword;

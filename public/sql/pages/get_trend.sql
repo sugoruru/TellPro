@@ -1,4 +1,8 @@
-SELECT *,
+SELECT id,
+    user_id,
+    title,
+    is_public,
+    tags,
     pages.like_count / (
         EXTRACT(
             EPOCH

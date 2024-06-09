@@ -14,6 +14,16 @@ pre {
   padding: 0.1em;
 }
 
+@layer utilities {
+  .hidden-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hidden-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 inline {
   background-color: #eee;
   border-radius: 10%;
@@ -35,6 +45,15 @@ inline {
 
 a.myLink {
   @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+}
+
+a.myLink::after {
+  content: "\A";
+  white-space: pre;
+}
+
+img[src=""] {
+  display: none;
 }
 
 dl {

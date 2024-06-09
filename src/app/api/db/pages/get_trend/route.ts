@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
 import { Page } from "@/types/page";
-import { userBlockKey } from "@/modules/DBBlockKey";
+import { pageBlockKey, userBlockKey } from "@/modules/DBBlockKey";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
