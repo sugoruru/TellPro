@@ -121,6 +121,11 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
       setIsSending(false);
       return;
     }
+    if (title.length > 30) {
+      setSendingMessage("タイトルが長すぎます");
+      setIsSending(false);
+      return;
+    }
     if (mdAreaValue.length > 20000) {
       setSendingMessage("記事のサイズが大きすぎます");
       setIsSending(false);
@@ -178,7 +183,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     <></>
   ) : canEdit ? (
     // 編集権限がある場合.
-    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-screen`}>
+    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-[calc(100vh-80px)]`}>
       <div className="bg-white">
         <button onClick={() => setIsMarkdown(true)} className={`${isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}>
           編集(Markdown)

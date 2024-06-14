@@ -11,6 +11,7 @@ import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
 import Image from "next/image";
 import { Fragment } from "react";
 import { MdCheckCircleOutline, MdInfoOutline, MdOutlineDangerous, MdOutlineWarningAmber } from "react-icons/md";
+import { InlineMath } from "react-katex";
 const head: string[] = ["#", "##", "###", "####", "#####", "######"];
 
 const Lex = (props: { text: string }) => {
@@ -135,6 +136,17 @@ const Lex = (props: { text: string }) => {
         const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
         const videoID = href.split("v=")[1];
         result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
+      } else if (/\%\[.*\]\((.*)\).*/g.test(elem)) {
+        // 色付きのテキストの場合.
+        const e = elem.split("](");
+        const color = e[0].slice(2);
+        const text = e[1].slice(0, -1);
+        result.push(
+          <span key={returnRandomString(64)} style={{ color: color }}>
+            {Text(text)}
+            <br />
+          </span>
+        );
       } else if (/\[.*\]\((.*)\).*/g.test(elem)) {
         // リンクの場合.
         const e = elem.split("](");
@@ -146,6 +158,14 @@ const Lex = (props: { text: string }) => {
               {Text(text)}
             </a>
           </Fragment>
+        );
+      } else if (/\$\$.*\$\$/g.test(elem)) {
+        // 数式の場合.
+        const text = elem.replace(/\$\$/g, "");
+        result.push(
+          <div key={returnRandomString(64)}>
+            <InlineMath>{text}</InlineMath>
+          </div>
         );
       } else {
         // 通常のテキストの場合.

@@ -18,6 +18,15 @@ const Footer = () => {
             <Link href="/privacyPolicy">プライバシーポリシー</Link>
           </li>
         </ul>
+        <ul>
+          <li className="font-bold mb-3">Other</li>
+          <li className="text-gray-700">
+            <Link href="/proposal">サイト案</Link>
+          </li>
+          <li className="text-gray-700">
+            <Link href="/inquiry">お問い合わせ</Link>
+          </li>
+        </ul>
       </div>
       <div className="text-center mt-4">©2024~ TellPro</div>
     </div>

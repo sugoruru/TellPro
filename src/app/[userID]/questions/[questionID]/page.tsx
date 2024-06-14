@@ -19,6 +19,7 @@ import SendComment from "@/app/components/articles/sendComment";
 
 export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isCommentLoading, setIsCommentLoading] = useState(true);
   const [content, setContent] = useState<JSX.Element>(<></>);
   const [userIcon, setUserIcon] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState("");
@@ -79,6 +80,20 @@ export default function Questions({ params }: { params: { userID: string; questi
             router.replace("/");
             return;
           }
+          setComments(fetchComments.data.data as Comment[]);
+          const _commentUserMap = fetchComments.data.userData as UserPublic[];
+          const commentUserMap2: { [key: string]: UserPublic } = {};
+          _commentUserMap.forEach((e) => {
+            commentUserMap2[e.id] = e;
+          });
+          setCommentUserMap(commentUserMap2);
+          const _likeComments = fetchComments.data.likeComments as { comment_id: string }[];
+          const likeComments2: { [key: string]: boolean } = {};
+          _likeComments.forEach((e) => {
+            likeComments2[e.comment_id] = true;
+          });
+          setCommentLikeUserMap(likeComments2);
+          setIsCommentLoading(false);
           let isLike, isBookmark;
           if (me.data.exist) {
             setIsLogin(true);
@@ -93,19 +108,6 @@ export default function Questions({ params }: { params: { userID: string; questi
             setIsLike(isLike.data.isLiked);
             setIsBookmark(isBookmark.data.isBookmark);
           }
-          setComments(fetchComments.data.data as Comment[]);
-          const _commentUserMap = fetchComments.data.userData as UserPublic[];
-          const commentUserMap2: { [key: string]: UserPublic } = {};
-          _commentUserMap.forEach((e) => {
-            commentUserMap2[e.id] = e;
-          });
-          setCommentUserMap(commentUserMap2);
-          const _likeComments = fetchComments.data.likeComments as { comment_id: string }[];
-          const likeComments2: { [key: string]: boolean } = {};
-          _likeComments.forEach((e) => {
-            likeComments2[e.comment_id] = true;
-          });
-          setCommentLikeUserMap(likeComments2);
         }
       };
       fetch();
@@ -380,6 +382,7 @@ export default function Questions({ params }: { params: { userID: string; questi
             mdAreaValue={mdAreaValue}
             isCommentSending={isCommentSending}
             isLikeSending={isLikeSending}
+            isLoading={isCommentLoading}
             comments={comments}
             me={me}
             commentUserMap={commentUserMap}

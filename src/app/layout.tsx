@@ -7,8 +7,22 @@ import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
 import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
-import hideHeaderPage from "@/modules/hideHeaderPage";
+import { hideHeaderPage, hideFooterPage } from "@/modules/hideComponentPage";
 import Footer from "./components/main/footer";
+
+function wildcardToRegex(pattern: string) {
+  return new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
+}
+
+function isMatch(pathname: string, patterns: string[]) {
+  for (let pattern of patterns) {
+    let regex = wildcardToRegex(pattern);
+    if (regex.test(pathname)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,11 +54,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             zIndex={1600}
             showAtBottom={false}
           />
-          <div>
-            <UserProvider>{hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}</UserProvider>
-            <Suspense>{<div className="min-h-screen">{children}</div>}</Suspense>
+          <div className="grid h-full">
+            <div>
+              <UserProvider>{isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}</UserProvider>
+              <Suspense>{<>{children}</>}</Suspense>
+            </div>
+            {isMatch(pathname, hideFooterPage) ? null : <Footer />}
           </div>
-          {hideHeaderPage.includes(pathname) ? null : <Footer />}
         </SessionProvider>
       </body>
     </html>

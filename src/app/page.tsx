@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <>
       <HomeNav pathName="/"></HomeNav>
-      <p className="text-center mt-10 text-xl font-extrabold text-gray-600 break-words">(トレンドは1時間おきに更新されます)</p>
+      <p className="text-center mt-10 text-lg font-extrabold text-gray-600 break-words">(トレンドは1時間おきに更新されます)</p>
       <div className="mr-10 ml-10 mb-10">
         <div className="text-3xl font-semibold text-center text-gray-800">トレンド記事</div>
         {trendPages.map((page) => (

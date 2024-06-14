@@ -9,6 +9,24 @@
   padding-bottom: 0.25rem;
 }
 
+.katex-html {
+  display: none;
+}
+
+.katex-mathml {
+  font-size: 1.2em;
+}
+
+span[data-testid="react-katex"] {
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+nextjs-portal {
+  display: none;
+}
+
 .terms > p,
 ul {
   color: #444;

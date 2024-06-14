@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
   const pageID = req.nextUrl.pathname.split("/")[3];
   const pageMD = await db.any("select content from pages where id=$1 and user_id=$2 and page_type=$3", [pageID, userName, pageType]);
   // textで返す.
-  console.log(pageMD);
   return new NextResponse(pageMD[0].content, {
     status: 200,
     headers: {

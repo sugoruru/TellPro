@@ -18,6 +18,7 @@ const SendComment = (props: {
   mdAreaValue: string;
   isCommentSending: boolean;
   isLikeSending: boolean;
+  isLoading: boolean;
   comments: Comment[];
   me: UserPublic;
   commentUserMap: { [key: string]: UserPublic };
@@ -39,7 +40,9 @@ const SendComment = (props: {
     <div className="mt-10 flex flex-col">
       <b>コメント({props.page.comment_count})</b>
       <hr />
-      {props.isLogin ? (
+      {props.isLoading ? (
+        <></>
+      ) : props.isLogin ? (
         <>
           <div className="bg-white">
             <button
@@ -122,7 +125,9 @@ const SendComment = (props: {
         </div>
       )}
       <hr />
-      {props.comments.length === 0 ? (
+      {props.isLoading ? (
+        <></>
+      ) : props.comments.length === 0 ? (
         <p>このページにコメントはありません</p>
       ) : (
         <div>

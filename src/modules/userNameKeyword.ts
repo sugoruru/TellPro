@@ -11,6 +11,8 @@ const userNameKeyword = [
   "api",
   "termsOfService",
   "privacyPolicy",
+  "inquiry",
+  "proposal",
   "null",
   "undefined",
 ];

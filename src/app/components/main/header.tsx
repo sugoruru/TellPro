@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-white">
+      <div className="bg-white h-20">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
           <header className="flex items-center justify-between py-4 md:py-4">
             <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl md:leading-10 leading-10" aria-label="logo" title="TellPro">

@@ -56,16 +56,24 @@ export default function UserPage({ params }: { params: { userID: string } }) {
         }
         if (userData.data.exist) {
           if (userData.data.data.atcoder_id !== "") {
-            axios.get(`https://kenkoooo.com/atcoder/proxy/users/${userData.data.data.atcoder_id}/history/json`).then((res) => {
-              const rate = res.data.slice(-1)[0].NewRating;
-              setAtcoderRatingColor(getAtCoderColors(rate) as string);
-            });
+            try {
+              axios.get(`https://kenkoooo.com/atcoder/proxy/users/${userData.data.data.atcoder_id}/history/json`).then((res) => {
+                const rate = res.data.slice(-1)[0].NewRating;
+                setAtcoderRatingColor(getAtCoderColors(rate) as string);
+              });
+            } catch (e) {
+              console.log(e);
+            }
           }
           if (userData.data.data.codeforces_id !== "") {
-            axios.get(`https://codeforces.com/api/user.info?handles=${userData.data.data.codeforces_id}&checkHistoricHandles=false`).then((res) => {
-              const rate = res.data.result[0].rating;
-              setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
-            });
+            try {
+              axios.get(`https://codeforces.com/api/user.info?handles=${userData.data.data.codeforces_id}&checkHistoricHandles=false`).then((res) => {
+                const rate = res.data.result[0].rating;
+                setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
+              });
+            } catch (e) {
+              console.log(e);
+            }
           }
         }
       };
