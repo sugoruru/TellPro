@@ -14,6 +14,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "not found your IP" }, { status: 400 });
   }
 
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
+
   // 毎分100requestの制限.
   try {
     await limitChecker.check(100, ip);

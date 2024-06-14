@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
+
   // キャッシュの取得.
   const time = new Date().getTime();
   const day = Math.floor(time / 86400000);

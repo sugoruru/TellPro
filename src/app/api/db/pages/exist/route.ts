@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
+
   const userID = req.nextUrl.searchParams.get("userID");
   const pageID = req.nextUrl.searchParams.get("pageID");
   const pageType = req.nextUrl.searchParams.get("pageType");

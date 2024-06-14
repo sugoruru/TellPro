@@ -12,6 +12,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "not found your IP" }, { status: 400 });
   }
 
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
+
   const word = req.nextUrl.searchParams.get("word");
   if (word === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
