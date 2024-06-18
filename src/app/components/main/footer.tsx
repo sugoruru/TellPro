@@ -3,13 +3,13 @@ import Link from "next/link";
 const Footer = () => {
   return (
     <div className="bg-white text-black p-10 border-t border-gray-500 border-dashed">
-      <div className="flex flex-wrap gap-10 justify-center">
-        <ul>
+      <div className="md:flex flex-wrap gap-10 justify-center">
+        <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">About</li>
           <li className="text-gray-700">使い方</li>
           <li className="text-gray-700">開発</li>
         </ul>
-        <ul>
+        <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">Legal</li>
           <li className="text-gray-700">
             <Link href="/termsOfService">利用規約</Link>
@@ -18,7 +18,7 @@ const Footer = () => {
             <Link href="/privacyPolicy">プライバシーポリシー</Link>
           </li>
         </ul>
-        <ul>
+        <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">Other</li>
           <li className="text-gray-700">
             <Link href="/proposal">サイト案</Link>

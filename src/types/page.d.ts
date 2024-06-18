@@ -11,6 +11,7 @@ interface Page {
   is_public: boolean,
   date: string,
   page_type: PageType,
+  is_closed: boolean,
 }
 
 // contentなどを省略して軽量化したPage型.
@@ -24,4 +25,5 @@ interface PageList {
   is_public: boolean,
   date: string,
   page_type: PageType,
+  is_closed: boolean,
 }

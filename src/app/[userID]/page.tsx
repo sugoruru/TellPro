@@ -12,22 +12,41 @@ import { SiCodeforces } from "react-icons/si";
 import { BsTwitterX } from "react-icons/bs";
 import Link from "next/link";
 import { getAtCoderColors, getCodeforcesColors } from "@/modules/getColors";
+import { max } from "@/modules/algo/max_min";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExist, setIsExist] = useState(false);
   const [isOpenDeletePageModal, setIsOpenDeletePageModal] = useState(false);
+  const [isOpenReportModal, setIsOpenReportModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
+  const [isReportSending, setIsReportSending] = useState(false);
+  const [canSendReport, setCanSendReport] = useState(true);
   const [pageUser, setPageUser] = useState<UserPublic>({} as UserPublic);
   const [me, setMe] = useState<UserPublic | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [questions, setQuestions] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("articles");
   const [deletePageID, setDeletePageID] = useState("");
+  const [reportValue, setReportValue] = useState("");
   const [codeforcesRatingColor, setCodeforcesRatingColor] = useState("#000000");
   const [atcoderRatingColor, setAtcoderRatingColor] = useState("#000000");
   const router = useRouter();
   let isFetched = false;
+
+  const canSendReportChecker = () => {
+    if (me) {
+      const prev = new Date(me.sent_report_at).getTime();
+      const now = new Date().getTime();
+      if (now - prev < 1000 * 60 * 30) {
+        setCanSendReport(false);
+      } else {
+        setCanSendReport(true);
+      }
+    } else {
+      setCanSendReport(false);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -125,6 +144,31 @@ export default function UserPage({ params }: { params: { userID: string } }) {
     setIsDeleteSending(false);
   };
 
+  const sendReportUser = async () => {
+    setIsReportSending(true);
+    if (!me) return;
+    if (reportValue.trim() === "") return;
+    // 30分に1回しか通報できない.
+    const prev = new Date(me.sent_report_at).getTime();
+    const now = new Date().getTime();
+    if (now - prev < 1000 * 60 * 30) {
+      setIsOpenReportModal(false);
+      setIsReportSending(false);
+      return;
+    }
+    await axios.post("/api/admin/send_report", {
+      user_id: me.id,
+      reported_user_id: params.userID,
+      report_value: reportValue,
+    });
+    setIsOpenReportModal(false);
+    setCanSendReport(false);
+    me.sent_report_at = new Date().toISOString();
+    // 通報ボタン連打防止.
+    await sleep(1000);
+    setIsReportSending(false);
+  };
+
   return isLoading ? (
     <></>
   ) : isExist ? (
@@ -145,6 +189,20 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                     <b>{Number(pageUser.answer_score) + Number(pageUser.page_score)}</b> Scores
                   </span>
                 </div>
+                {pageUser.is_admin || !me ? (
+                  <></>
+                ) : (
+                  <button
+                    onClick={() => {
+                      canSendReportChecker();
+                      setIsOpenReportModal(true);
+                      setReportValue("");
+                    }}
+                    className="bg-red-500 hover:bg-red-600 transition px-3 rounded text-white"
+                  >
+                    通報
+                  </button>
+                )}
               </div>
               <div className="ml-4">
                 {pageUser.atcoder_id === "" ? (
@@ -191,6 +249,77 @@ export default function UserPage({ params }: { params: { userID: string } }) {
             </nav>
           </div>
         </div>
+        <Transition appear show={isOpenReportModal} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={() => setIsOpenReportModal(false)}>
+            <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+              <div className="fixed inset-0 bg-black/25" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <Dialog.Title as="h3" className="text-lg text-center font-medium leading-6 text-gray-900">
+                      {!me
+                        ? ""
+                        : canSendReport
+                        ? isReportSending
+                          ? "通報中です"
+                          : `通報理由を書いてください(残り: ${max(200 - reportValue.length, 0)}文字)`
+                        : `30分ごとにしか通報できません(残り: ${max(30 - Math.floor((new Date().getTime() - new Date(me.sent_report_at).getTime()) / 1000 / 60), 0)}分)`}
+                    </Dialog.Title>
+                    {isReportSending ? (
+                      <>
+                        <div className="flex justify-center mt-2" aria-label="読み込み中">
+                          <div className="animate-ping h-4 w-4 bg-blue-600 rounded-full"></div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mt-2 text-center">
+                          <textarea
+                            value={reportValue}
+                            onChange={(e) => setReportValue(e.target.value)}
+                            maxLength={200}
+                            disabled={!canSendReport}
+                            className="disabled:bg-gray-100 h-60 resize-none rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
+                          />
+                        </div>
+                      </>
+                    )}
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        className="mr-2 disabled:bg-gray-200 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        onClick={() => {
+                          sendReportUser();
+                        }}
+                        disabled={isReportSending || !canSendReport || reportValue.trim() === ""}
+                      >
+                        <b>通報する</b>
+                      </button>
+                      <button
+                        type="button"
+                        className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        onClick={() => setIsOpenReportModal(false)}
+                        disabled={isReportSending}
+                      >
+                        <b>キャンセル</b>
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
         <div className="bg-slate-100">
           {navPlace === "articles" ? (
             pages.length === 0 ? (

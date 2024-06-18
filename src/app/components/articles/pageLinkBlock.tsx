@@ -36,7 +36,9 @@ const PageLinkBlock = (props: {
                   </u>
                 </div>
                 <b className="mr-1">{props.page.title}</b>
-                <div className={`${props.page.is_public ? "bg-blue-400" : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>{props.page.is_public ? "公開" : "非公開"}</div>
+                <div className={`${props.page.is_public ? (props.page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>
+                  {props.page.is_public ? (props.page.is_closed ? "クローズ" : "公開") : "非公開"}
+                </div>
                 <div className="flex flex-wrap mb-2">
                   {props.page.tags.length !== 0 ? (
                     props.page.tags.map((e) =>

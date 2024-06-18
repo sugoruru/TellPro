@@ -2,6 +2,7 @@ select id,
     user_id,
     title,
     is_public,
+    is_closed,
     tags
 from pages
 where page_type = $1

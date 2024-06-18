@@ -10,4 +10,6 @@ interface UserPublic {
   atcoder_id: string;
   x_id: string;
   codeforces_id: string;
+  sent_proposal_at: string;
+  sent_report_at: string;
 }

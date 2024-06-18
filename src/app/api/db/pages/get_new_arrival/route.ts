@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   // キャッシュの取得.
   const time = new Date().getTime();
-  const day = Math.floor(time / 300000);
+  const day = Math.floor(time / 60000);
   let cacheFilePath = "";
   if (pageType === "articles") {
     cacheFilePath = path.resolve(`/tmp/cache/pageNewArrival.json`);
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     fs.mkdirSync('/tmp/cache');
   }
   if (fs.existsSync(cacheFilePath)) {
-    // 毎時間更新.
+    // 毎分更新.
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/get_new_arrival.sql", "utf-8");
     const cacheFile = fs.readFileSync(cacheFilePath, 'utf-8');
     const cacheData = JSON.parse(cacheFile);

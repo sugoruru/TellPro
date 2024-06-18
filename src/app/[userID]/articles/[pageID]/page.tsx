@@ -353,6 +353,11 @@ export default function Articles({ params }: { params: { userID: string; pageID:
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
         <div className="flex justify-center">
+          <div className={`${page.is_public ? (page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block`}>
+            {page.is_public ? (page.is_closed ? "クローズ" : "公開") : "非公開"}
+          </div>
+        </div>
+        <div className="flex justify-center">
           <div className="flex mt-2 px-1 flex-wrap">
             {page.tags.map((e) =>
               e === "" ? (
@@ -420,11 +425,15 @@ export default function Articles({ params }: { params: { userID: string; pageID:
                 {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
               </button>
             </div>
-            <Link title="編集" className={`mx-2 cursor-pointer ${me.id === params.userID ? "" : "hidden"}`} href={`/${params.userID}/articles/${params.pageID}/edit`}>
-              <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
-                <MdEditNote className="inline-flex text-base lg:text-4xl" />
-              </div>
-            </Link>
+            {me.id === params.userID ? (
+              <Link title="編集" className={`mx-2 cursor-pointer`} href={`/${params.userID}/articles/${params.pageID}/edit`}>
+                <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
+                  <MdEditNote className="inline-flex text-base lg:text-4xl" />
+                </div>
+              </Link>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <DeleteCommentModal

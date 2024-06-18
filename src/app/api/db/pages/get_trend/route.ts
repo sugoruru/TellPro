@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   // キャッシュの取得.
   const time = new Date().getTime();
-  const day = Math.floor(time / 3600000);
+  const day = Math.floor(time / 60000);
   let cacheFilePath = "";
   if (pageType === "articles") {
     cacheFilePath = path.resolve(`/tmp/cache/pageTrend.json`);

@@ -26,7 +26,7 @@ const HighlightedCodeBlock = ({ code, lang }: { code: string; lang: string }) =>
     <div
       style={{ position: "relative" }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
+      onMouseOut={() => {
         setIsHovered(false);
         setIsCopied(false);
       }}

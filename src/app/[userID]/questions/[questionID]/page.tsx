@@ -42,6 +42,7 @@ export default function Questions({ params }: { params: { userID: string; questi
   const [isOpenUpdateCommentModal, setIsOpenUpdateCommentModal] = useState(false);
   const [isUpdateSending, setIsUpdateSending] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
+  const [isUpdateClosedSending, setIsUpdateClosedSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
   const router = useRouter();
@@ -345,6 +346,19 @@ export default function Questions({ params }: { params: { userID: string; questi
     }
   };
 
+  const handleSwitchClosed = async () => {
+    if (me.id !== params.userID) return;
+    setIsUpdateClosedSending(true);
+    setPage({ ...page, is_closed: !page.is_closed });
+    await axios.post("/api/db/questions/update_closed", {
+      userID: params.userID,
+      pageID: params.questionID,
+      isClosed: !page.is_closed,
+    });
+    await sleep(1500);
+    setIsUpdateClosedSending(false);
+  };
+
   return isLoading ? (
     <></>
   ) : isExist ? (
@@ -352,6 +366,27 @@ export default function Questions({ params }: { params: { userID: string; questi
       <>
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
+        <div className="flex justify-center">
+          <div className={`${page.is_public ? (page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block`}>
+            {page.is_public ? (page.is_closed ? "クローズ" : "公開") : "非公開"}
+          </div>
+          {me.id === params.userID ? (
+            <label className="inline-flex items-center cursor-pointer ml-4">
+              <input
+                type="checkbox"
+                value=""
+                className="sr-only peer"
+                checked={page.is_closed}
+                onChange={() => {
+                  if (!isUpdateClosedSending) handleSwitchClosed();
+                }}
+              />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 dark:peer-focus:ring-violet-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600"></div>
+            </label>
+          ) : (
+            <></>
+          )}
+        </div>
         <div className="flex justify-center">
           <div className="flex mt-2 px-1 flex-wrap">
             {page.tags.map((e) =>
@@ -421,11 +456,15 @@ export default function Questions({ params }: { params: { userID: string; questi
                 {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
               </button>
             </div>
-            <Link title="編集" className={`mx-2 cursor-pointer ${me.id === params.userID ? "" : "hidden"}`} href={`/${params.userID}/questions/${params.questionID}/edit`}>
-              <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
-                <MdEditNote className="inline-flex text-base lg:text-4xl" />
-              </div>
-            </Link>
+            {me.id === params.userID ? (
+              <Link title="編集" className={`mx-2 cursor-pointer`} href={`/${params.userID}/questions/${params.questionID}/edit`}>
+                <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
+                  <MdEditNote className="inline-flex text-base lg:text-4xl" />
+                </div>
+              </Link>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <DeleteCommentModal
