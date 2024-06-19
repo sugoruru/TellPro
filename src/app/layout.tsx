@@ -28,6 +28,9 @@ function isMatch(pathname: string, patterns: string[]) {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  Prism.manual = true;
+  const HeaderMemo = React.memo(Header);
   if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
     return (
       <p className="m-5 text-center text-xl">
@@ -39,9 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </p>
     );
   }
-  const pathname = usePathname();
-  Prism.manual = true;
-  const HeaderMemo = React.memo(Header);
 
   return (
     <html lang="ja">
