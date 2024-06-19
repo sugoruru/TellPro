@@ -11,13 +11,12 @@ import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { FaTag } from "react-icons/fa6";
 import { IoMdImages } from "react-icons/io";
-import handleImageChange from "@/modules/handle/handleImageChange";
-import sendImage from "@/modules/network/sendImage";
 import React from "react";
 import TagsDialog from "@/app/components/articles/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import template from "@/modules/questionTemplate";
 import { Page } from "@/types/page";
+import ImageUploader from "@/app/components/articles/imageUploader";
 
 const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
   const { status } = useSession();
@@ -27,16 +26,13 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
   const [isSending, setIsSending] = useState(false);
   const [isOpenImageUpload, setIsOpenImageUpload] = useState(false);
   const [isOpenTagEditor, setIsOpenTagEditor] = useState(false);
-  const [isSendingImage, setIsSendingImage] = useState(false);
   const [sendingImageMessage, setSendingImageMessage] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
   const [mdAreaValue, setMdAreaValue] = useState(template);
   const [prevIcon, setPrevIcon] = useState("");
-  const [selectedImage, setSelectedImage] = useState("");
   const [title, setTitle] = useState("");
   const [sendingMessage, setSendingMessage] = useState("");
-  const [imageValue, setImageValue] = useState<string>("");
   const [tagSearchValue, setTagSearchValue] = useState<string>("");
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -71,7 +67,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchMe.data.data as User;
+            const tempUser = fetchMe.data.data as UserPublic;
             if (tempUser) {
               setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.id) {
@@ -117,27 +113,16 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     }
   }, [isMarkdown, mdAreaValue]);
 
-  const handleImageUpload = async () => {
-    setIsSendingImage(true);
-    try {
-      if (selectedImage !== "") {
-        const imageUrl = await sendImage(selectedImage, setSendingImageMessage);
-        const imageTag = `![image](${imageUrl})`;
-        setMdAreaValue(mdAreaValue + imageTag + "\n");
-        setSelectedImage("");
-      }
-    } catch (e) {
-      setSendingImageMessage("エラーが発生しました");
-    }
-    setIsSendingImage(false);
-    setIsOpenImageUpload(false);
-  };
-
   const handleQuestionUpload = async () => {
     setIsSending(true);
     setSendingMessage("");
     if (title === "") {
       setSendingMessage("タイトルを入力してください");
+      setIsSending(false);
+      return;
+    }
+    if (title.length > 30) {
+      setSendingMessage("タイトルが長すぎます");
       setIsSending(false);
       return;
     }
@@ -158,7 +143,10 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tagSearchValue.trim().split(" "),
+          tags: tagSearchValue
+            .trim()
+            .split(" ")
+            .filter((e) => e !== ""),
           isPublic: isPublic,
           pageType: "questions",
         });
@@ -174,7 +162,10 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
           userID: params.userID,
           title: title,
           content: mdAreaValue,
-          tags: tagSearchValue.trim().split(" "),
+          tags: tagSearchValue
+            .trim()
+            .split(" ")
+            .filter((e) => e !== ""),
           isPublic: isPublic,
           pageType: "questions",
         });
@@ -192,7 +183,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     <></>
   ) : canEdit ? (
     // 編集権限がある場合.
-    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-full`}>
+    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-[calc(100vh-80px)]`}>
       <div className="bg-white">
         <button onClick={() => setIsMarkdown(true)} className={`${isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}>
           編集(Markdown)
@@ -245,79 +236,14 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
               >
                 <IoMdImages className="inline-flex" />
               </button>
-              {/* image uploader */}
-              <Transition appear show={isOpenImageUpload || isSendingImage} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => setIsOpenImageUpload(false)}>
-                  <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <div className="fixed inset-0 bg-black/25" />
-                  </Transition.Child>
-                  <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                      <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
-                      >
-                        <Dialog.Panel className="w-full text-center max-w-md transform overflow-hidden rounded-2xl bg-white p-6 align-middle shadow-xl transition-all">
-                          <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                            画像のアップロード
-                          </Dialog.Title>
-                          <div className="max-sm:block max-md:flex">
-                            <div className="rounded-md border border-indigo-500 bg-gray-50 p-4 shadow-md hover:shadow-xl transition w-full">
-                              <label htmlFor="upload" className="flex flex-col items-center gap-2 cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 fill-white stroke-indigo-500" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                  />
-                                </svg>
-                                <span className="text-gray-600 font-medium">Upload file</span>
-                              </label>
-                              <input
-                                value={imageValue}
-                                onClick={() => setImageValue("")}
-                                onChange={async (e) => setSelectedImage(await handleImageChange(e))}
-                                id="upload"
-                                type="file"
-                                className="hidden"
-                                disabled={isSending}
-                                accept=".jpg, .jpeg, .png"
-                              />
-                            </div>
-                            <img
-                              src={selectedImage == "" ? "/svg/userIcon.svg" : selectedImage}
-                              className={`w-full h-auto mx-auto mt-5 ${selectedImage === "" ? "hidden" : ""}`}
-                              alt=""
-                              width={150}
-                              height={150}
-                            />
-                          </div>
-                          <p className="mt-4 text-red-900 font-bold">{sendingImageMessage}</p>
-                          <button
-                            type="button"
-                            className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                            onClick={() => setIsOpenImageUpload(false)}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                            onClick={handleImageUpload}
-                          >
-                            Send
-                          </button>
-                        </Dialog.Panel>
-                      </Transition.Child>
-                    </div>
-                  </div>
-                </Dialog>
-              </Transition>
+              <ImageUploader
+                mdAreaValue={mdAreaValue}
+                sendingImageMessage={sendingImageMessage}
+                isOpenImageUpload={isOpenImageUpload}
+                setIsOpenImageUpload={setIsOpenImageUpload}
+                setMdAreaValue={setMdAreaValue}
+                setSendingImageMessage={setSendingImageMessage}
+              />
               {/* tag editor */}
               <Transition appear show={isOpenTagEditor} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={() => setIsOpenTagEditor(false)}>

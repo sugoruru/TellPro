@@ -1,4 +1,14 @@
 begin;
+-- users.page_scoreの更新.
+update users
+set page_score = page_score - (
+        select count(*)
+        from likes
+        where page_id = $1
+            and page_type = $3
+    )
+where id = $2;
+-- ページの削除.
 delete from pages
 where id = $1
     and user_id = $2

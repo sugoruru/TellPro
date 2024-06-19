@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
 import { Page } from "@/types/page";
-import { userBlockKey } from "@/modules/DBBlockKey";
+import { pageBlockKey, userBlockKey } from "@/modules/DBBlockKey";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -26,6 +26,11 @@ export async function GET(req: NextRequest) {
     }, { status: 429 });
     return res;
   }
+
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
   const pageType = req.nextUrl.searchParams.get("pageType");
   if (pageType === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request1' }, { status: 400 });
@@ -34,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   // キャッシュの取得.
   const time = new Date().getTime();
-  const day = Math.floor(time / 3600000);
+  const day = Math.floor(time / 60000);
   let cacheFilePath = "";
   if (pageType === "articles") {
     cacheFilePath = path.resolve(`/tmp/cache/pageTrend.json`);

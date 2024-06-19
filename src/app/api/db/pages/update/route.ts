@@ -27,6 +27,11 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
+  // Maintenance中は401を返す.
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
+  }
+
   // Cookieからセッションを取得して、セッションが存在しなければ401を返す.
   const session = await getServerSession(OPTIONS);
   if (!session) {
@@ -41,6 +46,10 @@ export async function POST(req: NextRequest) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400 });
     }
+  }
+  if (!/^[a-zA-Z]+$/.test(body["ID"])) {
+    const res = NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
+    return res;
   }
 
   // ページが存在しない場合は400を返す.

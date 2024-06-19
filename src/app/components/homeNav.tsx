@@ -7,17 +7,22 @@ const HomeNav = (props: { pathName: string }) => {
   };
   return (
     <nav className="bg-white">
-      <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
-        <li className={"px-2 font-medium" + " " + IsLocation("/")}>
-          <Link href="/">Home</Link>
-        </li>
-        <li className={"px-2 font-medium" + " " + IsLocation("/articles")}>
-          <Link href="/articles">Articles</Link>
-        </li>
-        <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
-          <Link href="/questions">Questions</Link>
-        </li>
-      </ul>
+      <div className="overflow-x-auto hidden-scrollbar">
+        <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
+          <li className={"px-2 font-medium" + " " + IsLocation("/")}>
+            <Link href="/">Home</Link>
+          </li>
+          <li className={"px-2 font-medium" + " " + IsLocation("/articles")}>
+            <Link href="/articles">Articles</Link>
+          </li>
+          <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
+            <Link href="/questions">Questions</Link>
+          </li>
+          <li className={"px-2 font-medium" + " " + IsLocation("/problems")}>
+            <Link href="/problems">Problems</Link>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 };

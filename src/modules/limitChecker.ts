@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 type CheckLimitFunc = () => {
   check: (limit: number, ipAddress: string) => Promise<void>;
 };
+
+// APIのリクエスト数を制限する関数.
 export const LimitChecker: CheckLimitFunc = () => {
   const tokenCache = new LRUCache({
     max: 300,

@@ -4,11 +4,13 @@ import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp } from "r
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
+import { MdAutoDelete, MdReportGmailerrorred } from "react-icons/md";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { UserContext } from "../providers/userProvider";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import axios from "axios";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
@@ -23,7 +25,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-white">
+      <div className="bg-white h-20">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
           <header className="flex items-center justify-between py-4 md:py-4">
             <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl md:leading-10 leading-10" aria-label="logo" title="TellPro">
@@ -35,7 +37,7 @@ const Header = () => {
                 <Link href="/search">
                   <IoSearch className="flex-shrink-0 text-lg cursor-pointer" />
                 </Link>
-                <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)}>
+                <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)} id="header_login_button">
                   <span className="rounded-lg bg-indigo-500 px-5 py-2 text-center text-xs font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">
                     ログイン
                   </span>
@@ -115,6 +117,35 @@ const Header = () => {
                             </Link>
                           )}
                         </Menu.Item>
+                        {user.is_admin ? (
+                          <>
+                            <Menu.Item>
+                              {({ active }) => (
+                                <button
+                                  onClick={async () => {
+                                    const res = await axios.post("/api/admin/delete_cache");
+                                    if (res.data.ok) alert("キャッシュを削除しました");
+                                    else alert("キャッシュの削除に失敗しました");
+                                  }}
+                                  className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
+                                >
+                                  <MdAutoDelete className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  キャッシュの削除(A)
+                                </button>
+                              )}
+                            </Menu.Item>
+                            <Menu.Item>
+                              {({ active }) => (
+                                <Link href="/reports" className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                  <MdReportGmailerrorred className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  ユーザー通報一覧(A)
+                                </Link>
+                              )}
+                            </Menu.Item>
+                          </>
+                        ) : (
+                          <></>
+                        )}
                       </div>
                       <div className="px-1 py-1">
                         <Menu.Item>

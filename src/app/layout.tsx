@@ -7,15 +7,38 @@ import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
 import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
-import hideHeaderPage from "@/modules/hideHeaderPage";
+import { hideHeaderPage, hideFooterPage } from "@/modules/hideComponentPage";
+import Footer from "./components/main/footer";
+import Link from "next/link";
+import Script from "next/script";
+import * as gtag from "@/modules/network/gtag";
 
-// TODO: (DEV)ユーザーや記事のキャッシュを導入する
-// TODO: (NONE)CUIでの記事の投稿機能の追加
-// TODO: (NONE)コードテスト実行環境の作成
-// TODO: (NONE)問題作成ページの作成
-// TODO: (NONE)自動採点システムの作成
-// TODO: (NONE)他のサイトのAPIを活用して、コンテストをほかサイトの問題から引っ張って作成できるようにする
+function wildcardToRegex(pattern: string) {
+  return new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
+}
+
+function isMatch(pathname: string, patterns: string[]) {
+  for (let pattern of patterns) {
+    let regex = wildcardToRegex(pattern);
+    if (regex.test(pathname)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
+    return (
+      <p className="m-5 text-center text-xl">
+        現在、メンテナンス中です。内容は
+        <Link href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+          公式X
+        </Link>
+        を確認してください。
+      </p>
+    );
+  }
   const pathname = usePathname();
   Prism.manual = true;
   const HeaderMemo = React.memo(Header);
@@ -28,6 +51,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" href="/svg/logo.svg" />
+        <Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`} />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+           window.dataLayer = window.dataLayer || [];
+           function gtag(){dataLayer.push(arguments);}
+           gtag('js', new Date());
+           gtag('config', '${gtag.GA_MEASUREMENT_ID}');
+           `,
+          }}
+        />
       </head>
       <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
         <SessionProvider refetchOnWindowFocus={false}>
@@ -45,8 +81,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             zIndex={1600}
             showAtBottom={false}
           />
-          <UserProvider>{hideHeaderPage.includes(pathname) ? null : <HeaderMemo />}</UserProvider>
-          <Suspense>{children}</Suspense>
+          <div className="grid h-full">
+            <div>
+              <UserProvider>{isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}</UserProvider>
+              <Suspense>{<>{children}</>}</Suspense>
+            </div>
+            {isMatch(pathname, hideFooterPage) ? null : <Footer />}
+          </div>
         </SessionProvider>
       </body>
     </html>

@@ -11,7 +11,7 @@ export default function Settings() {
   const { data: session, status } = useSession();
   const [isSignIn, setIsSignIn] = useState(false);
   const [existUser, setExistUser] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserPublic | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isUserNameError, setIsUserNameError] = useState(false);
   const [isChangeImage, setIsChangeImage] = useState(false);
@@ -20,6 +20,9 @@ export default function Settings() {
   const [selectedImage, setSelectedImage] = useState("");
   const [stateMessage, setStateMessage] = useState("");
   const [deleteAccountStateMessage, setDeleteAccountStateMessage] = useState("");
+  const [atCoderID, setAtCoderID] = useState("");
+  const [codeForcesID, setCodeForcesID] = useState("");
+  const [xID, setXID] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -31,9 +34,12 @@ export default function Settings() {
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
-            setUser(response.data.data as User);
+            setUser(response.data.data as UserPublic);
             setAreaValue(response.data.data.status_message);
             setSelectedImage(response.data.data.icon);
+            setAtCoderID(response.data.data.atcoder_id);
+            setCodeForcesID(response.data.data.codeforces_id);
+            setXID(response.data.data.x_id);
             setExistUser(true);
           }
         } catch (error) {
@@ -82,6 +88,9 @@ export default function Settings() {
           mail: session.user.email,
           icon: imgLink,
           status_message: areaValue,
+          atcoder_id: atCoderID,
+          codeforces_id: codeForcesID,
+          x_id: xID,
         });
         setIsSending(false);
         setStateMessage("完了しました");
@@ -143,9 +152,9 @@ export default function Settings() {
               <h4 className="text-center font-bold text-gray-800">(ヘッダーロゴを押すとホームに戻れます)</h4>
             </div>
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl">アカウント設定</div>
-            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2">
+            <div className="mx-auto mb-8 grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label htmlFor="userName_tellPro" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="userName_tellPro" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
                   ユーザー名
                   <p className="text-red-500">{userNameErrorMessage}</p>
                 </label>
@@ -156,10 +165,58 @@ export default function Settings() {
                     setUserNameErrorMessage(x.userNameErrorMessage);
                   }}
                   disabled={isSending}
-                  defaultValue={user?.username}
+                  defaultValue={user ? user.username : ""}
                   id="userName_tellPro"
                   className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ${isUserNameError ? "ring-pink-600" : "ring-indigo-300"} transition duration-100 focus:ring`}
                 />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="AtCoder_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                  AtCoderID
+                </label>
+                <input
+                  onChange={(e) => {
+                    setAtCoderID(e.target.value);
+                  }}
+                  disabled={isSending}
+                  defaultValue={user ? user.atcoder_id : ""}
+                  id="AtCoder_ID"
+                  placeholder="rurumaru"
+                  className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring`}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="CodeForces_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                  CodeForcesID
+                </label>
+                <input
+                  onChange={(e) => {
+                    setCodeForcesID(e.target.value);
+                  }}
+                  disabled={isSending}
+                  defaultValue={user ? user.codeforces_id : ""}
+                  id="CodeForces_ID"
+                  placeholder="rurumaru"
+                  className={`w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring`}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="X_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                  X(旧Twitter)ID
+                </label>
+                <div className="flex">
+                  <span className="bg-gray-200 border p-3 rounded-tl rounded-bl">@</span>
+                  <input
+                    onChange={(e) => {
+                      setXID(e.target.value);
+                    }}
+                    disabled={isSending}
+                    defaultValue={user ? user.x_id : ""}
+                    id="X_ID"
+                    placeholder="pg_rurukun"
+                    className={`w-full rounded-br rounded-tr border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring`}
+                  />
+                </div>
               </div>
               <div className="flex">
                 <div className="rounded-md border border-indigo-500 bg-gray-50 p-4 shadow-md w-36">
@@ -187,7 +244,7 @@ export default function Settings() {
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="message" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="message" className="inline-block text-sm text-gray-800 sm:text-base">
                   ステータスメッセージ(残り{200 - areaValue.length}字)
                 </label>
                 <textarea

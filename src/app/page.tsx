@@ -7,9 +7,6 @@ import { Page } from "@/types/page";
 import PageLinkBlock from "./components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
-// TODO:(DEV) お知らせを更新するボタンをadminのみに表示する
-// TODO:(UI) トレンドページを5つ表示する([いいね数/時間]でトレンド指数を導出して、高いものを10件表示)→PageList(types/page.d.ts)型があるからそれベースで
-// TODO:(UI) おすすめユーザーを10件表示する(いいね数が多いユーザー)→UserPublic(types/user.d.ts)型があるからそれベース
 export default function Home() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [trendPages, setTrendPages] = useState<Page[]>([]);
@@ -45,8 +42,7 @@ export default function Home() {
   return (
     <>
       <HomeNav pathName="/"></HomeNav>
-      <p className="text-center mt-10 text-xl font-extrabold text-gray-600 break-words">(トレンドは1時間おきに更新されます)</p>
-      <div className="mr-10 ml-10 mb-10">
+      <div className="m-10">
         <div className="text-3xl font-semibold text-center text-gray-800">トレンド記事</div>
         {trendPages.map((page) => (
           <PageLinkBlock page={page} pageType="articles" pageUser={trendPageUsers[page.user_id]} key={returnRandomString(32)}></PageLinkBlock>
