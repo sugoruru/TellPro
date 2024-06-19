@@ -10,6 +10,8 @@ import { UserProvider } from "./components/providers/userProvider";
 import { hideHeaderPage, hideFooterPage } from "@/modules/hideComponentPage";
 import Footer from "./components/main/footer";
 import Link from "next/link";
+import Script from "next/script";
+import * as gtag from "@/modules/network/gtag";
 
 function wildcardToRegex(pattern: string) {
   return new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
@@ -49,6 +51,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" href="/svg/logo.svg" />
+        <Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_MEASUREMENT_ID}`} />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+           window.dataLayer = window.dataLayer || [];
+           function gtag(){dataLayer.push(arguments);}
+           gtag('js', new Date());
+           gtag('config', '${gtag.GA_MEASUREMENT_ID}');
+           `,
+          }}
+        />
       </head>
       <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
         <SessionProvider refetchOnWindowFocus={false}>

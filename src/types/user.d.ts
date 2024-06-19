@@ -7,6 +7,7 @@ interface UserPublic {
   page_score: number;
   last_login_at: string;
   is_admin: boolean;
+  is_banned: boolean;
   atcoder_id: string;
   x_id: string;
   codeforces_id: string;

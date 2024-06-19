@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 const TermsOfService = () => {
   return (
     <div className="mx-auto max-w-3xl mt-10 mb-10 bg-white p-10 rounded terms">
-      <p className="text-gray-700">(更新日:2024/6/9)</p>
+      <p className="text-gray-700">(更新日:2024/6/19)</p>
       <h1 className="text-3xl font-bold mb-4">利用規約</h1>
       <hr className="mb-4" />
       <p className="font-semibold mb-8">
@@ -96,10 +98,24 @@ const TermsOfService = () => {
         ユーザーと運営者との間の通知または連絡は、運営者の定める方法によって行うものとします。
         運営者は、ユーザーから、本サービスが別途定める方式に従った変更届け出がない限り、現在登録されている連絡先が有効なものとみなして当該連絡先へ通知または連絡を行い、これらは、発信時にユーザーへ到達したものとみなします。
       </p>
-      <h1 className="text-3xl font-bold mb-4">第13条（権利義務の譲渡の禁止）</h1>
+      <h1 className="text-3xl font-bold mb-4">第13条（アクセス情報の収集）</h1>
+      <hr className="mb-4" />
+      <p className="font-semibold mb-8">
+        本サイトは、Google Analyticsによってアクセス情報を収集しており、ユーザーは本サイトを利用することでcookieの使用に同意したものとみなします。
+        また、Google社によるアクセス情報の収集方法および利用方法については、
+        <Link className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" target="_blank" href="https://marketingplatform.google.com/about/analytics/terms/jp/">
+          Google Analyticsサービス利用規約
+        </Link>
+        および
+        <Link href="https://policies.google.com/privacy?hl=ja&gl=jp" target="_blank" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+          Google社プライバシーポリシー
+        </Link>
+        を確認してください。
+      </p>
+      <h1 className="text-3xl font-bold mb-4">第14条（権利義務の譲渡の禁止）</h1>
       <hr className="mb-4" />
       <p className="font-semibold mb-8">ユーザーは、運営者による事前の承諾なく、利用契約上の地位または本規約に基づく権利もしくは義務を第三者に譲渡し、または担保に供することはできません。</p>
-      <h1 className="text-3xl font-bold mb-4">第14条（準拠法・裁判管轄）</h1>
+      <h1 className="text-3xl font-bold mb-4">第15条（準拠法・裁判管轄）</h1>
       <hr className="mb-4" />
       <p className="font-semibold mb-4">本規約の解釈にあたっては、日本法を準拠法とします。</p>
       <p className="font-semibold mb-8">本サービスに関して紛争が生じた場合には、運営者の本店所在地を管轄する裁判所を専属的合意管轄とします。</p>

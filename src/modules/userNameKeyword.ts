@@ -11,6 +11,7 @@ const userNameKeyword = [
   "api",
   "termsOfService",
   "privacyPolicy",
+  "reports",
   "inquiry",
   "proposal",
   "null",

@@ -4,7 +4,7 @@ import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp } from "r
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { MdAutoDelete } from "react-icons/md";
+import { MdAutoDelete, MdReportGmailerrorred } from "react-icons/md";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -118,21 +118,31 @@ const Header = () => {
                           )}
                         </Menu.Item>
                         {user.is_admin ? (
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                onClick={async () => {
-                                  const res = await axios.post("/api/admin/delete_cache");
-                                  if (res.data.ok) alert("キャッシュを削除しました");
-                                  else alert("キャッシュの削除に失敗しました");
-                                }}
-                                className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
-                              >
-                                <MdAutoDelete className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
-                                キャッシュの削除(A)
-                              </button>
-                            )}
-                          </Menu.Item>
+                          <>
+                            <Menu.Item>
+                              {({ active }) => (
+                                <button
+                                  onClick={async () => {
+                                    const res = await axios.post("/api/admin/delete_cache");
+                                    if (res.data.ok) alert("キャッシュを削除しました");
+                                    else alert("キャッシュの削除に失敗しました");
+                                  }}
+                                  className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}
+                                >
+                                  <MdAutoDelete className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  キャッシュの削除(A)
+                                </button>
+                              )}
+                            </Menu.Item>
+                            <Menu.Item>
+                              {({ active }) => (
+                                <Link href="/reports" className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                  <MdReportGmailerrorred className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  ユーザー通報一覧(A)
+                                </Link>
+                              )}
+                            </Menu.Item>
+                          </>
                         ) : (
                           <></>
                         )}
