@@ -21,6 +21,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const [isOpenReportModal, setIsOpenReportModal] = useState(false);
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isReportSending, setIsReportSending] = useState(false);
+  const [isSendingUpdateBanned, setIsSendingUpdateBanned] = useState(false);
   const [canSendReport, setCanSendReport] = useState(true);
   const [pageUser, setPageUser] = useState<UserPublic>({} as UserPublic);
   const [me, setMe] = useState<UserPublic | null>(null);
@@ -169,6 +170,19 @@ export default function UserPage({ params }: { params: { userID: string } }) {
     setIsReportSending(false);
   };
 
+  const handleSwitchBanned = async () => {
+    if (!me) return;
+    if (!me.is_admin) return;
+    setIsSendingUpdateBanned(true);
+    setPageUser({ ...pageUser, is_banned: !pageUser.is_banned });
+    axios.post("/api/admin/switch_banned", {
+      banned_user_id: params.userID,
+      is_banned: !pageUser.is_banned,
+    });
+    await sleep(1500);
+    setIsSendingUpdateBanned(false);
+  };
+
   return isLoading ? (
     <></>
   ) : isExist ? (
@@ -202,6 +216,22 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                   >
                     通報
                   </button>
+                )}
+                {!me ? (
+                  <></>
+                ) : me.is_admin ? (
+                  <div className="flex align-middle">
+                    ban:
+                    <input
+                      type="checkbox"
+                      checked={pageUser.is_banned}
+                      onChange={() => {
+                        if (!isSendingUpdateBanned) handleSwitchBanned();
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <></>
                 )}
               </div>
               <div className="ml-4">
