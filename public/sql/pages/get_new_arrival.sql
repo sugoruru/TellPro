@@ -6,5 +6,6 @@ select id,
     tags
 from pages
 where page_type = $1
+    and is_public = true
 order by date desc
 limit 30;

@@ -5,17 +5,19 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Prism from "prismjs";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
-import { FaTag } from "react-icons/fa6";
-import { MdEditNote } from "react-icons/md";
-import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import sleep from "@/modules/sleep";
 import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
 import { Page } from "@/types/page";
 import { Comment } from "@/types/comment";
 import SendComment from "@/app/components/articles/sendComment";
+import PageTags from "@/app/components/articles/pageTags";
+import PageUser from "@/app/components/articles/pageUser";
+import PageMenu from "@/app/components/articles/pageMenu";
+import PageNotExist from "@/app/components/articles/pageNotExist";
+import PageNotPublic from "@/app/components/articles/pageNotPublic";
 
 export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +40,7 @@ export default function Questions({ params }: { params: { userID: string; questi
   const [isLikeSending, setIsLikeSending] = useState(false);
   const [isBookmarkSending, setIsBookmarkSending] = useState(false);
   const [isCommentSending, setIsCommentSending] = useState(false);
+  const [isAllLoaded, setIsAllLoaded] = useState(false);
   const [isOpenDeleteCommentModal, setIsOpenDeleteCommentModal] = useState(false);
   const [isOpenUpdateCommentModal, setIsOpenUpdateCommentModal] = useState(false);
   const [isUpdateSending, setIsUpdateSending] = useState(false);
@@ -110,6 +113,7 @@ export default function Questions({ params }: { params: { userID: string; questi
             setIsBookmark(isBookmark.data.isBookmark);
           }
         }
+        setIsAllLoaded(true);
       };
       fetch();
     } catch (e) {
@@ -387,26 +391,8 @@ export default function Questions({ params }: { params: { userID: string; questi
             <></>
           )}
         </div>
-        <div className="flex justify-center">
-          <div className="flex mt-2 px-1 flex-wrap">
-            {page.tags.map((e) =>
-              e === "" ? (
-                <Fragment key={returnRandomString(64)}></Fragment>
-              ) : (
-                <div className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-300" key={returnRandomString(32)}>
-                  <FaTag className="inline-flex my-auto mr-1" />
-                  {e}
-                </div>
-              )
-            )}
-          </div>
-        </div>
-        <div className="flex justify-center text-base font-bold text-gray-700">
-          <Link href={`/${params.userID}`} className="flex cursor-pointer">
-            <img src={userIcon} alt="" width={24} height={24} className="mr-1" />
-            <u>@{params.userID}</u>
-          </Link>
-        </div>
+        <PageTags tags={page.tags} />
+        <PageUser userID={params.userID} userIcon={userIcon} />
         <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
           {content}
           {/* 回答 */}
@@ -431,42 +417,21 @@ export default function Questions({ params }: { params: { userID: string; questi
             handleCommentGood={handleCommentGood}
             handleCommentUpload={handleCommentUpload}
           ></SendComment>
-          <div className="h-10 lg:h-0 w-full"></div>
         </div>
-        <div className="fixed right-0 p-1 w-full lg:w-auto bottom-0 bg-slate-100 lg:right-2 lg:bottom-2 lg:bg-inherit">
-          <div className="flex flex-row lg:flex-col justify-center lg:justify-normal h-10 lg:h-auto">
-            <div className={`text-center lg:mr-2 flex lg:block mx-2`}>
-              <button
-                className={`cursor-pointer w-10 lg:w-16 flex flex-col items-center h-10 lg:h-16 justify-center bg-white rounded-full border-gray-300 border`}
-                title="いいね"
-                onClick={handleGoodButton}
-                disabled={isLikeSending || !isLogin}
-              >
-                {isLike ? <FaHeart className="inline-flex text-sm lg:text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-sm lg:text-3xl text-red-500" />}
-              </button>
-              <b className="ml-1 my-auto">{Number(page.like_count)}</b>
-            </div>
-            <div className="text-center mb-2 lg:mr-2 mx-2">
-              <button
-                className={`cursor-pointer flex items-center justify-center w-10 lg:w-16 h-10 lg:h-16 bg-white rounded-full border-gray-300 border`}
-                title="ブックマーク"
-                onClick={handleBookmark}
-                disabled={isBookmarkSending || !isLogin}
-              >
-                {isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
-              </button>
-            </div>
-            {me.id === params.userID ? (
-              <Link title="編集" className={`mx-2 cursor-pointer`} href={`/${params.userID}/questions/${params.questionID}/edit`}>
-                <div className="flex items-center justify-center w-10 h-10 lg:w-16 lg:h-16 bg-white rounded-full border-gray-300 border">
-                  <MdEditNote className="inline-flex text-base lg:text-4xl" />
-                </div>
-              </Link>
-            ) : (
-              <></>
-            )}
-          </div>
-        </div>
+        <PageMenu
+          handleGoodButton={handleGoodButton}
+          handleBookmark={handleBookmark}
+          isLikeSending={isLikeSending}
+          isLogin={isLogin}
+          isLike={isLike}
+          isBookmark={isBookmark}
+          isBookmarkSending={isBookmarkSending}
+          page={page}
+          userID={params.userID}
+          pageID={params.questionID}
+          me={me}
+          pageType="questions"
+        />
         <DeleteCommentModal
           handleCommentDelete={handleCommentDelete}
           isDeleteSending={isDeleteSending}
@@ -482,40 +447,14 @@ export default function Questions({ params }: { params: { userID: string; questi
           stateFunc={{ setIsOpenUpdateCommentModal, setUpdateMdAreaValue }}
         />
       </>
-    ) : (
+    ) : isAllLoaded ? (
       // ページが非公開の時.
-      <>
-        <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
-          <div className="flex justify-center">
-            <BsExclamationCircle className="text-green-500 text-6xl" />
-          </div>
-          <p>ページが非公開です</p>
-          <p className="text-sm pt-5">
-            <span>(</span>
-            <Link href="/" className="text-blue-300">
-              こちら
-            </Link>
-            <span>からホームに戻ることが出来ます)</span>
-          </p>
-        </div>
-      </>
+      <PageNotPublic />
+    ) : (
+      <></>
     )
   ) : (
     // ページが存在しない時.
-    <>
-      <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
-        <div className="flex justify-center">
-          <BsExclamationCircle className="text-green-500 text-6xl" />
-        </div>
-        <p>ページが存在しません</p>
-        <p className="text-sm pt-5">
-          <span>(</span>
-          <Link href="/" className="text-blue-300">
-            こちら
-          </Link>
-          <span>からホームに戻ることが出来ます)</span>
-        </p>
-      </div>
-    </>
+    <PageNotExist />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import HomeNav from "../components/homeNav";
+import HomeNav from "../components/main/homeNav";
 import axios from "axios";
 import PageLinkBlock from "../components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";

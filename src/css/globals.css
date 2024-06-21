@@ -111,11 +111,6 @@ a.myLink {
   @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
 }
 
-a.myLink::after {
-  content: "\A";
-  white-space: pre;
-}
-
 img[src=""] {
   display: none;
 }

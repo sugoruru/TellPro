@@ -12,5 +12,6 @@ SELECT id,
     ) AS trend
 FROM pages
 WHERE page_type = $1
+    and is_public = true
 ORDER BY trend ASC
 LIMIT 5;

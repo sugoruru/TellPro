@@ -219,7 +219,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                 )}
                 {!me ? (
                   <></>
-                ) : me.is_admin ? (
+                ) : me.is_admin && !pageUser.is_admin ? (
                   <div className="flex align-middle">
                     ban:
                     <input

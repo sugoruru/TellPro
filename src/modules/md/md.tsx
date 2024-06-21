@@ -7,7 +7,7 @@ import H4 from "./header/h4";
 import H5 from "./header/h5";
 import H6 from "./header/h6";
 import YouTube from "react-youtube";
-import HighlightedCodeBlock from "@/app/components/HighlightedCodeBlock";
+import HighlightedCodeBlock from "@/app/components/articles/HighlightedCodeBlock";
 import Image from "next/image";
 import { Fragment } from "react";
 import { MdCheckCircleOutline, MdInfoOutline, MdOutlineDangerous, MdOutlineWarningAmber } from "react-icons/md";
@@ -94,18 +94,18 @@ const Lex = (props: { text: string }) => {
       if (header.length === header.split("").filter((char) => char === "-").length && header.length >= 3) {
         // ---という横切り線の場合.
         result.push(<hr key={returnRandomString(32)} />);
-      } else if (/!\[.*\]\((.*)\).*/g.test(elem)) {
+      } else if (/!\[.*\]\{(.*)\}.*/g.test(elem)) {
         // 画像の場合.
         const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
         const src = elem
-          .match(/\(.*\)/g)![0]
+          .match(/\{.*\}/g)![0]
           .slice(1, -1)
           .split(" ")[0];
         const param1 = elem
-          .match(/\(.*\)/g)![0]
+          .match(/\{.*\}/g)![0]
           .slice(1, -1)
           .split(" ")[1];
-        const text = elem.replace(/!\[.*\]\(.*\)/g, "");
+        const text = elem.replace(/!\[.*\]\{.*\}/g, "");
         const opt = { size: 150 };
         if (param1 !== undefined) {
           if (param1.startsWith("size=")) {
@@ -119,44 +119,50 @@ const Lex = (props: { text: string }) => {
             <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
           </div>
         );
-      } else if (/\\\[.*\]\((.*)\).*/g.test(elem)) {
+      } else if (/\\\[.*\]\{(.*)\}.*/g.test(elem)) {
         // 別タブリンクの場合.
-        const e = elem.split("](");
-        const text = e[0].slice(2);
-        const href = e[1].slice(0, -1);
+        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
+        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
+        const after = elem.replace(/\\\[.*\]\{.*\}/g, "");
         result.push(
           <Fragment key={returnRandomString(64)}>
             <a href={href} className="myLink" target="_blank">
               {Text(text)}
             </a>
+            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
+            <br />
           </Fragment>
         );
-      } else if (/@\[youtube\]\((.*)\).*/g.test(elem)) {
+      } else if (/@\[youtube\]\{(.*)\}.*/g.test(elem)) {
         // メンションの場合.
-        const href = elem.match(/\(.*\)/g)![0].slice(1, -1);
+        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
         const videoID = href.split("v=")[1];
         result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
-      } else if (/\%\[.*\]\((.*)\).*/g.test(elem)) {
+      } else if (/\%\[.*\]\{(.*)\}.*/g.test(elem)) {
         // 色付きのテキストの場合.
-        const e = elem.split("](");
-        const color = e[0].slice(2);
-        const text = e[1].slice(0, -1);
+        const color = elem.match(/\%\[.*\]/g)![0].slice(2, -1);
+        const text = elem.match(/\{.*\}/g)![0].slice(1, -1);
+        const after = elem.replace(/\%\[.*\]\{.*\}/g, "");
         result.push(
-          <span key={returnRandomString(64)} style={{ color: color }}>
-            {Text(text)}
+          <div key={returnRandomString(64)}>
+            <span style={{ color: color }}>{Text(text)}</span>
+            {Text(after)}
             <br />
-          </span>
+          </div>
         );
-      } else if (/\[.*\]\((.*)\).*/g.test(elem)) {
+      } else if (/\[.*\]\{(.*)\}.*/g.test(elem)) {
         // リンクの場合.
-        const e = elem.split("](");
-        const text = e[0].slice(1);
-        const href = e[1].slice(0, -1);
+        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
+        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
+        const after = elem.replace(/\[.*\]\{(.*)\}/g, "");
+        console.log(after);
         result.push(
           <Fragment key={returnRandomString(64)}>
             <a href={href} className="myLink">
               {Text(text)}
             </a>
+            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
+            <br />
           </Fragment>
         );
       } else if (/\$\$.*\$\$/g.test(elem)) {
