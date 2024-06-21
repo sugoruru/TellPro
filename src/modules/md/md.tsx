@@ -90,6 +90,10 @@ const Lex = (props: { text: string }) => {
       alerts.push(elem);
       continue;
     }
+    if (elem === "") {
+      result.push(<div className="block my-2 content-none" key={returnRandomString(64)} />);
+      continue;
+    }
     if (text.length === 0 || !head.includes(header)) {
       if (header.length === header.split("").filter((char) => char === "-").length && header.length >= 3) {
         // ---という横切り線の場合.
@@ -176,7 +180,7 @@ const Lex = (props: { text: string }) => {
       } else {
         // 通常のテキストの場合.
         result.push(
-          <span key={returnRandomString(64)}>
+          <span className="text-base text-gray-800" key={returnRandomString(64)}>
             {Text(elem)}
             <br />
           </span>

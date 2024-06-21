@@ -111,21 +111,26 @@ a.myLink {
   @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
 }
 
+span:has(dt) + br {
+  display: none;
+}
+
+span:has(dd) + br {
+  display: none;
+}
+
 img[src=""] {
   display: none;
 }
 
-dl {
-  margin-bottom: 1rem;
-}
-
 dd {
   margin-bottom: 0.5rem;
-  margin-left: 1rem;
+  margin-left: 1.2rem;
 }
 
 dt {
   font-weight: bold;
+  margin-top: 0.5rem;
 }
 
 .nonLocation {
@@ -135,6 +140,7 @@ dt {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
+
 .nonLocation:hover {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
