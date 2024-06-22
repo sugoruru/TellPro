@@ -137,7 +137,38 @@ export default function Init() {
           return;
         }
         setStateMessage("画像データをアップロード中...");
-        const imgLink = await sendImage(dataURL);
+        let imgLink = "";
+        if (dataURL == "") {
+          if (session.user?.image) {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            img.src = session.user.image;
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              if (!ctx) return;
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+              imgLink = canvas.toDataURL("image/png");
+            };
+          } else {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            img.src = "/svg/userIcon.svg";
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              if (!ctx) return;
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+              imgLink = canvas.toDataURL("image/png");
+            };
+          }
+        } else {
+          imgLink = await sendImage(dataURL);
+        }
         setStateMessage("ページ名が使用されているかを確認中...");
         const response2 = await axios.get(`/api/db/users/getAllUserID`);
         if (response2.data.ok) {

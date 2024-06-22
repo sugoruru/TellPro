@@ -20,7 +20,7 @@ const ImageUploader = (props: {
     try {
       if (selectedImage !== "") {
         const imageUrl = await sendImage(selectedImage, props.setSendingImageMessage);
-        const imageTag = `![image](${imageUrl})`;
+        const imageTag = `![image]{${imageUrl}}`;
         props.setMdAreaValue(props.mdAreaValue + imageTag + "\n");
         setSelectedImage("");
       }

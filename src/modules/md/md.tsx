@@ -159,7 +159,6 @@ const Lex = (props: { text: string }) => {
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
         const after = elem.replace(/\[.*\]\{(.*)\}/g, "");
-        console.log(after);
         result.push(
           <Fragment key={returnRandomString(64)}>
             <a href={href} className="myLink">

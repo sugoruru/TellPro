@@ -11,15 +11,30 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { UserContext } from "../providers/userProvider";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
   const [isUserLogin, setIsUserLogin] = useState(false);
   const { status } = useSession();
+  const router = useRouter();
   const user = useContext(UserContext);
+  let isMounted = false;
   useEffect(() => {
     if (status === "authenticated" && user) {
       setIsUserLogin(true);
+    }
+    const fetcher = async () => {
+      const res = await axios.get("/api/db/users/existMe");
+      if (res.data.exist) {
+        setIsUserLogin(true);
+      } else {
+        router.replace("/init");
+      }
+    };
+    if (!isMounted) {
+      fetcher();
+      isMounted = true;
     }
   }, [status, user]);
 

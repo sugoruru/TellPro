@@ -2,8 +2,8 @@ import axios from "axios";
 
 const sendImage = async (dataURL: string, setStateMessage: Function | undefined = undefined): Promise<string> => {
   // dataURLサイズが大きいときは、errorを返す
-  if (dataURL.length > 10 * 1024 * 1024) {
-    alert("画像サイズが大きすぎます。10MB以下の画像を選択してください。");
+  if (dataURL.length > 1024 * 1024) {
+    alert("画像サイズが大きすぎます。1MB以下の画像を選択してください。");
     return "";
   }
   const response = await axios.post("/api/img/upload", { image: dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, "") }, {
