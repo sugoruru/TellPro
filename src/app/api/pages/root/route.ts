@@ -56,8 +56,12 @@ export async function GET(req: NextRequest) {
   const cacheFile = fs.readFileSync(cacheFilePath, 'utf-8');
   const cacheData = JSON.parse(cacheFile);
   const data = cacheData.data;
-  const users = data.root.users;
-  users.forEach((user: any) => { delete user.mail });
+  let users = data.root.users;
+  if (users) {
+    users.forEach((user: any) => { delete user.mail });
+  } else {
+    users = [];
+  }
   const result: { notices: Notice[], trending_articles: Page[], trending_questions: Page[], users: UserPublic[] } = data.root;
   result.users = users;
   const res = NextResponse.json({ ok: true, data: result }, { status: 200 });
