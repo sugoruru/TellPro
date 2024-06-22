@@ -62,6 +62,12 @@ export async function GET(req: NextRequest) {
   } else {
     users = [];
   }
+  if (!data.root.trending_articles) {
+    data.root.trending_articles = [];
+  }
+  if (!data.root.trending_questions) {
+    data.root.trending_questions = [];
+  }
   const result: { notices: Notice[], trending_articles: Page[], trending_questions: Page[], users: UserPublic[] } = data.root;
   result.users = users;
   const res = NextResponse.json({ ok: true, data: result }, { status: 200 });

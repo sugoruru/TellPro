@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { getServerSession } from "next-auth/next";
 import OPTIONS from "../../auth/[...nextauth]/options";
+import { Page } from "@/types/page";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -40,31 +41,39 @@ export async function GET(req: NextRequest) {
   }
 
   const session = await getServerSession(OPTIONS);
-  let me, data, result;
+  let me, _res;
   if (!session || !session.user) {
     me = { ok: true, exist: false, message: "not login" };
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/user.sql", "utf-8");
-    result = await db.one(sql, ["", userID]);
+    _res = await db.one(sql, ["", userID]);
   } else {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/user.sql", "utf-8");
-    result = await db.one(sql, [session.user.email, userID]);
+    _res = await db.one(sql, [session.user.email, userID]);
   }
-  if (result.result.user) {
-    if (result.result.user.length === 1) {
-      delete result.result.user[0].mail;
-      result.result.user = result.result.user[0];
+  let __res: { me: UserPublic[], user: UserPublic[], articles: Page[], questions: Page[] } = _res.result;
+  let result: { me: UserPublic | null, user: UserPublic | null, articles: Page[], questions: Page[] } = _res.result;
+  if (__res.user) {
+    if (__res.user.length === 1) {
+      delete (__res.user[0] as any).mail;
+      result.user = __res.user[0];
     }
   } else {
-    result.result.user = null;
+    result.user = null;
   }
-  if (result.result.me) {
-    if (result.result.me.length === 1) {
-      delete result.result.me[0].mail;
-      result.result.me = result.result.me[0];
+  if (__res.me) {
+    if (__res.me.length === 1) {
+      delete (__res.me[0] as any).mail;
+      result.me = __res.me[0];
     }
   } else {
-    result.result.me = null;
+    result.me = null;
   }
-  const res = NextResponse.json({ ok: true, data: result.result }, { status: 200 });
+  if (!result.articles) {
+    result.articles = [];
+  }
+  if (!result.questions) {
+    result.questions = [];
+  }
+  const res = NextResponse.json({ ok: true, data: result }, { status: 200 });
   return res;
 }
