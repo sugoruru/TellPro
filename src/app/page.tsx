@@ -9,7 +9,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 
 export default function Home() {
   const [notices, setNotices] = useState<Notice[]>([]);
-  const [trendPages, setTrendPages] = useState<Page[]>([]);
+  const [trendPages, setTrendArticles] = useState<Page[]>([]);
   const [trendQuestions, setTrendQuestions] = useState<Page[]>([]);
   const [trendPageUsers, setTrendPageUsers] = useState<{ [key: string]: UserPublic }>({});
   useEffect(() => {
@@ -17,24 +17,22 @@ export default function Home() {
   }, []);
   useEffect(() => {
     const getNotice = async () => {
-      const [notice, trendPage, trendQuestion] = await Promise.all([
-        axios.get("/api/db/notices/get_three"),
-        axios.get("/api/db/pages/get_trend?pageType=articles"),
-        axios.get("/api/db/pages/get_trend?pageType=questions"),
-      ]);
-      if (notice.data.ok && trendPage.data.ok && trendQuestion.data.ok) {
-        const json = notice.data;
-        setNotices(json.data as Notice[]);
-        setTrendPages(trendPage.data.data as Page[]);
-        setTrendQuestions(trendQuestion.data.data as Page[]);
+      const root = await axios.get("/api/pages/root");
+      if (root.data.ok) {
+        const notices = root.data.data.notices;
+        const trendPage = root.data.data.trending_articles;
+        const trendQuestion = root.data.data.trending_questions;
+        const users = root.data.data.users;
+        setNotices(notices as Notice[]);
+        setTrendArticles(trendPage as Page[]);
+        setTrendQuestions(trendQuestion as Page[]);
         const userData: { [key: string]: UserPublic } = {};
-        trendPage.data.userData.forEach((e: UserPublic) => {
-          userData[e.id] = e;
-        });
-        trendQuestion.data.userData.forEach((e: UserPublic) => {
-          userData[e.id] = e;
+        users.forEach((user: UserPublic) => {
+          userData[user.id] = user;
         });
         setTrendPageUsers(userData);
+      } else {
+        alert("エラーが発生しました。");
       }
     };
     getNotice();

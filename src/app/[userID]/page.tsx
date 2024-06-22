@@ -54,45 +54,38 @@ export default function UserPage({ params }: { params: { userID: string } }) {
       const fetcher = async () => {
         if (isFetched) return;
         isFetched = true;
-        const [tempMe, userData, articlesData, questionsData] = await Promise.all([
-          axios.get(`/api/db/users/existMe`),
-          axios.get(`/api/db/users/exist?userID=${params.userID}`),
-          axios.get(`/api/db/pages/getPages?userID=${params.userID}&pageType=articles`),
-          axios.get(`/api/db/pages/getPages?userID=${params.userID}&pageType=questions`),
-        ]);
-        if (userData.data.exist) {
-          setIsExist(true);
-          setPageUser(userData.data.data as UserPublic);
-        }
-        setIsLoading(false);
-        if (articlesData.data.ok) {
-          setPages(articlesData.data.pages);
-        }
-        if (tempMe.data.ok && tempMe.data.exist) {
-          setMe(tempMe.data.data as UserPublic);
-        }
-        if (questionsData.data.ok) {
-          setQuestions(questionsData.data.pages);
-        }
-        if (userData.data.exist) {
-          if (userData.data.data.atcoder_id !== "") {
-            try {
-              axios.get(`https://kenkoooo.com/atcoder/proxy/users/${userData.data.data.atcoder_id}/history/json`).then((res) => {
-                const rate = res.data.slice(-1)[0].NewRating;
-                setAtcoderRatingColor(getAtCoderColors(rate) as string);
-              });
-            } catch (e) {
-              console.log(e);
-            }
+        const res = await axios.get(`/api/pages/user?userID=${params.userID}`);
+        if (res.data.ok) {
+          if (res.data.data.user) {
+            setIsExist(true);
+            setPageUser(res.data.data.user as UserPublic);
+            setPages(res.data.data.articles as Page[]);
+            setQuestions(res.data.data.questions as Page[]);
           }
-          if (userData.data.data.codeforces_id !== "") {
-            try {
-              axios.get(`https://codeforces.com/api/user.info?handles=${userData.data.data.codeforces_id}&checkHistoricHandles=false`).then((res) => {
-                const rate = res.data.result[0].rating;
-                setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
-              });
-            } catch (e) {
-              console.log(e);
+          if (res.data.data.me) {
+            setMe(res.data.data.me as UserPublic);
+          }
+          setIsLoading(false);
+          if (res.data.data.user) {
+            if (res.data.data.user.atcoder_id !== "") {
+              try {
+                axios.get(`https://kenkoooo.com/atcoder/proxy/users/${res.data.data.user.atcoder_id}/history/json`).then((_res) => {
+                  const rate = _res.data.slice(-1)[0].NewRating;
+                  setAtcoderRatingColor(getAtCoderColors(rate) as string);
+                });
+              } catch (e) {
+                console.log(e);
+              }
+            }
+            if (res.data.data.user.codeforces_id !== "") {
+              try {
+                axios.get(`https://codeforces.com/api/user.info?handles=${res.data.data.user.codeforces_id}&checkHistoricHandles=false`).then((_res) => {
+                  const rate = _res.data.result[0].rating;
+                  setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
+                });
+              } catch (e) {
+                console.log(e);
+              }
             }
           }
         }
