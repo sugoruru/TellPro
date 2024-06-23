@@ -29,8 +29,7 @@ update pages
 set title = $1,
     content = $2,
     tags = $3,
-    is_public = $4,
-    date = now()
+    is_public = $4
 where id = $5
     and user_id = $6
     and page_type = $7;
