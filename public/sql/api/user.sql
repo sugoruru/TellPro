@@ -18,12 +18,28 @@ articles as (
     select *
     from pages
     where user_id = $2
+        and (
+            $2 =(
+                select id
+                from users
+                where mail = $1
+            )
+            or is_public = 'true'
+        )
         and page_type = 'articles'
 ),
 questions as (
     select *
     from pages
     where user_id = $2
+        and (
+            $2 =(
+                select id
+                from users
+                where mail = $1
+            )
+            or is_public = 'true'
+        )
         and page_type = 'questions'
 )
 select json_build_object(

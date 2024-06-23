@@ -128,15 +128,24 @@ const Lex = (props: { text: string }) => {
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
         const after = elem.replace(/\\\[.*\]\{.*\}/g, "");
-        result.push(
-          <Fragment key={returnRandomString(64)}>
-            <a href={href} className="myLink" target="_blank">
-              {Text(text)}
-            </a>
-            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
-            <br />
-          </Fragment>
-        );
+        if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
+          result.push(
+            <Fragment key={returnRandomString(64)}>
+              <a href={href} className="myLink" target="_blank">
+                {Text(text)}
+              </a>
+              <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
+              <br />
+            </Fragment>
+          );
+        } else {
+          result.push(
+            <Fragment key={returnRandomString(64)}>
+              <span>{Text(elem)}</span>
+              <br />
+            </Fragment>
+          );
+        }
       } else if (/@\[youtube\]\{(.*)\}.*/g.test(elem)) {
         // メンションの場合.
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
@@ -159,15 +168,24 @@ const Lex = (props: { text: string }) => {
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
         const after = elem.replace(/\[.*\]\{(.*)\}/g, "");
-        result.push(
-          <Fragment key={returnRandomString(64)}>
-            <a href={href} className="myLink">
-              {Text(text)}
-            </a>
-            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
-            <br />
-          </Fragment>
-        );
+        if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
+          result.push(
+            <Fragment key={returnRandomString(64)}>
+              <a href={href} className="myLink">
+                {Text(text)}
+              </a>
+              <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
+              <br />
+            </Fragment>
+          );
+        } else {
+          result.push(
+            <Fragment key={returnRandomString(64)}>
+              <span>{Text(elem)}</span>
+              <br />
+            </Fragment>
+          );
+        }
       } else if (/\$\$.*\$\$/g.test(elem)) {
         // inline数式の場合.
         let text_array = elem.split("$$");
