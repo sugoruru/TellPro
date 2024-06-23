@@ -169,6 +169,11 @@ export default function Init() {
           }
         } else {
           imgLink = await sendImage(dataURL);
+          if (imgLink == "") {
+            setStateMessage("画像のアップロードに失敗しました");
+            setIsSending(false);
+            return;
+          }
         }
         setStateMessage("ページ名が使用されているかを確認中...");
         const response2 = await axios.get(`/api/db/users/getAllUserID`);
