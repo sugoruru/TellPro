@@ -1,14 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
-export const revalidate = "force-cache";
-export const runtime = "nodejs";
-export const alt = "OGP画像";
-export const size = {
-  width: 1200,
-  height: 630,
-};
-export const contentType = "image/png";
 export async function GET(req: NextRequest) {
   // default, user, articleの3種類のOGP画像を生成する
   const OGPType = req.nextUrl.searchParams.get("OGPType") || "default";
@@ -154,7 +146,8 @@ export async function GET(req: NextRequest) {
       </div>
     ),
     {
-      ...size,
+      width: 1200,
+      height: 630,
     }
   );
 }
