@@ -13,6 +13,7 @@ import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import userNameKeyword from "@/modules/userNameKeyword";
 import TermsOfService from "../termsOfService/page";
+import PrivacyPolicy from "../privacyPolicy/page";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -122,7 +123,7 @@ export default function Init() {
     {
       const input = document.getElementById("termsOfService-checkbox") as HTMLInputElement;
       if (!input.checked) {
-        setStateMessage("利用規約に同意してください");
+        setStateMessage("利用規約・プライバシーポリシーに同意してください");
         return;
       }
     }
@@ -319,8 +320,11 @@ export default function Init() {
               </div>
             </form>
             <div className="mb-8 mt-4">
-              <div className="overflow-y-scroll h-64 w-max mx-auto">
+              <div className="overflow-y-scroll h-64 w-max mx-auto mb-4">
                 <TermsOfService />
+              </div>
+              <div className="overflow-y-scroll h-64 w-max mx-auto mt-4">
+                <PrivacyPolicy />
               </div>
               <div className="flex justify-center mt-4">
                 <input
@@ -330,7 +334,7 @@ export default function Init() {
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label htmlFor="termsOfService-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                  利用規約に同意します
+                  利用規約・プライバシーポリシーに同意します
                 </label>
               </div>
             </div>

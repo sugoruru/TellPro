@@ -2,11 +2,9 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
-import { BsExclamationCircle } from "react-icons/bs";
 import sleep from "@/modules/sleep";
 import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
@@ -20,8 +18,6 @@ import PageNotExist from "@/app/components/articles/pageNotExist";
 import PageNotPublic from "@/app/components/articles/pageNotPublic";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCommentLoading, setIsCommentLoading] = useState(true);
   const [content, setContent] = useState<JSX.Element>(<></>);
   const [userIcon, setUserIcon] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState("");
@@ -57,60 +53,45 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const res = await axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=articles`);
-        if (!res.data.exist) {
-          setIsExist(false);
-        } else {
-          setIsExist(true);
-          setPage(res.data.data as Page);
-          setContent(Lex({ text: res.data.data.content }));
-        }
-        setIsLoading(false);
-        const [fetchUser, me] = await Promise.all([axios.get(`/api/db/users/exist?userID=${params.userID}`), axios.get(`/api/db/users/existMe`)]);
-        if (!fetchUser.data.exist || !me.data.ok) {
+        const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=articles`);
+        if (!pageData.data.ok) {
           router.replace("/");
           return;
         }
-        setUserIcon(fetchUser.data.data.icon);
-        if (!me.data.exist) {
-          setMe({ id: "" } as UserPublic);
+        const page: {
+          isExist: boolean;
+          me: UserPublic | null;
+          page: Page | null;
+          pageUser: UserPublic | null;
+          comments: Comment[];
+          commentsUser: UserPublic[];
+          commentsLike: { comment_id: string }[];
+          isLiked: boolean;
+          isBookmarked: boolean;
+        } = pageData.data.data;
+        setIsExist(page.isExist);
+        if (page.isExist && page.page && page.pageUser) {
+          setPage(page.page);
+          setContent(Lex({ text: page.page.content }));
+          setUserIcon(page.pageUser.icon || "");
+          setMe(page.me || ({ id: "" } as UserPublic));
+          if (page.me) setIsLogin(true);
+          setComments(page.comments);
+          const commentUserMap: { [key: string]: UserPublic } = {};
+          page.commentsUser.forEach((e) => {
+            commentUserMap[e.id] = e;
+          });
+          setCommentUserMap(commentUserMap);
+          const likeComments: { [key: string]: boolean } = {};
+          page.commentsLike.forEach((e) => {
+            likeComments[e.comment_id] = true;
+          });
+          setLikeComments(likeComments);
+          setIsLike(page.isLiked);
+          setIsBookmark(page.isBookmarked);
         } else {
-          setMe(me.data.data);
-        }
-        if (res.data.exist) {
-          const fetchComments = await axios.get(`/api/db/comments/get?pageUserID=${params.userID}&pageID=${params.pageID}&pageType=articles&myID=${me.data.exist ? me.data.data.id : "null"}`);
-          if (!fetchComments.data.ok) {
-            router.replace("/");
-            return;
-          }
-          setComments(fetchComments.data.data as Comment[]);
-          const _commentUserMapArray = fetchComments.data.userData as UserPublic[];
-          const commentUserMap2: { [key: string]: UserPublic } = {};
-          _commentUserMapArray.forEach((e) => {
-            commentUserMap2[e.id] = e;
-          });
-          setCommentUserMap(commentUserMap2);
-          const _likeComments = fetchComments.data.likeComments as { comment_id: string }[];
-          const likeComments2: { [key: string]: boolean } = {};
-          _likeComments.forEach((e) => {
-            likeComments2[e.comment_id] = true;
-          });
-          setLikeComments(likeComments2);
-          setIsCommentLoading(false);
-          let isLike, isBookmark;
-          if (me.data.exist) {
-            setIsLogin(true);
-            [isLike, isBookmark] = await Promise.all([
-              axios.get(`/api/db/likes/exist?myID=${me.data.data.id}&pageUserID=${params.userID}&pageID=${params.pageID}&pageType=articles`),
-              axios.get(`/api/db/bookmarks/exist?myID=${me.data.data.id}&pageUserID=${params.userID}&pageID=${params.pageID}&pageType=articles`),
-            ]);
-            if (!isLike.data.ok || !isBookmark.data.ok) {
-              router.replace("/");
-              return;
-            }
-            setIsLike(isLike.data.isLiked);
-            setIsBookmark(isBookmark.data.isBookmark);
-          }
+          router.replace("/");
+          return;
         }
         setIsAllLoaded(true);
       };
@@ -121,7 +102,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   }, [params.pageID, params.userID, router]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (!isAllLoaded) {
       document.title = "Loading...｜TellPro";
     } else if (isExist) {
       if (me.id === params.userID || page.is_public) {
@@ -132,7 +113,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     } else {
       document.title = "ページが存在しません｜TellPro";
     }
-  }, [isLoading, isExist, me.id, page.is_public, params.userID, page.title]);
+  }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
 
   const handleGoodButton = async () => {
     try {
@@ -349,7 +330,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     }
   };
 
-  return isLoading ? (
+  return !isAllLoaded ? (
     <></>
   ) : isExist ? (
     me.id === params.userID || page.is_public ? (
@@ -373,7 +354,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
             mdAreaValue={mdAreaValue}
             isCommentSending={isCommentSending}
             isLikeSending={isLikeSending}
-            isLoading={isCommentLoading}
+            isLoading={!isAllLoaded}
             comments={comments}
             me={me}
             commentUserMap={commentUserMap}

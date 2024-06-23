@@ -4,11 +4,14 @@ SELECT id,
     is_public,
     is_closed,
     tags,
-    pages.like_count / (
-        EXTRACT(
-            EPOCH
-            FROM AGE(now(), pages.date)
-        ) / 86400 + 1
+    pages.like_count / power(
+        (
+            EXTRACT(
+                EPOCH
+                FROM AGE(now(), pages.date)
+            ) / 86400 + 1
+        ),
+        0.7
     ) AS trend
 FROM pages
 WHERE page_type = $1

@@ -1,11 +1,13 @@
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { createContext, useEffect, useState } from "react";
 export const UserContext = createContext<UserPublic | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserPublic | null>(null);
   const { status } = useSession();
+  const router = useRouter();
   useEffect(() => {
     if (status == "authenticated") {
       const fetchData = async () => {
@@ -19,6 +21,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
               setUser(userData);
             }
+          } else {
+            router.replace("/init");
           }
         } catch (error) {
           console.error("Error fetching data:", error);
