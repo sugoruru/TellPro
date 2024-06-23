@@ -93,6 +93,11 @@ inline {
   border-radius: 10%;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+div[role="alert"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 .youtube-iframe > iframe {
