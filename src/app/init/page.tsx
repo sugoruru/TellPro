@@ -299,7 +299,21 @@ export default function Init() {
                     <span className="block text-base font-semibold relative text-blue-900 group-hover:text-blue-500">アイコン画像をアップロード</span>
                   </div>
                 </label>
-                <input hidden={true} disabled={isSending} type="file" accept=".jpg, .jpeg, .png" id="button2" onChange={async (e) => setSelectedImage(await handleImageChange(e))} />
+                <input
+                  hidden={true}
+                  disabled={isSending}
+                  type="file"
+                  accept=".jpg, .jpeg, .png"
+                  id="button2"
+                  onChange={async (e) => {
+                    // 1MB以下の画像のみ許可.
+                    if (e.target.files && e.target.files[0].size > 1024 * 1024) {
+                      alert("1MB以下の画像のみアップロード可能です");
+                      return;
+                    }
+                    setSelectedImage(await handleImageChange(e));
+                  }}
+                />
               </div>
               <img src={selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "60px", height: "60px" }} alt={""} />
               {/*ステータスメッセージ*/}
