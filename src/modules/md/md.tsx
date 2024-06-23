@@ -169,13 +169,32 @@ const Lex = (props: { text: string }) => {
           </Fragment>
         );
       } else if (/\$\$.*\$\$/g.test(elem)) {
-        // 数式の場合.
-        const text = elem.replace(/\$\$/g, "");
-        result.push(
-          <div key={returnRandomString(64)}>
-            <InlineMath>{text}</InlineMath>
-          </div>
-        );
+        // inline数式の場合.
+        let text_array = elem.split("$$");
+        if (!elem.startsWith("$$")) {
+          const text = text_array.shift();
+          if (text) {
+            result.push(
+              <span className="text-base text-gray-800" key={returnRandomString(64)}>
+                {Text(text)}
+              </span>
+            );
+          }
+        }
+        text_array = text_array.filter((elem) => elem !== "");
+        // 数式→テキスト→数式→テキスト→数式→...という構造になっている.
+        for (let i = 0; i < text_array.length; i++) {
+          if (i % 2 === 0) {
+            result.push(<InlineMath math={text_array[i]} key={returnRandomString(64)} />);
+          } else {
+            result.push(
+              <span className="text-base text-gray-800" key={returnRandomString(64)}>
+                {Text(text_array[i])}
+              </span>
+            );
+          }
+        }
+        result.push(<br key={returnRandomString(64)} />);
       } else {
         // 通常のテキストの場合.
         result.push(
