@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
+import returnRandomString from "@/modules/algo/returnRandomString";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
   } else {
     // 最終ログイン日時の更新.
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/update_last_login_at.sql", "utf-8");
-    await db.any(sql, [session.user.email]);
+    await db.any(sql, [session.user.email, returnRandomString(64)]);
     const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
     return res;
   }

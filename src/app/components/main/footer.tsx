@@ -28,7 +28,7 @@ const Footer = () => {
           </li>
         </ul>
       </div>
-      <div className="text-center mt-4">©2024~ TellPro</div>
+      <div className="text-center mt-4">Copyright Since 2024 (C) TellPro</div>
     </div>
   );
 };

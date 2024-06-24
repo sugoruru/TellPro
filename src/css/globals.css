@@ -50,6 +50,15 @@ tfoot td {
   padding-bottom: 0.25rem;
 }
 
+.codeBlockScrollBar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.codeBlockScrollBar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+}
+
 .katex-html {
   display: none;
 }

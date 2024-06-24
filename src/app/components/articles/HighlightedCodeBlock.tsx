@@ -20,6 +20,9 @@ import { FaRegCopy } from "react-icons/fa6";
 const HighlightedCodeBlock = ({ code, lang }: { code: string; lang: string }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  if (lang === "c++") {
+    lang = "cpp";
+  }
   const highlightedCode = highlight(code, languages[lang] === undefined ? languages["text"] : languages[lang], lang);
 
   return (
@@ -38,7 +41,9 @@ const HighlightedCodeBlock = ({ code, lang }: { code: string; lang: string }) =>
           padding: "8px 16px",
           margin: "5px",
           whiteSpace: "pre-wrap",
+          overflowX: "scroll",
         }}
+        className="codeBlockScrollBar"
         key={returnRandomString(64)}
       >
         <code style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: highlightedCode }} key={returnRandomString(64)} />
