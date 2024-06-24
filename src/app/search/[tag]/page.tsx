@@ -19,10 +19,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export default function Page({ params }: { params: { tag: string } }) {
   return (
     <>
-      <SearchPage />
+      <SearchPage params={params} />
     </>
   );
 }

@@ -28,7 +28,7 @@ export const generateMetadata = async ({ params }: { params: { userID: string } 
 export default function Page({ params }: { params: { userID: string } }) {
   return (
     <>
-      <UserPage params={{ userID: params.userID }} />
+      <UserPage params={params} />
     </>
   );
 }
