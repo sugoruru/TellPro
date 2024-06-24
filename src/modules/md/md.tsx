@@ -125,12 +125,14 @@ const Lex = (props: { text: string }) => {
         );
       } else if (/\\\[.*\]\{(.*)\}.*/g.test(elem)) {
         // 別タブリンクの場合.
+        const textBeforeBrackets = elem.replace(/\\\[.*\]\{(.*)\}/g, ",").split(",")[0];
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\\\[.*\]\{.*\}/g, "");
+        const after = elem.replace(/\\\[.*\]\{(.*)\}/g, ",").split(",")[1];
         if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
           result.push(
             <Fragment key={returnRandomString(64)}>
+              {Text(textBeforeBrackets)}
               <a href={href} className="myLink" target="_blank">
                 {Text(text)}
               </a>
@@ -141,7 +143,9 @@ const Lex = (props: { text: string }) => {
         } else {
           result.push(
             <Fragment key={returnRandomString(64)}>
-              <span>{Text(elem)}</span>
+              {Text(textBeforeBrackets)}
+              <span>{Text("\\[" + text + "]" + "{" + href + "}")}</span>
+              {Text(after)}
               <br />
             </Fragment>
           );
@@ -165,12 +169,14 @@ const Lex = (props: { text: string }) => {
         );
       } else if (/\[.*\]\{(.*)\}.*/g.test(elem)) {
         // リンクの場合.
+        const textBeforeBrackets = elem.replace(/\[.*\]\{(.*)\}/g, ",").split(",")[0];
         const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
         const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\[.*\]\{(.*)\}/g, "");
+        const after = elem.replace(/\[.*\]\{(.*)\}/g, ",").split(",")[1];
         if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
           result.push(
             <Fragment key={returnRandomString(64)}>
+              {Text(textBeforeBrackets)}
               <a href={href} className="myLink">
                 {Text(text)}
               </a>
@@ -181,7 +187,9 @@ const Lex = (props: { text: string }) => {
         } else {
           result.push(
             <Fragment key={returnRandomString(64)}>
-              <span>{Text(elem)}</span>
+              {Text(textBeforeBrackets)}
+              <span>{Text("[" + text + "]" + "{" + href + "}")}</span>
+              {Text(after)}
               <br />
             </Fragment>
           );

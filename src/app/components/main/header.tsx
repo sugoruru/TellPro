@@ -48,7 +48,7 @@ const Header = () => {
                 <Link href="/search">
                   <IoSearch className="flex-shrink-0 text-lg cursor-pointer hover:text-3xl" />
                 </Link>
-                <Link href="/messages">
+                <Link href="/notifications">
                   <IoMail className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
                 </Link>
                 <Menu>
