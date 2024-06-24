@@ -37,7 +37,7 @@ const SendComment = (props: {
   const [sendingImageMessage, setSendingImageMessage] = useState("");
 
   return (
-    <div className="mt-10 flex flex-col">
+    <div className="flex flex-col">
       <b>コメント({props.page.comment_count})</b>
       <hr />
       {props.isLoading ? (

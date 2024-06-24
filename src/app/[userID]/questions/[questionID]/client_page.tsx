@@ -16,6 +16,8 @@ import PageUser from "@/app/components/articles/pageUser";
 import PageMenu from "@/app/components/articles/pageMenu";
 import PageNotExist from "@/app/components/articles/pageNotExist";
 import PageNotPublic from "@/app/components/articles/pageNotPublic";
+import Link from "next/link";
+import { FaSquareXTwitter } from "react-icons/fa6";
 
 export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -376,6 +378,11 @@ export default function Questions({ params }: { params: { userID: string; questi
         <PageUser userID={params.userID} userIcon={userIcon} />
         <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
           {content}
+          <div className="flex justify-end mt-5">
+            <Link target="_blank" href={`https://twitter.com/share?text=おすすめの質問を見つけたよ！&url=${process.env.NEXT_PUBLIC_TRUTH_URL}/${params.userID}/articles/${params.questionID}`}>
+              <FaSquareXTwitter className="text-4xl" />
+            </Link>
+          </div>
           {/* 回答 */}
           <SendComment
             page={page}
