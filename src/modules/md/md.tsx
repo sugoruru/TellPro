@@ -228,17 +228,17 @@ const Lex = (props: { text: string }) => {
     // ヘッダーの場合.
     if (head.includes(header)) {
       if (header === "#") {
-        result.push(<H1 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H1 text={Lex({ text: elem.slice(2) })} key={returnRandomString(64)} />);
       } else if (header === "##") {
-        result.push(<H2 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H2 text={Lex({ text: elem.slice(3) })} key={returnRandomString(64)} />);
       } else if (header === "###") {
-        result.push(<H3 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H3 text={Lex({ text: elem.slice(4) })} key={returnRandomString(64)} />);
       } else if (header === "####") {
-        result.push(<H4 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H4 text={Lex({ text: elem.slice(5) })} key={returnRandomString(64)} />);
       } else if (header === "#####") {
-        result.push(<H5 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H5 text={Lex({ text: elem.slice(6) })} key={returnRandomString(64)} />);
       } else if (header === "######") {
-        result.push(<H6 text={Text(text.join(" "))} key={returnRandomString(64)} />);
+        result.push(<H6 text={Lex({ text: elem.slice(7) })} key={returnRandomString(64)} />);
       }
     }
   }

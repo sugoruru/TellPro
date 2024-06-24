@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp } from "react-icons/io5";
+import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp, IoMail } from "react-icons/io5";
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
@@ -17,7 +17,6 @@ const Header = () => {
   const [isUserLogin, setIsUserLogin] = useState(false);
   const { status } = useSession();
   const user = useContext(UserContext);
-  let isMounted = false;
   useEffect(() => {
     if (status === "authenticated" && user) {
       setIsUserLogin(true);
@@ -47,7 +46,10 @@ const Header = () => {
             ) : status == "authenticated" && user ? (
               <div className="flex items-center gap-3">
                 <Link href="/search">
-                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer" />
+                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer hover:text-3xl" />
+                </Link>
+                <Link href="/messages">
+                  <IoMail className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
                 </Link>
                 <Menu>
                   <Menu.Button>
