@@ -3,7 +3,8 @@ import axios from "axios";
 import Articles from "./client_page";
 
 export const generateMetadata = async ({ params }: { params: { userID: string; pageID: string } }): Promise<Metadata> => {
-  const page = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles`)).data;
+  const page = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles&userID=${params.userID}`)).data;
+  if (!page.ok) return { title: "TellPro" };
   return {
     openGraph: {
       url: process.env.NEXT_PUBLIC_TRUTH_URL,

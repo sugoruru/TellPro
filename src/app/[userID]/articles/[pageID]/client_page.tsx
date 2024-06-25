@@ -2,7 +2,7 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import sleep from "@/modules/sleep";
@@ -16,6 +16,7 @@ import PageUser from "@/app/components/articles/pageUser";
 import PageMenu from "@/app/components/articles/pageMenu";
 import PageNotExist from "@/app/components/articles/pageNotExist";
 import PageNotPublic from "@/app/components/articles/pageNotPublic";
+import { UserPublic } from "@/types/user";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -44,6 +45,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -55,6 +57,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
       const fetch = async () => {
         const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=articles`);
         if (!pageData.data.ok) {
+          alert("エラーが発生しました");
           router.replace("/");
           return;
         }
@@ -89,9 +92,6 @@ export default function Articles({ params }: { params: { userID: string; pageID:
           setLikeComments(likeComments);
           setIsLike(page.isLiked);
           setIsBookmark(page.isBookmarked);
-        } else {
-          router.replace("/");
-          return;
         }
         setIsAllLoaded(true);
       };
@@ -106,6 +106,16 @@ export default function Articles({ params }: { params: { userID: string; pageID:
       document.title = "Loading...｜TellPro";
     } else if (isExist) {
       if (me.id === params.userID || page.is_public) {
+        const toComment = searchParams.get("toComment");
+        if (toComment) {
+          const commentElement = document.getElementById(toComment);
+          if (commentElement) {
+            const rect = commentElement.getBoundingClientRect();
+            const currentScrolledHeight = window.scrollY || document.documentElement.scrollTop;
+            const position = window.innerHeight * 0.2;
+            scrollTo({ top: rect.bottom + currentScrolledHeight - position, behavior: "smooth" });
+          }
+        }
         document.title = `${page.title}｜TellPro`;
       } else {
         document.title = "ページが非公開です｜TellPro";
@@ -178,6 +188,11 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     setIsCommentSending(true);
     if (mdAreaValue === "") {
       setSendingMessage("コメントを入力してください");
+      setIsCommentSending(false);
+      return;
+    }
+    if (mdAreaValue.length > 10000) {
+      setSendingMessage("コメントは10000文字以内で入力してください");
       setIsCommentSending(false);
       return;
     }

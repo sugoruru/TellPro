@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PageList } from "@/types/page";
+import { UserPublic } from "@/types/user";
 
 // 検索ページ.
 export default function SearchPage({ params }: { params: { tag: string } }) {

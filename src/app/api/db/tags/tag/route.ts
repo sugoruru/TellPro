@@ -4,6 +4,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import { pageBlockKey, questionBlockKey, userBlockKey } from "@/modules/DBBlockKey";
 import { Page } from "@/types/page";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {

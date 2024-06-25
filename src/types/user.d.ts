@@ -5,7 +5,7 @@ interface UserPublic {
   status_message: string;
   answer_score: number;
   page_score: number;
-  last_login_at: string;
+  last_seeing_notifications_at: string;
   is_admin: boolean;
   is_banned: boolean;
   atcoder_id: string;
@@ -14,3 +14,4 @@ interface UserPublic {
   sent_proposal_at: string;
   sent_report_at: string;
 }
+export { UserPublic };

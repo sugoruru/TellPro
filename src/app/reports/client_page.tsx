@@ -1,5 +1,6 @@
 "use client";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { UserPublic } from "@/types/user";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";

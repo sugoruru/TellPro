@@ -31,13 +31,14 @@ export async function GET(req: NextRequest) {
   // クエリパラメータの取得.
   const pageID = req.nextUrl.searchParams.get("pageID");
   const pageType = req.nextUrl.searchParams.get("pageType");
+  const userID = req.nextUrl.searchParams.get("userID");
   if (pageID === null) {
     const res = NextResponse.json({ ok: false, error: 'Invalid request1' }, { status: 400 });
     return res;
   }
 
   // ユーザー情報の取得.
-  const res = await db.any("SELECT id, title, user_id FROM pages WHERE id = $1 and page_type=$2", [pageID, pageType]);
+  const res = await db.any("SELECT id, title, user_id FROM pages WHERE id = $1 and page_type=$2 and user_id=$3", [pageID, pageType, userID]);
   if (res.length === 0) {
     const res = NextResponse.json({ ok: false });
     return res;

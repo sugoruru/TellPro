@@ -7,6 +7,8 @@ import { headers } from "next/headers";
 import pageTypes from "@/modules/pageTypes";
 import fs from "fs";
 import path from "path";
+import returnRandomString from "@/modules/algo/returnRandomString";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
   await db.tx(async (t) => {
     const sql1 = fs.readFileSync(path.resolve("./public") + "/sql/comments/create.sql", "utf-8");
     const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pages/increment_comment_count.sql", "utf-8");
-    await t.none(sql1, [body["ID"], body["myID"], body["content"], body["pageID"], body["pageType"]]);
+    await t.none(sql1, [body["ID"], body["myID"], body["content"], body["pageID"], body["pageType"], returnRandomString(64)]);
     await t.none(sql2, [body["pageID"], body["pageType"]]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });

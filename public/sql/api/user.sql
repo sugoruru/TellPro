@@ -1,9 +1,3 @@
--- userのlast_loginを更新
-begin;
-update users
-set last_login_at = now()
-where mail = $1;
-commit;
 with me_json as (
     select *
     from users

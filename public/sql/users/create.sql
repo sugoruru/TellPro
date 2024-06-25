@@ -6,8 +6,7 @@ insert into users (
         "icon",
         "status_message",
         "answer_score",
-        "page_score",
-        "last_login_at"
+        "page_score"
     )
-values ($1, $2, $3, $4, $5, 0, 0, now());
+values ($1, $2, $3, $4, $5, 0, 0);
 commit;

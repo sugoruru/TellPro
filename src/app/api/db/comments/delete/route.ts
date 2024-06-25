@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     const sql1 = fs.readFileSync(path.resolve("./public") + "/sql/pages/decrement_comment_count.sql", "utf-8");
     await t.any(sql1, [body["pageID"], body["pageType"]]);
     const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/comments/delete.sql", "utf-8");
-    await t.any(sql2, [body["commentID"], body["userID"], body["pageType"]]);
+    await t.any(sql2, [body["commentID"], body["userID"], body["pageType"], body["pageID"]]);
   });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

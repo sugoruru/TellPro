@@ -16,6 +16,7 @@ import TagsDialog from "@/app/components/articles/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/page";
 import ImageUploader from "@/app/components/articles/imageUploader";
+import { UserPublic } from "@/types/user";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();

@@ -1,4 +1,5 @@
 import { Page } from "@/types/page";
+import { UserPublic } from "@/types/user";
 import Link from "next/link";
 import { MouseEventHandler } from "react";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart, FaSquareXTwitter } from "react-icons/fa6";

@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { Page } from "@/types/page";
 import { userBlockKey } from "@/modules/DBBlockKey";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {

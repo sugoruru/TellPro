@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import OPTIONS from "@/app/api/auth/[...nextauth]/options";
 import fs from "fs";
 import path from "path";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {

@@ -2,7 +2,7 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import sleep from "@/modules/sleep";
@@ -16,6 +16,7 @@ import PageUser from "@/app/components/articles/pageUser";
 import PageMenu from "@/app/components/articles/pageMenu";
 import PageNotExist from "@/app/components/articles/pageNotExist";
 import PageNotPublic from "@/app/components/articles/pageNotPublic";
+import { UserPublic } from "@/types/user";
 
 export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -45,6 +46,7 @@ export default function Questions({ params }: { params: { userID: string; questi
   const [isLogin, setIsLogin] = useState(false);
   const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.questionID)) {
@@ -56,6 +58,7 @@ export default function Questions({ params }: { params: { userID: string; questi
       const fetch = async () => {
         const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.questionID}&pageType=questions`);
         if (!pageData.data.ok) {
+          alert("エラーが発生しました");
           router.replace("/");
           return;
         }
@@ -90,9 +93,6 @@ export default function Questions({ params }: { params: { userID: string; questi
           setCommentUserMap(commentUserMap);
           setIsLike(page.isLiked);
           setIsBookmark(page.isBookmarked);
-        } else {
-          router.replace("/");
-          return;
         }
         setIsAllLoaded(true);
       };
@@ -106,6 +106,16 @@ export default function Questions({ params }: { params: { userID: string; questi
     if (!isAllLoaded) {
       document.title = "Loading...｜TellPro";
     } else if (isExist) {
+      const toComment = searchParams.get("toComment");
+      if (toComment) {
+        const commentElement = document.getElementById(toComment);
+        if (commentElement) {
+          const rect = commentElement.getBoundingClientRect();
+          const currentScrolledHeight = window.scrollY || document.documentElement.scrollTop;
+          const position = window.innerHeight * 0.2;
+          scrollTo({ top: rect.bottom + currentScrolledHeight - position, behavior: "smooth" });
+        }
+      }
       if (me.id === params.userID || page.is_public) {
         document.title = `${page.title}｜TellPro`;
       } else {
@@ -179,6 +189,11 @@ export default function Questions({ params }: { params: { userID: string; questi
     setIsCommentSending(true);
     if (mdAreaValue === "") {
       setSendingMessage("回答を入力してください");
+      setIsCommentSending(false);
+      return;
+    }
+    if (mdAreaValue.length > 10000) {
+      setSendingMessage("回答は10000文字以内で入力してください");
       setIsCommentSending(false);
       return;
     }

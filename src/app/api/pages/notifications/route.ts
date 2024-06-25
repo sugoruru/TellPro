@@ -1,9 +1,9 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next"
-import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
+import { getServerSession } from "next-auth/next";
+import OPTIONS from "../../auth/[...nextauth]/options";
 import fs from "fs";
 import path from "path";
 
@@ -31,19 +31,14 @@ export async function GET(req: NextRequest) {
   if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
     return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
   }
-
   const session = await getServerSession(OPTIONS);
   if (!session || !session.user) {
-    const res = NextResponse.json({ ok: true, exist: false, message: "not login" }, { status: 200 });
-    return res;
+    return NextResponse.json({ ok: true, isLogin: false }, { status: 200 });
   }
-  const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
-  const data = await db.any(sql, [session.user.email]);
-  if (data.length === 0) {
-    const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
-    return res;
-  } else {
-    const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
-    return res;
-  }
+  const sql1 = fs.readFileSync(path.resolve("./public") + "/sql/notifications/get.sql", "utf-8");
+  const notifications = await db.any(sql1, [session.user.email]);
+  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/notifications/update.sql", "utf-8");
+  await db.query(sql2, [session.user.email]);
+  const res = NextResponse.json({ ok: true, isLogin: true, notifications: notifications[0].result }, { status: 200 });
+  return res;
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
+import { UserPublic } from "@/types/user";
 
 export default function Settings() {
   const { data: session, status } = useSession();

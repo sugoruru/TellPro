@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import db from "@/modules/network/db";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {

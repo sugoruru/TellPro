@@ -13,6 +13,7 @@ import { BsTwitterX } from "react-icons/bs";
 import Link from "next/link";
 import { getAtCoderColors, getCodeforcesColors } from "@/modules/getColors";
 import { max } from "@/modules/algo/max_min";
+import { UserPublic } from "@/types/user";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);

@@ -13,6 +13,7 @@ page_json as (
     from pages
     where id = $3
         and page_type = $4
+        and user_id = $2
 ),
 is_liked as (
     select *

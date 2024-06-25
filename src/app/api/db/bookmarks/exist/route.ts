@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
+import { UserPublic } from "@/types/user";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {

@@ -6,6 +6,7 @@ import axios from "axios";
 import { Page } from "@/types/page";
 import PageLinkBlock from "./components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { UserPublic } from "@/types/user";
 
 export default function Home() {
   const [notices, setNotices] = useState<Notice[]>([]);

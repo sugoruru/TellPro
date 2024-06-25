@@ -1,7 +1,5 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next"
-import OPTIONS from "../../../auth/[...nextauth]/options";
 import { LimitChecker } from "@/modules/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
@@ -32,18 +30,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
   }
 
-  const session = await getServerSession(OPTIONS);
-  if (!session || !session.user) {
-    const res = NextResponse.json({ ok: true, exist: false, message: "not login" }, { status: 200 });
-    return res;
+  // リクエストボディに必要なキーが存在しなければ400を返す.
+  const user_id = req.nextUrl.searchParams.get("user_id");
+  if (!user_id) {
+    return NextResponse.json({ ok: false, error: "user_id is required" }, { status: 400 });
   }
-  const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
-  const data = await db.any(sql, [session.user.email]);
-  if (data.length === 0) {
-    const res = NextResponse.json({ ok: true, exist: false }, { status: 200 });
-    return res;
-  } else {
-    const res = NextResponse.json({ ok: true, exist: true, data: data[0] }, { status: 200 });
-    return res;
-  }
+
+  const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/isHavingNotification.sql", "utf-8");
+  const data = await db.one(sql, [user_id]);
+  const res = NextResponse.json({ ok: true, exist: true, data: data }, { status: 200 });
+  return res;
+
 }

@@ -7,6 +7,7 @@ import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import PageLinkBlock from "../components/articles/pageLinkBlock";
 import { PageList } from "@/types/page";
+import { UserPublic } from "@/types/user";
 
 export default function Bookmark() {
   const { status } = useSession();

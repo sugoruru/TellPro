@@ -17,6 +17,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import template from "@/modules/questionTemplate";
 import { Page } from "@/types/page";
 import ImageUploader from "@/app/components/articles/imageUploader";
+import { UserPublic } from "@/types/user";
 
 const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
   const { status } = useSession();

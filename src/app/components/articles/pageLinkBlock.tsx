@@ -8,6 +8,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { PageList } from "@/types/page";
 import { PageType } from "@/modules/pageTypes";
+import { UserPublic } from "@/types/user";
 
 const PageLinkBlock = (props: {
   page: PageList;

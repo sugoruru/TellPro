@@ -10,6 +10,7 @@ import { MdDelete, MdEditNote } from "react-icons/md";
 import { Comment } from "@/types/comment";
 import { IoMdImages } from "react-icons/io";
 import ImageUploader from "./imageUploader";
+import { UserPublic } from "@/types/user";
 
 const SendComment = (props: {
   page: Page;
@@ -132,7 +133,7 @@ const SendComment = (props: {
       ) : (
         <div>
           {props.comments.map((e) => (
-            <div key={returnRandomString(64)}>
+            <div key={returnRandomString(64)} id={e.id}>
               <div className="p-2">
                 <div className="flex justify-between">
                   <Link href={`/${e.user_id}`}>

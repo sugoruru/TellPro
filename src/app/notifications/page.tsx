@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import Messages from "./client_page";
+import Notifications from "./client_page";
 
 export const metadata: Metadata = {
   openGraph: {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <Messages />
+      <Notifications />
     </>
   );
 }

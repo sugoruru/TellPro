@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp, IoMail } from "react-icons/io5";
+import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp, IoMail, IoMailUnread } from "react-icons/io5";
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
@@ -16,7 +16,9 @@ const Header = () => {
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
   const [isUserLogin, setIsUserLogin] = useState(false);
   const { status } = useSession();
-  const user = useContext(UserContext);
+  const headerData = useContext(UserContext);
+  const user = headerData.user.user;
+
   useEffect(() => {
     if (status === "authenticated" && user) {
       setIsUserLogin(true);
@@ -48,8 +50,17 @@ const Header = () => {
                 <Link href="/search">
                   <IoSearch className="flex-shrink-0 text-lg cursor-pointer hover:text-3xl" />
                 </Link>
-                <Link href="/notifications">
-                  <IoMail className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
+                <Link
+                  href="/notifications"
+                  onClick={() => {
+                    if (headerData.setUser) headerData.setUser({ ...headerData.user, notificationCount: 0 });
+                  }}
+                >
+                  {headerData.user.notificationCount > 0 ? (
+                    <IoMailUnread className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
+                  ) : (
+                    <IoMail className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
+                  )}
                 </Link>
                 <Menu>
                   <Menu.Button>

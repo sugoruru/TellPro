@@ -5,6 +5,7 @@ import axios from "axios";
 import PageLinkBlock from "../components/articles/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/page";
+import { UserPublic } from "@/types/user";
 
 export default function Questions() {
   const [pages, setPages] = useState<Page[]>([]);
