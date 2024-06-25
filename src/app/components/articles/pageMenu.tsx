@@ -1,7 +1,7 @@
 import { Page } from "@/types/page";
 import Link from "next/link";
 import { MouseEventHandler } from "react";
-import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa6";
+import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart, FaSquareXTwitter } from "react-icons/fa6";
 import { MdEditNote } from "react-icons/md";
 
 const PageMenu = (props: {
@@ -42,6 +42,13 @@ const PageMenu = (props: {
             >
               {props.isBookmark ? <FaBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" /> : <FaRegBookmark className="inline-flex text-sm lg:text-3xl text-blue-500" />}
             </button>
+          </div>
+          <div className="text-center mb-2 lg:mr-2 mx-2">
+            <Link target="_blank" href={`https://x.com/share?text=おすすめのページを見つけたよ！%0A${process.env.NEXT_PUBLIC_TRUTH_URL}/${props.userID}/${props.pageType}/${props.pageID}%0A`}>
+              <div className={`cursor-pointer flex items-center justify-center w-10 lg:w-16 h-10 lg:h-16 bg-white rounded-full border-gray-300 border`} title="Xへ共有">
+                <FaSquareXTwitter className="inline-flex text-xl lg:text-4xl text-black-500" />
+              </div>
+            </Link>
           </div>
           {props.me.id === props.userID ? (
             <Link title="編集" className={`mx-2 cursor-pointer`} href={`/${props.userID}/${props.pageType}/${props.pageID}/edit`}>
