@@ -363,7 +363,7 @@ export default function Questions({ params }: { params: { userID: string; questi
     <></>
   ) : isExist ? (
     me.id === params.userID || page.is_public ? (
-      <>
+      <div className="w-[calc(100vw-calc(100vw-100%))]">
         <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
         <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
         <div className="flex justify-center">
@@ -442,7 +442,7 @@ export default function Questions({ params }: { params: { userID: string; questi
           updateSendingMessage={updateSendingMessage}
           stateFunc={{ setIsOpenUpdateCommentModal, setUpdateMdAreaValue }}
         />
-      </>
+      </div>
     ) : isAllLoaded ? (
       // ページが非公開の時.
       <PageNotPublic />

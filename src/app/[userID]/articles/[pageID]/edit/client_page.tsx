@@ -18,7 +18,7 @@ import { Page } from "@/types/page";
 import ImageUploader from "@/app/components/articles/imageUploader";
 import { UserPublic } from "@/types/user";
 import { BiCopyAlt } from "react-icons/bi";
-import { getWindowSize } from "@/app/components/main/getWindowSize";
+import { useGetWindowSize } from "@/app/components/main/getWindowSize";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -40,7 +40,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
   const lastTagsAPICalled = useRef(0);
-  const { width } = getWindowSize();
+  const { width } = useGetWindowSize();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -360,7 +360,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         </>
       ) : (
         // プレビュータブの場合.
-        <div className="w-screen">
+        <div className="w-[calc(100vw-calc(100vw-100%))]">
           <div className="text-center text-4xl font-bold text-gray-700 my-5">{title === "" ? "untitled" : title}</div>
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="flex justify-center">
