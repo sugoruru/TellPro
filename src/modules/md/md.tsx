@@ -224,7 +224,7 @@ const Lex = (props: { text: string }) => {
       } else {
         // 通常のテキストの場合.
         result.push(
-          <span className="text-base text-gray-800" key={returnRandomString(64)}>
+          <span className="text-gray-800" key={returnRandomString(64)}>
             {Text(elem)}
             <br />
           </span>

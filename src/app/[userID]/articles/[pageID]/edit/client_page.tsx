@@ -17,6 +17,8 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/page";
 import ImageUploader from "@/app/components/articles/imageUploader";
 import { UserPublic } from "@/types/user";
+import { BiCopyAlt } from "react-icons/bi";
+import { getWindowSize } from "@/app/components/main/getWindowSize";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -29,6 +31,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [sendingImageMessage, setSendingImageMessage] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
+  const [realTimePreview, setRealTimePreview] = useState(false);
   const [mdAreaValue, setMdAreaValue] = useState("");
   const [prevIcon, setPrevIcon] = useState("");
   const [title, setTitle] = useState("");
@@ -37,6 +40,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
   const lastTagsAPICalled = useRef(0);
+  const { width } = getWindowSize();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -214,13 +218,37 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           </div>
           {/* 本文・公開ボタン・設定ボタン */}
           <div className="grow w-full p-3">
-            <textarea
-              className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} outline-1 resize-none rounded h-5/6 outline-sky-400 p-1 w-full`}
-              placeholder="本文(Markdown)"
-              onChange={(e) => setMdAreaValue(e.target.value)}
-              value={mdAreaValue}
-              id="mdArea"
-            ></textarea>
+            <div className="h-5/6 flex w-full">
+              <div className="relative w-full h-full">
+                {width && width > 1042 && (
+                  <>
+                    <div className="absolute right-0 mx-6 my-2 text-3xl cursor-pointer">
+                      <BiCopyAlt
+                        className="absolute right-0 mx-6 my-2 text-3xl cursor-pointer"
+                        title="簡易リアルタイムプレビュー"
+                        onClick={() => {
+                          setRealTimePreview(!realTimePreview);
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+                <textarea
+                  className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} h-full outline-1 resize-none rounded outline-sky-400 p-1 w-full`}
+                  placeholder="本文(Markdown)"
+                  onChange={(e) => setMdAreaValue(e.target.value)}
+                  value={mdAreaValue}
+                  id="mdArea"
+                />
+              </div>
+              {realTimePreview && width && width > 1042 ? (
+                <div className="relative w-full break-all overflow-y-scroll">
+                  <div className="absolute h-full w-full">{Lex({ text: mdAreaValue })}</div>
+                </div>
+              ) : (
+                <></>
+              )}
+            </div>
             <div className="justify-end flex mt-2">
               <button
                 onClick={() => setIsOpenTagEditor(true)}
@@ -332,11 +360,11 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         </>
       ) : (
         // プレビュータブの場合.
-        <>
+        <div className="w-screen">
           <div className="text-center text-4xl font-bold text-gray-700 my-5">{title === "" ? "untitled" : title}</div>
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
-          <div className="mx-auto">
-            <div className="flex mt-2 px-1 flex-wrap">
+          <div className="flex justify-center">
+            <div className="mt-2 px-1 flex-wrap">
               {tagSearchValue.split(" ").map((e) =>
                 e === "" ? (
                   <Fragment key={returnRandomString(32)}></Fragment>
@@ -349,7 +377,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               )}
             </div>
           </div>
-          <div className="mx-auto text-base font-bold text-gray-700">
+          <div className="flex justify-center mx-auto text-base font-bold text-gray-700">
             <div
               className="flex cursor-pointer"
               onClick={() => {
@@ -361,7 +389,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             </div>
           </div>
           <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
-        </>
+        </div>
       )}
     </div>
   ) : (
