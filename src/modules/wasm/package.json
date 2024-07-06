@@ -1,0 +1,23 @@
+{
+  "name": "markdown",
+  "type": "module",
+  "collaborators": [
+    "ruku"
+  ],
+  "description": "A markdown parser for TellPro",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sugoruru/TellPro"
+  },
+  "files": [
+    "markdown_bg.wasm",
+    "markdown.js",
+    "markdown.d.ts"
+  ],
+  "main": "markdown.js",
+  "types": "markdown.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

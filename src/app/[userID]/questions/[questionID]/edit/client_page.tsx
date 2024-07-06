@@ -19,7 +19,7 @@ import { Page } from "@/types/page";
 import ImageUploader from "@/app/components/articles/imageUploader";
 import { UserPublic } from "@/types/user";
 import { BiCopyAlt } from "react-icons/bi";
-import { useGetWindowSize } from "@/app/components/main/getWindowSize";
+import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 
 const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
   const { status } = useSession();
