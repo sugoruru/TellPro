@@ -9,8 +9,9 @@ import { IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdEditNote } from "react-icons/md";
 import { Comment } from "@/types/comment";
 import { IoMdImages } from "react-icons/io";
-import ImageUploader from "./imageUploader";
+import ImageUploader from "../main/imageUploader";
 import { UserPublic } from "@/types/user";
+import { HandleCommentGoodProps } from "@/modules/handle/handleCommentGood";
 
 const SendComment = (props: {
   page: Page;
@@ -30,7 +31,10 @@ const SendComment = (props: {
   setDeleteCommentID: Dispatch<SetStateAction<string>>;
   setIsOpenDeleteCommentModal: Dispatch<SetStateAction<boolean>>;
   setMdAreaValue: Dispatch<SetStateAction<string>>;
-  handleCommentGood: (commentID: string) => void;
+  setComments: Dispatch<SetStateAction<Comment[]>>;
+  setCommentLikeUserMap: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
+  setIsLikeSending: Dispatch<SetStateAction<boolean>>;
+  handleCommentGood: (props: HandleCommentGoodProps) => Promise<void>;
   handleCommentUpload: MouseEventHandler<HTMLButtonElement>;
 }) => {
   const [isCommentMarkdown, setIsCommentMarkdown] = useState(true);
@@ -205,7 +209,17 @@ const SendComment = (props: {
                     <button
                       className={`cursor-pointer w-10 flex flex-col items-center h-10 justify-center bg-white rounded-full border-gray-300 border`}
                       title="いいね"
-                      onClick={() => props.handleCommentGood(e.id)}
+                      onClick={() => {
+                        props.handleCommentGood({
+                          me: props.me,
+                          comments: props.comments,
+                          commentID: e.id,
+                          commentLikeUserMap: props.likeComments,
+                          setComments: props.setComments,
+                          setCommentLikeUserMap: props.setCommentLikeUserMap,
+                          setIsLikeSending: props.setIsLikeSending,
+                        });
+                      }}
                       disabled={props.isLikeSending || !props.isLogin}
                     >
                       {props.likeComments[e.id] ? <FaHeart className="inline-flex text-sm text-red-500" /> : <FaRegHeart className="inline-flex text-sm text-red-500" />}

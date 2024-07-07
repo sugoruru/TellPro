@@ -1,4 +1,4 @@
-import { PageType } from "@/modules/pageTypes";
+import { PageType } from "@/modules/other/pageTypes";
 
 interface Page {
   id: string,

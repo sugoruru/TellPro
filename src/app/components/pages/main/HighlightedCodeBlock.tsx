@@ -1,5 +1,5 @@
 import { highlight, languages } from "prismjs";
-import "../../../css/prism-material-dark.css";
+import "@/css/prism-material-dark.css";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-c";
 import "prismjs/components/prism-java";

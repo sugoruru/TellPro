@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import HomeNav from "../components/main/homeNav";
 import axios from "axios";
-import PageLinkBlock from "../components/articles/pageLinkBlock";
+import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/page";
 import { UserPublic } from "@/types/user";

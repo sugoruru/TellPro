@@ -3,7 +3,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { getServerSession } from "next-auth/next";
 import OPTIONS from "../../auth/[...nextauth]/options";
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 
 const limitChecker = LimitChecker();

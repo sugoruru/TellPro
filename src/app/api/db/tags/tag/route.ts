@@ -1,8 +1,8 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
-import { pageBlockKey, questionBlockKey, userBlockKey } from "@/modules/DBBlockKey";
+import { pageBlockKey, questionBlockKey, userBlockKey } from "@/modules/other/DBBlockKey";
 import { Page } from "@/types/page";
 import { UserPublic } from "@/types/user";
 

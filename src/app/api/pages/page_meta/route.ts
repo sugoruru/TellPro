@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/modules/network/db";
 import { headers } from "next/headers";
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {

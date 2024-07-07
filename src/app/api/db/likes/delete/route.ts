@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next"
 import OPTIONS from "../../../auth/[...nextauth]/options";
 import db from "@/modules/network/db";
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
-import pageTypes from "@/modules/pageTypes";
+import pageTypes from "@/modules/other/pageTypes";
 import fs from "fs";
 import path from "path";
 import { UserPublic } from "@/types/user";

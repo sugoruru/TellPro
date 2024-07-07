@@ -1,22 +1,26 @@
 "use client";
-import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
-import sleep from "@/modules/sleep";
-import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
-import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
+import DeleteCommentModal from "@/app/components/pages/comments/deleteCommentModal";
+import UpdateCommentModal from "@/app/components/pages/comments/updateCommentModal";
 import { Page } from "@/types/page";
 import { Comment } from "@/types/comment";
-import SendComment from "@/app/components/articles/sendComment";
-import PageTags from "@/app/components/articles/pageTags";
-import PageUser from "@/app/components/articles/pageUser";
-import PageMenu from "@/app/components/articles/pageMenu";
-import PageNotExist from "@/app/components/articles/pageNotExist";
-import PageNotPublic from "@/app/components/articles/pageNotPublic";
+import SendComment from "@/app/components/pages/comments/sendComment";
+import PageTags from "@/app/components/pages/pages/pageTags";
+import PageUser from "@/app/components/pages/pages/pageUser";
+import PageMenu from "@/app/components/pages/pages/pageMenu";
+import PageNotExist from "@/app/components/pages/pages/pageNotExist";
+import PageNotPublic from "@/app/components/pages/pages/pageNotPublic";
 import { UserPublic } from "@/types/user";
+import { handleBookmark } from "@/modules/handle/handleBookmark";
+import { handleGoodButton } from "@/modules/handle/handleGoodButton";
+import { handleCommentGood } from "@/modules/handle/handleCommentGood";
+import { handleCommentUpload } from "@/modules/handle/handleCommentUpload";
+import { handleCommentDelete } from "@/modules/handle/handleCommentDelete";
+import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -30,7 +34,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserPublic }>({} as { [key: string]: UserPublic });
-  const [likeComments, setLikeComments] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
+  const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isBookmark, setIsBookmark] = useState(false);
@@ -89,7 +93,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
           page.commentsLike.forEach((e) => {
             likeComments[e.comment_id] = true;
           });
-          setLikeComments(likeComments);
+          setCommentLikeUserMap(likeComments);
           setIsLike(page.isLiked);
           setIsBookmark(page.isBookmarked);
         }
@@ -125,226 +129,6 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     }
   }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
 
-  const handleGoodButton = async () => {
-    try {
-      setIsLikeSending(true);
-      setIsLike(!isLike);
-      if (!isLike) {
-        setPage({ ...page, like_count: Number(page.like_count) + 1 });
-        await axios.post("/api/db/likes/create", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.pageID,
-          pageType: "articles",
-        });
-      } else {
-        setPage({ ...page, like_count: Number(page.like_count) - 1 });
-        await axios.post("/api/db/likes/delete", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.pageID,
-          pageType: "articles",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsLikeSending(false);
-    } catch (e) {
-      console.log(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleBookmark = async () => {
-    try {
-      setIsBookmarkSending(true);
-      if (!isBookmark) {
-        setIsBookmark(true);
-        await axios.post("/api/db/bookmarks/create", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.pageID,
-          pageType: "articles",
-        });
-      } else {
-        setIsBookmark(false);
-        await axios.post("/api/db/bookmarks/delete", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.pageID,
-          pageType: "articles",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsBookmarkSending(false);
-    } catch (e) {
-      console.log(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleCommentUpload = async () => {
-    setIsCommentSending(true);
-    if (mdAreaValue === "") {
-      setSendingMessage("コメントを入力してください");
-      setIsCommentSending(false);
-      return;
-    }
-    if (mdAreaValue.length > 10000) {
-      setSendingMessage("コメントは10000文字以内で入力してください");
-      setIsCommentSending(false);
-      return;
-    }
-    try {
-      const commentID = returnRandomString(64);
-      await axios.post("/api/db/comments/create", {
-        ID: commentID,
-        myID: me.id,
-        pageUserID: params.userID,
-        pageID: params.pageID,
-        pageType: "articles",
-        content: mdAreaValue,
-      });
-      setMdAreaValue("");
-      setSendingMessage("");
-      setIsCommentSending(false);
-      setPage({ ...page, comment_count: Number(page.comment_count) + 1 });
-      setComments((prev) => [
-        {
-          id: commentID,
-          user_id: me.id,
-          content: mdAreaValue,
-          like_count: 0,
-          page_id: params.pageID,
-          page_type: "articles",
-          page_user_id: params.userID,
-          created_at: new Date().toISOString(),
-        } as Comment,
-        ...prev,
-      ]);
-      setLikeComments((prev) => {
-        return {
-          ...prev,
-          [commentID]: false,
-        };
-      });
-      setCommentUserMap((prev) => {
-        prev[me.id] = me;
-        return prev;
-      });
-    } catch (e) {
-      setSendingMessage("エラーが発生しました");
-      console.log(e);
-      setIsCommentSending(false);
-    }
-  };
-
-  const handleCommentGood = async (commentID: string) => {
-    try {
-      setIsLikeSending(true);
-      if (!likeComments[commentID]) {
-        // コメントのlikeCountを増やす.
-        setLikeComments((prev) => {
-          prev[commentID] = true;
-          return prev;
-        });
-        let pageUserID = "";
-        const newComments = comments.map((e) => {
-          if (e.id === commentID) {
-            e.like_count = Number(e.like_count) + 1;
-            pageUserID = e.user_id;
-          }
-          return e;
-        });
-        setComments(newComments);
-        await axios.post("/api/db/likes/create", {
-          myID: me.id,
-          pageUserID: pageUserID,
-          pageID: commentID,
-          pageType: "comments",
-        });
-      } else {
-        // コメントのlikeCountを減らす.
-        setLikeComments((prev) => {
-          prev[commentID] = false;
-          return prev;
-        });
-        let pageUserID = "";
-        const newComments = comments.map((e) => {
-          if (e.id === commentID) {
-            e.like_count = Number(e.like_count) - 1;
-            pageUserID = e.user_id;
-          }
-          return e;
-        });
-        setComments(newComments);
-        await axios.post("/api/db/likes/delete", {
-          myID: me.id,
-          pageUserID: pageUserID,
-          pageID: commentID,
-          pageType: "comments",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsLikeSending(false);
-    } catch (e) {
-      console.error(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleCommentDelete = async () => {
-    try {
-      setIsDeleteSending(true);
-      await axios.post("/api/db/comments/delete", {
-        commentID: deleteCommentID,
-        userID: me.id,
-        pageID: params.pageID,
-        pageType: "articles",
-      });
-      setComments(comments.filter((e) => e.id !== deleteCommentID));
-      setIsDeleteSending(false);
-      setIsOpenDeleteCommentModal(false);
-      setPage({ ...page, comment_count: Number(page.comment_count) - 1 });
-    } catch (e) {
-      console.error(e);
-      setIsDeleteSending(false);
-    }
-  };
-
-  const handleUpdateComment = async () => {
-    try {
-      setIsUpdateSending(true);
-      if (updateMdAreaValue === "") {
-        setUpdateSendingMessage("コメントを入力してください");
-        setIsUpdateSending(false);
-        return;
-      }
-      await axios.post("/api/db/comments/update", {
-        pageID: params.pageID,
-        commentID: updateCommentID,
-        userID: me.id,
-        content: updateMdAreaValue,
-        pageType: "articles",
-      });
-      setComments(
-        comments.map((e) => {
-          if (e.id === updateCommentID) {
-            e.content = updateMdAreaValue;
-          }
-          return e;
-        })
-      );
-      setIsUpdateSending(false);
-      setIsOpenUpdateCommentModal(false);
-    } catch (e) {
-      console.error(e);
-      setIsUpdateSending(false);
-    }
-  };
-
   return !isAllLoaded ? (
     <></>
   ) : isExist ? (
@@ -373,7 +157,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
             comments={comments}
             me={me}
             commentUserMap={commentUserMap}
-            likeComments={likeComments}
+            likeComments={commentLikeUserMap}
             setUpdateMdAreaValue={setUpdateMdAreaValue}
             setUpdateCommentID={setUpdateCommentID}
             setIsOpenUpdateCommentModal={setIsOpenUpdateCommentModal}
@@ -381,12 +165,50 @@ export default function Articles({ params }: { params: { userID: string; pageID:
             setIsOpenDeleteCommentModal={setIsOpenDeleteCommentModal}
             setMdAreaValue={setMdAreaValue}
             handleCommentGood={handleCommentGood}
-            handleCommentUpload={handleCommentUpload}
+            handleCommentUpload={() => {
+              handleCommentUpload({
+                setMdAreaValue,
+                setSendingMessage,
+                setCommentLikeUserMap,
+                setCommentUserMap,
+                setComments,
+                setIsCommentSending,
+                setPage,
+                mdAreaValue,
+                me,
+                page,
+                params,
+                pageType: "articles",
+              });
+            }}
+            setComments={setComments}
+            setCommentLikeUserMap={setCommentLikeUserMap}
+            setIsLikeSending={setIsLikeSending}
           ></SendComment>
         </div>
         <PageMenu
-          handleGoodButton={handleGoodButton}
-          handleBookmark={handleBookmark}
+          handleGoodButton={() => {
+            handleGoodButton({
+              setIsLikeSending,
+              isLike,
+              setIsLike,
+              page,
+              setPage,
+              me,
+              params,
+              pageType: "articles",
+            });
+          }}
+          handleBookmark={() => {
+            handleBookmark({
+              setIsBookmarkSending,
+              isBookmark,
+              setIsBookmark,
+              myID: me.id,
+              params: { userID: params.userID, pageID: params.pageID },
+              pageType: "articles",
+            });
+          }}
           isLikeSending={isLikeSending}
           isLogin={isLogin}
           isLike={isLike}
@@ -399,13 +221,39 @@ export default function Articles({ params }: { params: { userID: string; pageID:
           pageType="articles"
         />
         <DeleteCommentModal
-          handleCommentDelete={handleCommentDelete}
+          handleCommentDelete={() => {
+            handleCommentDelete({
+              setIsDeleteSending,
+              deleteCommentID,
+              me,
+              params,
+              setComments,
+              setIsOpenDeleteCommentModal,
+              page,
+              setPage,
+              comments,
+              pageType: "articles",
+            });
+          }}
           isDeleteSending={isDeleteSending}
           isOpenDeleteCommentModal={isOpenDeleteCommentModal}
           stateFunc={{ setIsOpenDeleteCommentModal }}
         />
         <UpdateCommentModal
-          handleUpdateComment={handleUpdateComment}
+          handleUpdateComment={() => {
+            handleUpdateComment({
+              setIsUpdateSending,
+              updateCommentID,
+              updateMdAreaValue,
+              me,
+              params,
+              setComments,
+              setIsOpenUpdateCommentModal,
+              setUpdateSendingMessage,
+              comments,
+              pageType: "articles",
+            });
+          }}
           isUpdateSending={isUpdateSending}
           isOpenUpdateCommentModal={isOpenUpdateCommentModal}
           updateMdAreaValue={updateMdAreaValue}

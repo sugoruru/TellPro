@@ -7,7 +7,7 @@ import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
 import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
-import { hideHeaderPage, hideFooterPage } from "@/modules/hideComponentPage";
+import { hideHeaderPage, hideFooterPage } from "@/modules/other/hideComponentPage";
 import Footer from "./components/main/footer";
 import Link from "next/link";
 import Script from "next/script";

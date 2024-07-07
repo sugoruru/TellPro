@@ -1,4 +1,4 @@
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 import { getServerSession } from "next-auth/next";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";

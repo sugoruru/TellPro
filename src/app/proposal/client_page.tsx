@@ -1,5 +1,5 @@
 "use client";
-import sleep from "@/modules/sleep";
+import sleep from "@/modules/main/sleep";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

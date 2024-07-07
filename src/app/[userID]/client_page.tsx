@@ -4,14 +4,14 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Dialog, Transition } from "@headlessui/react";
-import sleep from "@/modules/sleep";
-import PageLinkBlock from "../components/articles/pageLinkBlock";
+import sleep from "@/modules/main/sleep";
+import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import { Page } from "@/types/page";
 import { IoShieldCheckmark } from "react-icons/io5";
 import { SiCodeforces } from "react-icons/si";
 import { BsTwitterX } from "react-icons/bs";
 import Link from "next/link";
-import { getAtCoderColors, getCodeforcesColors } from "@/modules/getColors";
+import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors";
 import { max } from "@/modules/algo/max_min";
 import { UserPublic } from "@/types/user";
 

@@ -7,7 +7,7 @@ import H4 from "./header/h4";
 import H5 from "./header/h5";
 import H6 from "./header/h6";
 import YouTube from "react-youtube";
-import HighlightedCodeBlock from "@/app/components/articles/HighlightedCodeBlock";
+import HighlightedCodeBlock from "@/app/components/pages/main/HighlightedCodeBlock";
 import Image from "next/image";
 import { Fragment } from "react";
 import { MdCheckCircleOutline, MdInfoOutline, MdOutlineDangerous, MdOutlineWarningAmber } from "react-icons/md";

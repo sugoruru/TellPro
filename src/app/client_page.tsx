@@ -4,7 +4,7 @@ import HomeNav from "./components/main/homeNav";
 import NoticeBlock from "./components/main/noticeBlock";
 import axios from "axios";
 import { Page } from "@/types/page";
-import PageLinkBlock from "./components/articles/pageLinkBlock";
+import PageLinkBlock from "./components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { UserPublic } from "@/types/user";
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import PageLinkBlock from "../components/articles/pageLinkBlock";
+import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import { PageList } from "@/types/page";
 import { UserPublic } from "@/types/user";
 

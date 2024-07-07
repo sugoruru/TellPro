@@ -1,24 +1,29 @@
 "use client";
-import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
-import sleep from "@/modules/sleep";
-import DeleteCommentModal from "@/app/components/articles/deleteCommentModal";
-import UpdateCommentModal from "@/app/components/articles/updateCommentModal";
+import sleep from "@/modules/main/sleep";
+import DeleteCommentModal from "@/app/components/pages/comments/deleteCommentModal";
+import UpdateCommentModal from "@/app/components/pages/comments/updateCommentModal";
 import { Page } from "@/types/page";
 import { Comment } from "@/types/comment";
-import SendComment from "@/app/components/articles/sendComment";
-import PageTags from "@/app/components/articles/pageTags";
-import PageUser from "@/app/components/articles/pageUser";
-import PageMenu from "@/app/components/articles/pageMenu";
-import PageNotExist from "@/app/components/articles/pageNotExist";
-import PageNotPublic from "@/app/components/articles/pageNotPublic";
+import SendComment from "@/app/components/pages/comments/sendComment";
+import PageTags from "@/app/components/pages/pages/pageTags";
+import PageUser from "@/app/components/pages/pages/pageUser";
+import PageMenu from "@/app/components/pages/pages/pageMenu";
+import PageNotExist from "@/app/components/pages/pages/pageNotExist";
+import PageNotPublic from "@/app/components/pages/pages/pageNotPublic";
 import { UserPublic } from "@/types/user";
+import { handleBookmark } from "@/modules/handle/handleBookmark";
+import { handleGoodButton } from "@/modules/handle/handleGoodButton";
+import { handleCommentGood } from "@/modules/handle/handleCommentGood";
+import { handleCommentUpload } from "@/modules/handle/handleCommentUpload";
+import { handleCommentDelete } from "@/modules/handle/handleCommentDelete";
+import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 
-export default function Questions({ params }: { params: { userID: string; questionID: string } }) {
+export default function Questions({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
   const [userIcon, setUserIcon] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState("");
@@ -49,14 +54,14 @@ export default function Questions({ params }: { params: { userID: string; questi
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!/^[a-zA-Z]+$/.test(params.questionID)) {
+    if (!/^[a-zA-Z]+$/.test(params.pageID)) {
       router.replace("/");
       return;
     }
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.questionID}&pageType=questions`);
+        const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`);
         if (!pageData.data.ok) {
           alert("エラーが発生しました");
           router.replace("/");
@@ -100,7 +105,7 @@ export default function Questions({ params }: { params: { userID: string; questi
     } catch (e) {
       router.replace("/");
     }
-  }, [params.questionID, params.userID, router]);
+  }, [params.pageID, params.userID, router]);
 
   useEffect(() => {
     if (!isAllLoaded) {
@@ -126,233 +131,13 @@ export default function Questions({ params }: { params: { userID: string; questi
     }
   }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
 
-  const handleGoodButton = async () => {
-    try {
-      setIsLikeSending(true);
-      setIsLike(!isLike);
-      if (!isLike) {
-        setPage({ ...page, like_count: Number(page.like_count) + 1 });
-        await axios.post("/api/db/likes/create", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.questionID,
-          pageType: "questions",
-        });
-      } else {
-        setPage({ ...page, like_count: Number(page.like_count) - 1 });
-        await axios.post("/api/db/likes/delete", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.questionID,
-          pageType: "questions",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsLikeSending(false);
-    } catch (e) {
-      console.log(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleBookmark = async () => {
-    try {
-      setIsBookmarkSending(true);
-      if (!isBookmark) {
-        setIsBookmark(true);
-        await axios.post("/api/db/bookmarks/create", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.questionID,
-          pageType: "questions",
-        });
-      } else {
-        setIsBookmark(false);
-        await axios.post("/api/db/bookmarks/delete", {
-          myID: me.id,
-          pageUserID: params.userID,
-          pageID: params.questionID,
-          pageType: "questions",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsBookmarkSending(false);
-    } catch (e) {
-      console.log(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleCommentUpload = async () => {
-    setIsCommentSending(true);
-    if (mdAreaValue === "") {
-      setSendingMessage("回答を入力してください");
-      setIsCommentSending(false);
-      return;
-    }
-    if (mdAreaValue.length > 10000) {
-      setSendingMessage("回答は10000文字以内で入力してください");
-      setIsCommentSending(false);
-      return;
-    }
-    try {
-      const commentID = returnRandomString(32);
-      await axios.post("/api/db/comments/create", {
-        ID: commentID,
-        myID: me.id,
-        pageUserID: params.userID,
-        pageID: params.questionID,
-        pageType: "questions",
-        content: mdAreaValue,
-      });
-      setMdAreaValue("");
-      setSendingMessage("");
-      setIsCommentSending(false);
-      setPage({ ...page, comment_count: Number(page.comment_count) + 1 });
-      setComments((prev) => [
-        {
-          id: commentID,
-          user_id: me.id,
-          content: mdAreaValue,
-          like_count: 0,
-          page_id: params.questionID,
-          page_type: "questions",
-          page_user_id: params.userID,
-          created_at: new Date().toISOString(),
-        } as Comment,
-        ...prev,
-      ]);
-      setCommentLikeUserMap((prev) => {
-        return {
-          ...prev,
-          [commentID]: false,
-        };
-      });
-      setCommentUserMap((prev) => {
-        prev[me.id] = me;
-        return prev;
-      });
-    } catch (e) {
-      setSendingMessage("エラーが発生しました");
-      console.log(e);
-      setIsCommentSending(false);
-    }
-  };
-
-  const handleCommentGood = async (commentID: string) => {
-    try {
-      setIsLikeSending(true);
-      if (!commentLikeUserMap[commentID]) {
-        // 回答のlikeCountを増やす.
-        setCommentLikeUserMap((prev) => {
-          prev[commentID] = true;
-          return prev;
-        });
-        let pageUserID = "";
-        const newComments = comments.map((e) => {
-          if (e.id === commentID) {
-            e.like_count = Number(e.like_count) + 1;
-            pageUserID = e.user_id;
-          }
-          return e;
-        });
-        setComments(newComments);
-        await axios.post("/api/db/likes/create", {
-          myID: me.id,
-          pageUserID: pageUserID,
-          pageID: commentID,
-          pageType: "comments",
-        });
-      } else {
-        // 回答のlikeCountを減らす.
-        setCommentLikeUserMap((prev) => {
-          prev[commentID] = false;
-          return prev;
-        });
-        let pageUserID = "";
-        const newComments = comments.map((e) => {
-          if (e.id === commentID) {
-            e.like_count = Number(e.like_count) - 1;
-            pageUserID = e.user_id;
-          }
-          return e;
-        });
-        setComments(newComments);
-        await axios.post("/api/db/likes/delete", {
-          myID: me.id,
-          pageUserID: pageUserID,
-          pageID: commentID,
-          pageType: "comments",
-        });
-      }
-      // 連打防止用に1秒待機.
-      await sleep(1000);
-      setIsLikeSending(false);
-    } catch (e) {
-      console.error(e);
-      setIsLikeSending(false);
-    }
-  };
-
-  const handleCommentDelete = async () => {
-    try {
-      setIsDeleteSending(true);
-      await axios.post("/api/db/comments/delete", {
-        commentID: deleteCommentID,
-        userID: me.id,
-        pageID: params.questionID,
-        pageType: "questions",
-      });
-      setComments(comments.filter((e) => e.id !== deleteCommentID));
-      setIsDeleteSending(false);
-      setIsOpenDeleteCommentModal(false);
-      setPage({ ...page, comment_count: Number(page.comment_count) - 1 });
-    } catch (e) {
-      console.error(e);
-      setIsDeleteSending(false);
-    }
-  };
-
-  const handleUpdateComment = async () => {
-    try {
-      setIsUpdateSending(true);
-      if (updateMdAreaValue === "") {
-        setUpdateSendingMessage("回答を入力してください");
-        setIsUpdateSending(false);
-        return;
-      }
-      await axios.post("/api/db/comments/update", {
-        pageID: params.questionID,
-        commentID: updateCommentID,
-        userID: me.id,
-        content: updateMdAreaValue,
-        pageType: "questions",
-      });
-      setComments(
-        comments.map((e) => {
-          if (e.id === updateCommentID) {
-            e.content = updateMdAreaValue;
-          }
-          return e;
-        })
-      );
-      setIsUpdateSending(false);
-      setIsOpenUpdateCommentModal(false);
-    } catch (e) {
-      console.error(e);
-      setIsUpdateSending(false);
-    }
-  };
-
   const handleSwitchClosed = async () => {
     if (me.id !== params.userID) return;
     setIsUpdateClosedSending(true);
     setPage({ ...page, is_closed: !page.is_closed });
     await axios.post("/api/db/questions/update_closed", {
       userID: params.userID,
-      pageID: params.questionID,
+      pageID: params.pageID,
       isClosed: !page.is_closed,
     });
     await sleep(1500);
@@ -411,12 +196,50 @@ export default function Questions({ params }: { params: { userID: string; questi
             setIsOpenDeleteCommentModal={setIsOpenDeleteCommentModal}
             setMdAreaValue={setMdAreaValue}
             handleCommentGood={handleCommentGood}
-            handleCommentUpload={handleCommentUpload}
+            handleCommentUpload={() => {
+              handleCommentUpload({
+                setMdAreaValue,
+                setSendingMessage,
+                setCommentLikeUserMap,
+                setCommentUserMap,
+                setComments,
+                setIsCommentSending,
+                setPage,
+                mdAreaValue,
+                me,
+                page,
+                params,
+                pageType: "articles",
+              });
+            }}
+            setComments={setComments}
+            setCommentLikeUserMap={setCommentLikeUserMap}
+            setIsLikeSending={setIsLikeSending}
           ></SendComment>
         </div>
         <PageMenu
-          handleGoodButton={handleGoodButton}
-          handleBookmark={handleBookmark}
+          handleGoodButton={() => {
+            handleGoodButton({
+              setIsLikeSending,
+              isLike,
+              setIsLike,
+              page,
+              setPage,
+              me,
+              params: { userID: params.userID, pageID: params.pageID },
+              pageType: "questions",
+            });
+          }}
+          handleBookmark={() => {
+            handleBookmark({
+              setIsBookmarkSending,
+              isBookmark,
+              setIsBookmark,
+              myID: me.id,
+              params: { userID: params.userID, pageID: params.pageID },
+              pageType: "questions",
+            });
+          }}
           isLikeSending={isLikeSending}
           isLogin={isLogin}
           isLike={isLike}
@@ -424,18 +247,44 @@ export default function Questions({ params }: { params: { userID: string; questi
           isBookmarkSending={isBookmarkSending}
           page={page}
           userID={params.userID}
-          pageID={params.questionID}
+          pageID={params.pageID}
           me={me}
           pageType="questions"
         />
         <DeleteCommentModal
-          handleCommentDelete={handleCommentDelete}
+          handleCommentDelete={() => {
+            handleCommentDelete({
+              setIsDeleteSending,
+              setComments,
+              setIsOpenDeleteCommentModal,
+              setPage,
+              deleteCommentID,
+              me,
+              params: { pageID: params.pageID },
+              page,
+              comments,
+              pageType: "questions",
+            });
+          }}
           isDeleteSending={isDeleteSending}
           isOpenDeleteCommentModal={isOpenDeleteCommentModal}
           stateFunc={{ setIsOpenDeleteCommentModal }}
         />
         <UpdateCommentModal
-          handleUpdateComment={handleUpdateComment}
+          handleUpdateComment={() => {
+            handleUpdateComment({
+              setIsUpdateSending,
+              setComments,
+              setIsOpenUpdateCommentModal,
+              setUpdateSendingMessage,
+              updateCommentID,
+              updateMdAreaValue,
+              me,
+              params: { pageID: params.pageID },
+              comments,
+              pageType: "questions",
+            });
+          }}
           isUpdateSending={isUpdateSending}
           isOpenUpdateCommentModal={isOpenUpdateCommentModal}
           updateMdAreaValue={updateMdAreaValue}

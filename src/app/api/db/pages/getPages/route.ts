@@ -1,8 +1,8 @@
 import db from "@/modules/network/db";
 import { NextRequest, NextResponse } from "next/server";
-import { LimitChecker } from "@/modules/limitChecker";
+import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
-import { pageBlockKey } from "@/modules/DBBlockKey";
+import { pageBlockKey } from "@/modules/other/DBBlockKey";
 import { getServerSession } from "next-auth";
 import OPTIONS from "@/app/api/auth/[...nextauth]/options";
 import fs from "fs";

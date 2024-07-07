@@ -7,7 +7,7 @@ import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { PageList } from "@/types/page";
-import { PageType } from "@/modules/pageTypes";
+import { PageType } from "@/modules/other/pageTypes";
 import { UserPublic } from "@/types/user";
 
 const PageLinkBlock = (props: {
