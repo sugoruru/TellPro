@@ -1,5 +1,5 @@
 "use client";
-import PageLinkBlock from "@/app/components/pages/pageLinkBlock";
+import PageLinkBlock from "@/app/components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
