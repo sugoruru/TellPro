@@ -4,6 +4,7 @@ import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp, IoMail, 
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
+import { SlNotebook } from "react-icons/sl";
 import { MdAutoDelete, MdReportGmailerrorred } from "react-icons/md";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
@@ -115,6 +116,16 @@ const Header = () => {
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <RiQuestionnaireLine className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 質問の作成
+                              </button>
+                            </Link>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <Link href={`/${user.id}/problems/${returnRandomString(32)}/edit`}>
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <SlNotebook className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                問題集の作成
                               </button>
                             </Link>
                           )}

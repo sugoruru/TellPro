@@ -24,7 +24,7 @@ export const generateMetadata = async ({ params }: { params: { userID: string; q
   };
 };
 
-export default function Page({ params }: { params: { userID: string; questionID: string } }) {
+export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   return (
     <>
       <Questions params={params} />

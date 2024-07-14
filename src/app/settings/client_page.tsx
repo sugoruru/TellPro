@@ -68,6 +68,27 @@ export default function Settings() {
       setIsSending(false);
       return;
     }
+    if (atCoderID !== "") {
+      if (!/^[a-z0-9]{3,16}$/.test(atCoderID)) {
+        setStateMessage("AtCoderIDが正しく入力されていません");
+        setIsSending(false);
+        return;
+      }
+    }
+    if (codeForcesID !== "") {
+      if (!/^[a-z0-9_]{3,24}$/.test(codeForcesID)) {
+        setStateMessage("CodeForcesIDが正しく入力されていません");
+        setIsSending(false);
+        return;
+      }
+    }
+    if (xID !== "") {
+      if (!/^[a-zA-Z0-9_]{1,15}$/.test(xID)) {
+        setStateMessage("X(旧Twitter)IDが正しく入力されていません");
+        setIsSending(false);
+        return;
+      }
+    }
     try {
       if (session && user && existUser && session.user) {
         setStateMessage("ユーザーが存在するかを確認中...");

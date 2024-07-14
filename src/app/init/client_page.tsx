@@ -11,7 +11,7 @@ import { existTargetByBinarySearch } from "@/modules/algo/existTargetByBinarySea
 import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import userNameKeyword from "@/modules/userNameKeyword";
+import userNameKeyword from "@/modules/other/userNameKeyword";
 import TermsOfService from "../termsOfService/page";
 import PrivacyPolicy from "../privacyPolicy/page";
 
@@ -198,7 +198,7 @@ export default function Init() {
           status_message: areaValue,
         });
         setIsSending(false);
-        router.replace("/");
+        window.location.reload();
       } else {
         setStateMessage("エラーが発生しました");
         setIsSending(false);
