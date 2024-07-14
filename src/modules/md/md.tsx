@@ -157,11 +157,13 @@ const Lex = (props: { text: string }) => {
         result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
       } else if (/\%\[.*\]\{(.*)\}.*/g.test(elem)) {
         // 色付きのテキストの場合.
+        const textBeforeBrackets = elem.replace(/\%\[.*\]\{(.*)\}/g, ",").split(",")[0];
         const color = elem.match(/\%\[.*\]/g)![0].slice(2, -1);
         const text = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\%\[.*\]\{.*\}/g, "");
+        const after = elem.replace(/\%\[.*\]\{(.*)\}/g, ",").split(",")[1];
         result.push(
           <div key={returnRandomString(64)}>
+            {Text(textBeforeBrackets)}
             <span style={{ color: color }}>{Text(text)}</span>
             {Text(after)}
             <br />
