@@ -7,6 +7,7 @@ import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
 import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
+import { TagsProvider } from "./components/hooks/tagsContext";
 import { hideHeaderPage, hideFooterPage } from "@/modules/other/hideComponentPage";
 import Footer from "./components/main/footer";
 import Link from "next/link";
@@ -84,7 +85,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="grid h-full">
             <div>
               <UserProvider>{isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}</UserProvider>
-              <Suspense>{<>{children}</>}</Suspense>
+              <TagsProvider>
+                <Suspense>{<>{children}</>}</Suspense>
+              </TagsProvider>
             </div>
             {isMatch(pathname, hideFooterPage) ? null : <Footer />}
           </div>

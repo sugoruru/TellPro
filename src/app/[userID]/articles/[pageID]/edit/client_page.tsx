@@ -1,10 +1,10 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { Dialog, Menu, Transition } from "@headlessui/react";
+import { Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
 import Prism from "prismjs";
 import { BsExclamationCircle } from "react-icons/bs";
@@ -19,6 +19,7 @@ import ImageUploader from "@/app/components/pages/main/imageUploader";
 import { UserPublic } from "@/types/user";
 import { BiCopyAlt } from "react-icons/bi";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
+import { useTagsContext } from "@/app/components/hooks/tagsContext";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -27,7 +28,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [isPageExist, setIsPageExist] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isOpenImageUpload, setIsOpenImageUpload] = useState(false);
-  const [isOpenTagEditor, setIsOpenTagEditor] = useState(false);
   const [sendingImageMessage, setSendingImageMessage] = useState("");
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
@@ -36,11 +36,10 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [prevIcon, setPrevIcon] = useState("");
   const [title, setTitle] = useState("");
   const [sendingMessage, setSendingMessage] = useState("");
-  const [tagSearchValue, setTagSearchValue] = useState<string>("");
   const router = useRouter();
   const [content, setContent] = useState<JSX.Element>(<></>);
-  const lastTagsAPICalled = useRef(0);
   const { width } = useGetWindowSize();
+  const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -177,13 +176,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       }
     }
   };
-  const handleSetTagValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 空白で5つまでのタグを設定する.
-    if (e.target.value.split(" ").length > 5) return;
-    setTagSearchValue(e.target.value);
-  };
-
-  const TagsDialogMemo = React.memo(TagsDialog);
 
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
@@ -251,7 +243,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             </div>
             <div className="justify-end flex mt-2">
               <button
-                onClick={() => setIsOpenTagEditor(true)}
+                onClick={() => handleSetIsOpenTagEditor(true)}
                 title="タグの設定"
                 className="bg-slate-400 leading-10 transition text-center hover:bg-slate-500 disabled:bg-slate-400 text-white font-bold text-2xl rounded-full mx-2 h-10 w-10"
               >
@@ -276,41 +268,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                 setSendingImageMessage={setSendingImageMessage}
               />
               {/* tag editor */}
-              <Transition appear show={isOpenTagEditor} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => setIsOpenTagEditor(false)}>
-                  <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <div className="fixed inset-0 bg-black/25" />
-                  </Transition.Child>
-                  <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                      <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
-                      >
-                        <Dialog.Panel className="w-full text-center max-w-md transform overflow-hidden rounded-2xl bg-white p-3 align-middle shadow-xl transition-all">
-                          <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                            タグの編集(5つまで)
-                          </Dialog.Title>
-                          <input value={tagSearchValue} onChange={handleSetTagValue} type="text" className="border w-full outline-sky-400" placeholder="タグを検索(半角スペース区切り)" />
-                          <TagsDialogMemo setTagSearchValue={setTagSearchValue} tagSearchValue={tagSearchValue} lastAPICalled={lastTagsAPICalled} />
-                          <button
-                            type="button"
-                            className="mx-2 mt-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                            onClick={() => setIsOpenTagEditor(false)}
-                          >
-                            決定
-                          </button>
-                        </Dialog.Panel>
-                      </Transition.Child>
-                    </div>
-                  </div>
-                </Dialog>
-              </Transition>
+              <TagsDialog />
               {/* save button */}
               <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
                 {isPublic ? "公開する" : "下書き"}
