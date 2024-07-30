@@ -28,6 +28,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const [me, setMe] = useState<UserPublic | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [questions, setQuestions] = useState<Page[]>([] as Page[]);
+  const [problems, setProblems] = useState<Page[]>([] as Page[]);
   const [navPlace, setNavPlace] = useState("articles");
   const [deletePageID, setDeletePageID] = useState("");
   const [reportValue, setReportValue] = useState("");
@@ -62,6 +63,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
             setPageUser(res.data.data.user as UserPublic);
             setPages(res.data.data.articles as Page[]);
             setQuestions(res.data.data.questions as Page[]);
+            setProblems(res.data.data.problems as Page[]);
           }
           if (res.data.data.me) {
             setMe(res.data.data.me as UserPublic);
@@ -270,6 +272,9 @@ export default function UserPage({ params }: { params: { userID: string } }) {
               <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
                 Questions
               </span>
+              <span className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
+                Problems
+              </span>
             </nav>
           </div>
         </div>
@@ -357,13 +362,25 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                 ))}
               </div>
             )
-          ) : questions.length === 0 ? (
-            <div className="m-5">質問はありません</div>
+          ) : navPlace === "questions" ? (
+            questions.length === 0 ? (
+              <div className="m-5">質問はありません</div>
+            ) : (
+              <div className="bg-slate-100">
+                {questions.map((question) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={question} pageUser={pageUser} pageType="questions" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  </div>
+                ))}
+              </div>
+            )
+          ) : problems.length === 0 ? (
+            <div className="m-5">問題集はありません</div>
           ) : (
             <div className="bg-slate-100">
-              {questions.map((question) => (
+              {problems.map((problem) => (
                 <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={question} pageUser={pageUser} pageType="questions" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  <PageLinkBlock page={problem} pageUser={pageUser} pageType="problems" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
                 </div>
               ))}
             </div>

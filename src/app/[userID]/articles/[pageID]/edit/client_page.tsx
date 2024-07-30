@@ -7,8 +7,6 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
 import Prism from "prismjs";
-import { BsExclamationCircle } from "react-icons/bs";
-import Link from "next/link";
 import { FaTag } from "react-icons/fa6";
 import { IoMdImages } from "react-icons/io";
 import React from "react";
@@ -20,6 +18,8 @@ import { UserPublic } from "@/types/user";
 import { BiCopyAlt } from "react-icons/bi";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
+import handlePageUpload from "@/modules/handle/handlePageUpload";
+import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -47,6 +47,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       return;
     }
     Prism.highlightAll();
+    setTagSearchValue("");
     window.addEventListener("beforeunload", onBeforeunloadHandler);
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
@@ -113,70 +114,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     }
   }, [isMarkdown, mdAreaValue]);
 
-  const handlePageUpload = async () => {
-    setIsSending(true);
-    setSendingMessage("");
-    if (title === "") {
-      setSendingMessage("タイトルを入力してください");
-      setIsSending(false);
-      return;
-    }
-    if (title.length > 30) {
-      setSendingMessage("タイトルが長すぎます");
-      setIsSending(false);
-      return;
-    }
-    if (mdAreaValue.length > 20000) {
-      setSendingMessage("記事のサイズが大きすぎます");
-      setIsSending(false);
-      return;
-    }
-    if (mdAreaValue === "") {
-      setSendingMessage("本文を入力してください");
-      setIsSending(false);
-      return;
-    }
-    if (isPageExist) {
-      try {
-        await axios.post("/api/db/pages/update", {
-          ID: params.pageID,
-          userID: params.userID,
-          title: title,
-          content: mdAreaValue,
-          tags: tagSearchValue
-            .trim()
-            .split(" ")
-            .filter((e) => e !== ""),
-          isPublic: isPublic,
-          pageType: "articles",
-        });
-        router.push(`/${params.userID}/articles/${params.pageID}`);
-      } catch (e) {
-        setSendingMessage("エラーが発生しました");
-        setIsSending(false);
-      }
-    } else {
-      try {
-        await axios.post("/api/db/pages/create", {
-          ID: params.pageID,
-          userID: params.userID,
-          title: title,
-          content: mdAreaValue,
-          tags: tagSearchValue
-            .trim()
-            .split(" ")
-            .filter((e) => e !== ""),
-          isPublic: isPublic,
-          pageType: "articles",
-        });
-        router.push(`/${params.userID}/articles/${params.pageID}`);
-      } catch (e) {
-        setSendingMessage("エラーが発生しました");
-        setIsSending(false);
-      }
-    }
-  };
-
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
     <></>
@@ -201,7 +138,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               className={`border ${sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""} outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full`}
               placeholder="タイトル"
               onChange={(e) => {
-                if (e.target.value.length <= 30) {
+                if (e.target.value.length <= 50) {
                   setTitle(e.target.value);
                 }
               }}
@@ -270,13 +207,32 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               {/* tag editor */}
               <TagsDialog />
               {/* save button */}
-              <button disabled={isSending} onClick={handlePageUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
+              <button
+                disabled={isSending}
+                onClick={() => {
+                  handlePageUpload({
+                    setIsSending,
+                    setSendingMessage,
+                    title,
+                    mdAreaValue,
+                    tagSearchValue,
+                    isPublic,
+                    isPageExist,
+                    params,
+                    pageType: "articles",
+                    router,
+                  });
+                }}
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r"
+              >
                 {isPublic ? "公開する" : "下書き"}
               </button>
               {/* 公開/非公開選択ボタン */}
-              <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-r border-l">
+              <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-r border-l flex align-middle">
                 <Menu.Button>
-                  <MdKeyboardArrowDown className="text-xl" />
+                  <div className="py-1 px-2">
+                    <MdKeyboardArrowDown className="text-xl" />
+                  </div>
                 </Menu.Button>
                 <Transition
                   as={Fragment}
@@ -287,7 +243,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="transform -translate-y-36 -translate-x-3 absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                  <Menu.Items className="transform -translate-y-36 -translate-x-3 absolute right-0 mt-10 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <div className="px-1 py-1">
                       <Menu.Item>
                         {({ active }) => (
@@ -352,19 +308,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     </div>
   ) : (
     // 編集権限が無い場合.
-    <div className="min-h-screen bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
-      <div className="flex justify-center">
-        <BsExclamationCircle className="text-green-500 text-6xl" />
-      </div>
-      <p>編集権限がありません</p>
-      <p className="text-sm pt-5">
-        <span>(</span>
-        <Link href="/" className="text-blue-300">
-          こちら
-        </Link>
-        <span>からホームに戻ることが出来ます)</span>
-      </p>
-    </div>
+    <HaveNoAuthToEdit />
   );
 };
 

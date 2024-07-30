@@ -7,8 +7,6 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
 import Lex from "@/modules/md/md";
 import Prism from "prismjs";
-import { BsExclamationCircle } from "react-icons/bs";
-import Link from "next/link";
 import { FaTag } from "react-icons/fa6";
 import { IoMdImages } from "react-icons/io";
 import React from "react";
@@ -21,12 +19,14 @@ import { UserPublic } from "@/types/user";
 import { BiCopyAlt } from "react-icons/bi";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
+import handlePageUpload from "@/modules/handle/handlePageUpload";
+import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 
-const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: string } }) => {
+const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
   const [existUser, setExistUser] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
-  const [isQuestionExist, setIsQuestionExist] = useState(false);
+  const [isPageExist, setIsPageExist] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isOpenImageUpload, setIsOpenImageUpload] = useState(false);
   const [sendingImageMessage, setSendingImageMessage] = useState("");
@@ -43,16 +43,17 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
   const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
 
   useEffect(() => {
-    if (!/^[a-zA-Z]+$/.test(params.questionID)) {
+    if (!/^[a-zA-Z]+$/.test(params.pageID)) {
       router.replace("/");
       return;
     }
     Prism.highlightAll();
+    setTagSearchValue("");
     window.addEventListener("beforeunload", onBeforeunloadHandler);
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
-  }, [router, params.questionID]);
+  }, [router, params.pageID]);
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
@@ -63,10 +64,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchMe, fetchQuestion] = await Promise.all([
-            axios.get(`/api/db/users/existMe`),
-            axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.questionID}&pageType=questions`),
-          ]);
+          const [fetchMe, fetchQuestion] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`)]);
           if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
@@ -82,7 +80,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
                   setTitle(tempQuestion.title);
                   setTagSearchValue(tempQuestion.tags.join(" "));
                   setIsPublic(tempQuestion.is_public);
-                  setIsQuestionExist(true);
+                  setIsPageExist(true);
                 }
               }
             } else {
@@ -99,7 +97,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status, router, params.questionID, params.userID]);
+  }, [status, router, params.pageID, params.userID]);
 
   useEffect(() => {
     if (status == "loading" || !existUser) {
@@ -116,70 +114,6 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
       setContent(Lex({ text: mdAreaValue }));
     }
   }, [isMarkdown, mdAreaValue]);
-
-  const handleQuestionUpload = async () => {
-    setIsSending(true);
-    setSendingMessage("");
-    if (title === "") {
-      setSendingMessage("タイトルを入力してください");
-      setIsSending(false);
-      return;
-    }
-    if (title.length > 30) {
-      setSendingMessage("タイトルが長すぎます");
-      setIsSending(false);
-      return;
-    }
-    if (mdAreaValue.length > 20000) {
-      setSendingMessage("記事のサイズが大きすぎます");
-      setIsSending(false);
-      return;
-    }
-    if (mdAreaValue === "") {
-      setSendingMessage("本文を入力してください");
-      setIsSending(false);
-      return;
-    }
-    if (isQuestionExist) {
-      try {
-        await axios.post("/api/db/pages/update", {
-          ID: params.questionID,
-          userID: params.userID,
-          title: title,
-          content: mdAreaValue,
-          tags: tagSearchValue
-            .trim()
-            .split(" ")
-            .filter((e) => e !== ""),
-          isPublic: isPublic,
-          pageType: "questions",
-        });
-        router.push(`/${params.userID}/questions/${params.questionID}`);
-      } catch (e) {
-        setSendingMessage("エラーが発生しました");
-        setIsSending(false);
-      }
-    } else {
-      try {
-        await axios.post("/api/db/pages/create", {
-          ID: params.questionID,
-          userID: params.userID,
-          title: title,
-          content: mdAreaValue,
-          tags: tagSearchValue
-            .trim()
-            .split(" ")
-            .filter((e) => e !== ""),
-          isPublic: isPublic,
-          pageType: "questions",
-        });
-        router.push(`/${params.userID}/questions/${params.questionID}`);
-      } catch (e) {
-        setSendingMessage("エラーが発生しました");
-        setIsSending(false);
-      }
-    }
-  };
 
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
@@ -205,7 +139,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
               className={`border ${sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""} outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full`}
               placeholder="タイトル"
               onChange={(e) => {
-                if (e.target.value.length <= 30) {
+                if (e.target.value.length <= 50) {
                   setTitle(e.target.value);
                 }
               }}
@@ -274,13 +208,32 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
               {/* tag editor */}
               <TagsDialog />
               {/* save button */}
-              <button disabled={isSending} onClick={handleQuestionUpload} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r">
+              <button
+                disabled={isSending}
+                onClick={() => {
+                  handlePageUpload({
+                    setIsSending,
+                    setSendingMessage,
+                    title,
+                    mdAreaValue,
+                    tagSearchValue,
+                    isPublic,
+                    isPageExist,
+                    params,
+                    pageType: "questions",
+                    router,
+                  });
+                }}
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r"
+              >
                 {isPublic ? "公開する" : "下書き"}
               </button>
               {/* 公開/非公開選択ボタン */}
-              <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-r border-l">
+              <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-r border-l flex align-middle">
                 <Menu.Button>
-                  <MdKeyboardArrowDown className="text-xl" />
+                  <div className="py-1 px-2">
+                    <MdKeyboardArrowDown className="text-xl" />
+                  </div>
                 </Menu.Button>
                 <Transition
                   as={Fragment}
@@ -291,7 +244,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="transform -translate-y-36 -translate-x-3 absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                  <Menu.Items className="transform -translate-y-36 -translate-x-3 absolute right-0 mt-10 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <div className="px-1 py-1">
                       <Menu.Item>
                         {({ active }) => (
@@ -356,19 +309,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; questionID: str
     </div>
   ) : (
     // 編集権限が無い場合.
-    <div className="min-h-screen bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
-      <div className="flex justify-center">
-        <BsExclamationCircle className="text-green-500 text-6xl" />
-      </div>
-      <p>編集権限がありません</p>
-      <p className="text-sm pt-5">
-        <span>(</span>
-        <Link href="/" className="text-blue-300">
-          こちら
-        </Link>
-        <span>からホームに戻ることが出来ます)</span>
-      </p>
-    </div>
+    <HaveNoAuthToEdit />
   );
 };
 

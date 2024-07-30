@@ -35,6 +35,20 @@ questions as (
             or is_public = 'true'
         )
         and page_type = 'questions'
+),
+problems as (
+    select *
+    from pages
+    where user_id = $2
+        and (
+            $2 =(
+                select id
+                from users
+                where mail = $1
+            )
+            or is_public = 'true'
+        )
+        and page_type = 'problems'
 )
 select json_build_object(
         'me',
@@ -56,5 +70,10 @@ select json_build_object(
         (
             select json_agg(questions)
             from questions
+        ),
+        'problems',
+        (
+            select json_agg(problems)
+            from problems
         )
     ) as result;

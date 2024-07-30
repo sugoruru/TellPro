@@ -46,6 +46,8 @@ export async function GET(req: NextRequest) {
     cacheFilePath = path.resolve(`/tmp/cache/pageNewArrival.json`);
   } else if (pageType === "questions") {
     cacheFilePath = path.resolve(`/tmp/cache/questionNewArrival.json`);
+  } else if (pageType === "problems") {
+    cacheFilePath = path.resolve(`/tmp/cache/problemsNewArrival.json`);
   }
   if (!fs.existsSync('/tmp/cache')) {
     fs.mkdirSync('/tmp/cache');

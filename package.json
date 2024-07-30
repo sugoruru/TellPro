@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.18",
+    "@headlessui/react": "^1.7.19",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.4",
     "@types/pg-promise": "^5.4.3",
