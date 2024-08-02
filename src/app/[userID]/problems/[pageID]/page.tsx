@@ -10,7 +10,7 @@ export const generateMetadata = async ({ params }: { params: { userID: string; p
       title: `@${params.userID}｜TellPro`,
       siteName: "TellPro",
       type: "article",
-      description: "TellProの問題ページです。",
+      description: "TellProの問題集ページです。",
       images: {
         url: user.ok
           ? `${process.env.NEXT_PUBLIC_TRUTH_URL}/api/og?OGPType=user&userID=${params.userID}&userStatusMessage=${user.user.status_message}&userIcon=${user.user.icon}`
