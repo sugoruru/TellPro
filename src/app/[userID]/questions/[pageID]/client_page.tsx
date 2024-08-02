@@ -132,7 +132,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
     } else {
       document.title = "ページが存在しません｜TellPro";
     }
-  }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
+  }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title, searchParams]);
 
   const handleSwitchClosed = async () => {
     if (me.id !== params.userID) return;

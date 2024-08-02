@@ -3,7 +3,7 @@ import { FaTag } from "react-icons/fa6";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { useTagsContext } from "../../hooks/tagsContext";
 
-const TagsInput = memo(() => {
+const TagsInput = memo(function TagsInputMemo() {
   const { tagSearchValue, handleSetTagValue, tags, handleTagClick } = useTagsContext();
 
   return (

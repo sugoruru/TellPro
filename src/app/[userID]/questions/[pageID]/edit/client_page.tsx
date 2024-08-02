@@ -53,7 +53,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
-  }, [router, params.pageID]);
+  }, [router, params.pageID, setTagSearchValue]);
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status, router, params.pageID, params.userID]);
+  }, [status, router, params.pageID, params.userID, setTagSearchValue]);
 
   useEffect(() => {
     if (status == "loading" || !existUser) {

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page({ params }: { params: { userID: string; questionID: string } }) {
+export default function Page({ params }: { params: { userID: string; pageID: string } }) {
   return (
     <>
       <MakeNewQuestion params={params} />

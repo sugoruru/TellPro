@@ -23,7 +23,9 @@ interface MakeProblemsProps {
   };
 }
 
-const CompSitesListboxMemo = memo((props: CompSitesListboxProps) => <CompSitesListbox {...props} />);
+const CompSitesListboxMemo = memo(function CompSitesListboxDisplayName(props: CompSitesListboxProps) {
+  return <CompSitesListbox {...props} />;
+});
 
 const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
   const { status } = useSession();
@@ -51,7 +53,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
-  }, [router, params.pageID]);
+  }, [router, params.pageID, setTagSearchValue]);
 
   const handleProblemButtonClick = async () => {
     setIsSending(true);

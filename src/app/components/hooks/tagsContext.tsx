@@ -18,15 +18,18 @@ export const TagsProvider = ({ children }: { children: React.ReactNode }) => {
     if (e.target.value.split(" ").length > 5) return;
     setTagSearchValue(e.target.value);
   }, []);
-  const handleTagClick = useCallback((tagName: string) => {
-    setTagSearchValue((prevValue) => {
-      const newTagSearchValue = prevValue.split(" ");
-      newTagSearchValue.pop();
-      newTagSearchValue.push(tagName);
-      setTags([]);
-      return newTagSearchValue.join(" ") + " ";
-    });
-  }, []);
+  const handleTagClick = useCallback(
+    (tagName: string) => {
+      setTagSearchValue((prevValue) => {
+        const newTagSearchValue = prevValue.split(" ");
+        newTagSearchValue.pop();
+        newTagSearchValue.push(tagName);
+        setTags([]);
+        return newTagSearchValue.join(" ") + " ";
+      });
+    },
+    [setTags]
+  );
   const handleSetIsOpenTagEditor = useCallback((value: boolean) => {
     setIsOpenTagEditor(value);
   }, []);

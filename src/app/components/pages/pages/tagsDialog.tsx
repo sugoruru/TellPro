@@ -1,10 +1,10 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import TagsInput from "./tagsInput";
 import { useTagsContext } from "../../hooks/tagsContext";
 
-const TagsDialog = memo(() => {
+const TagsDialog = memo(function TagsDialogMemo() {
   const { isOpenTagEditor, handleSetIsOpenTagEditor } = useTagsContext();
   const handleClose = () => {
     handleSetIsOpenTagEditor(false);

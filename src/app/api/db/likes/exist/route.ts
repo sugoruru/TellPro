@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
   }
 
   // pageTypeが正しいか確認する.
-  if (pageTypes.indexOf(pageType) === -1) {
+  if (!(pageType in pageTypes)) {
     return NextResponse.json({ ok: false, error: "Invalid pageType" }, { status: 400 });
   }
 
