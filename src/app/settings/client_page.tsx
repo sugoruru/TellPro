@@ -69,14 +69,14 @@ export default function Settings() {
       return;
     }
     if (atCoderID !== "") {
-      if (!/^[a-z0-9]{3,16}$/.test(atCoderID)) {
+      if (!/^[a-zA-Z0-9_]{3,16}$/.test(atCoderID)) {
         setStateMessage("AtCoderIDが正しく入力されていません");
         setIsSending(false);
         return;
       }
     }
     if (codeForcesID !== "") {
-      if (!/^[a-z0-9_]{3,24}$/.test(codeForcesID)) {
+      if (!/^[a-zA-Z0-9_]{3,24}$/.test(codeForcesID)) {
         setStateMessage("CodeForcesIDが正しく入力されていません");
         setIsSending(false);
         return;
