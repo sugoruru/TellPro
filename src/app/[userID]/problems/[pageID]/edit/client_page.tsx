@@ -23,11 +23,7 @@ interface MakeProblemsProps {
   };
 }
 
-const CompSitesListboxMemo = memo(
-  (props: { id: string; defaultProblem: [SiteName, string]; handleSetProblem: (id: string, site: SiteName, value: string) => void; handleDeleteInput: (id: string) => void }) => (
-    <CompSitesListbox {...props} />
-  )
-);
+const CompSitesListboxMemo = memo((props: CompSitesListboxProps) => <CompSitesListbox {...props} />);
 
 const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
   const { status } = useSession();
@@ -40,6 +36,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
   const [description, setDescription] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState<string>("");
   const [problems, setProblems] = useState<Map<string, Problem>>(new Map());
+  const [gotTitle, setGotTitle] = useState<Map<string, gotTitle>>(new Map());
   const [defaultProblems, setDefaultProblems] = useState<Map<string, Problem>>(new Map());
   const router = useRouter();
   const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
@@ -55,6 +52,48 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
     };
   }, [router, params.pageID]);
+
+  const handleProblemButtonClick = async () => {
+    setIsSending(true);
+    const res = await axios.post("/api/problems/getTitle", { data: Array.from(problems.entries()) });
+    const problemTitleData = res.data.data as [string, { title: string; err: boolean }][];
+    let allCorrect = true;
+    // errがtrueの場合は、その問題のタイトルが取得できなかったことを示す.
+    for (const [id, { err }] of problemTitleData) {
+      if (err) {
+        allCorrect = false;
+        setGotTitle((prev) => {
+          const newGotTitle = new Map(prev);
+          newGotTitle.set(id, "notGot");
+          return newGotTitle;
+        });
+      } else {
+        setGotTitle((prev) => {
+          const newGotTitle = new Map(prev);
+          newGotTitle.set(id, "got");
+          return newGotTitle;
+        });
+      }
+    }
+    if (!allCorrect) {
+      setIsSending(false);
+      setSendingMessage("すべての問題のタイトルを取得できませんでした");
+      return;
+    }
+    handleProblemUpload({
+      setIsSending,
+      setSendingMessage,
+      title,
+      description,
+      problems,
+      problemTitleData,
+      tagSearchValue,
+      isPublic,
+      isPageExist,
+      params,
+      router,
+    });
+  };
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
@@ -81,7 +120,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
                   setDescription(content.description);
                   const nwMap = new Map<string, Problem>();
                   content.problems.forEach((e) => {
-                    nwMap.set(e[0], e[1]);
+                    nwMap.set(e[0], { site: e[1].site, value: e[1].value, isInputValid: true });
                   });
                   setDefaultProblems(nwMap);
                   setProblems(nwMap);
@@ -114,10 +153,10 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
     }
   }, [existUser, canEdit, title, status]);
 
-  const handleSetProblem = useCallback((id: string, site: SiteName, value: string) => {
+  const handleSetProblem = useCallback((id: string, site: SiteName, value: string, isInputValid: boolean) => {
     setProblems((prev) => {
       const newProblems = new Map(prev);
-      newProblems.set(id, { site, value });
+      newProblems.set(id, { site, value, isInputValid });
       return newProblems;
     });
   }, []);
@@ -189,13 +228,14 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
       </div>
       {/* Problems */}
       <div className="mx-auto mb-8 max-w-screen-md">
-        <b>問題(残り: {100 - problems.size}/100)</b>
+        <b>問題(残り: {10 - problems.size}/10)</b>
         <div>
           {Array.from(problems.keys()).map((id) => (
             <div key={id} className="flex">
               <CompSitesListboxMemo
                 id={id}
                 defaultProblem={[defaultProblems.get(id)?.site ?? "AtCoder", defaultProblems.get(id)?.value ?? ""]}
+                gotTitle={gotTitle.get(id) ?? "notYet"}
                 handleDeleteInput={handleDeleteInput}
                 handleSetProblem={handleSetProblem}
               />
@@ -206,12 +246,12 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
           onClick={() => {
             setProblems((prev) => {
               const newProblems = new Map(prev);
-              newProblems.set(returnRandomString(64), { site: "AtCoder", value: "" });
+              newProblems.set(returnRandomString(64), { site: "AtCoder", value: "", isInputValid: false });
               return newProblems;
             });
           }}
-          disabled={problems.size >= 100}
-          className="flex bg-green-500 transition hover:bg-green-600 text-white px-5 py-2 mt-2 mb-5 rounded"
+          disabled={problems.size >= 10}
+          className="flex bg-green-500 transition hover:bg-green-600 text-white px-5 py-2 mt-2 mb-5 rounded disabled:hidden"
         >
           <IoMdAddCircleOutline className="my-auto" />
           <b className="ml-2">追加</b>
@@ -222,25 +262,14 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
         <button
           disabled={isSending}
           onClick={() => {
-            handleProblemUpload({
-              setIsSending,
-              setSendingMessage,
-              title,
-              description,
-              problems,
-              tagSearchValue,
-              isPublic,
-              isPageExist,
-              params,
-              router,
-            });
+            handleProblemButtonClick();
           }}
           className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white font-bold py-1 px-4 rounded-l border-r"
         >
           {isPublic ? "公開する" : "下書き"}
         </button>
-        <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-r border-l flex align-middle">
-          <Menu.Button>
+        <Menu as="div" className="font-bold flex align-middle">
+          <Menu.Button disabled={isSending} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 text-white rounded-r border-l">
             <div className="py-1 px-2">
               <MdKeyboardArrowDown className="text-xl" />
             </div>

@@ -203,7 +203,7 @@ const SendComment = (props: {
                     <></>
                   )}
                 </div>
-                <div>{Lex({ text: e.content })}</div>
+                <div className="w-full break-words">{Lex({ text: e.content })}</div>
                 {
                   <div className={`text-center flex`}>
                     <button

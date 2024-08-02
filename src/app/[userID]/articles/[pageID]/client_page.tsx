@@ -21,6 +21,8 @@ import { handleCommentGood } from "@/modules/handle/handleCommentGood";
 import { handleCommentUpload } from "@/modules/handle/handleCommentUpload";
 import { handleCommentDelete } from "@/modules/handle/handleCommentDelete";
 import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
+import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
+import { pageContentSize } from "@/modules/other/uiOptions";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -50,6 +52,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { width } = useGetWindowSize();
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -143,7 +146,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
         </div>
         <PageTags tags={page.tags} />
         <PageUser userID={params.userID} userIcon={userIcon} />
-        <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
+        <div className={`bg-white mx-auto my-3 p-5 rounded`} style={{ maxWidth: `${Math.floor(width * pageContentSize)}px` }}>
           {content}
           {/* コメント */}
           <SendComment

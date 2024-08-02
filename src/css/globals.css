@@ -16,6 +16,12 @@ caption {
   font-weight: bold;
 }
 
+span[data-testid="react-katex"] {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 thead,
 tfoot {
   background-color: rgb(228 240 245);
@@ -70,7 +76,7 @@ tfoot td {
 span[data-testid="react-katex"] {
   display: inline-block;
   margin-top: 5px;
-  margin-bottom: 5px;
+  margin-bottom: -8px;
 }
 
 nextjs-portal {

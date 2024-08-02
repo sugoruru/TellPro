@@ -1,5 +1,6 @@
 import axios from "axios";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { siteRegex } from "../other/compSitesConstants";
 
 const handleProblemUpload = async (props: {
   setIsSending: React.Dispatch<React.SetStateAction<boolean>>;
@@ -7,6 +8,7 @@ const handleProblemUpload = async (props: {
   title: string;
   description: string;
   problems: Map<string, Problem>;
+  problemTitleData: [string, { title: string; err: boolean }][];
   tagSearchValue: string;
   isPublic: boolean;
   isPageExist: boolean;
@@ -19,13 +21,13 @@ const handleProblemUpload = async (props: {
     title,
     description,
     problems,
+    problemTitleData,
     tagSearchValue,
     isPublic,
     isPageExist,
     params,
     router
   } = props;
-  setIsSending(true);
   setSendingMessage("");
   if (title === "") {
     setSendingMessage("タイトルを入力してください");
@@ -51,10 +53,24 @@ const handleProblemUpload = async (props: {
     setIsSending(false);
     return;
   }
-  const _problems = Array.from(problems.entries());
+  const problemsArray = Array.from(problems.entries());
+  let isInvalid = true;
+  for (const [_site, value] of problemsArray) {
+    if (!siteRegex[value.site].test(value.value) || !value.isInputValid) {
+      isInvalid = false;
+      break;
+    }
+  }
+  if (!isInvalid) {
+    setSendingMessage("問題が正しく入力されていません");
+    alert("問題が正しく入力されていません");
+    setIsSending(false);
+    return;
+  }
   const json = {
     description: description,
-    problems: _problems
+    problems: problemsArray,
+    titleData: problemTitleData,
   }
   const mdAreaValue = JSON.stringify(json);
   if (isPageExist) {

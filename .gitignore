@@ -18,3 +18,5 @@ yarn-error.log*
 next-env.d.ts
 *.local.*
 certificates
+problems-server/node_modules
+image-server/node_modules

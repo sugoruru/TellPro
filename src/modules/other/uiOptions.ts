@@ -1,0 +1,1 @@
+export const pageContentSize = 3.5 / 5;

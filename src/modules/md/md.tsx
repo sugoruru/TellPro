@@ -213,7 +213,11 @@ const Lex = (props: { text: string }) => {
         // 数式→テキスト→数式→テキスト→数式→...という構造になっている.
         for (let i = 0; i < text_array.length; i++) {
           if (i % 2 === 0) {
-            result.push(<InlineMath math={text_array[i]} key={returnRandomString(64)} />);
+            result.push(
+              <span className="inline-block" style={{ maxWidth: "100%" }} key={returnRandomString(64)}>
+                <InlineMath math={text_array[i]} />
+              </span>
+            );
           } else {
             result.push(
               <span className="text-base text-gray-800" key={returnRandomString(64)}>

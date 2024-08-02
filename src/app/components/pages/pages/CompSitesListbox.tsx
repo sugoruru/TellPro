@@ -1,49 +1,17 @@
 "use client";
 import { Listbox } from "@headlessui/react";
 import { GoTriangleDown } from "react-icons/go";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import React, { useState, useCallback } from "react";
+import { sitePlaceholder, sites, siteImg, siteRegex } from "@/modules/other/compSitesConstants";
 
-interface CompSitesListboxProps {
-  id: string;
-  defaultProblem: [SiteName, string];
-  handleSetProblem: (id: string, site: SiteName, value: string) => void;
-  handleDeleteInput: (id: string) => void;
-}
-
-const sites = [
-  { id: 1, name: "AtCoder" },
-  { id: 2, name: "Codeforces" },
-  { id: 3, name: "yukicoder" },
-  { id: 4, name: "AOJ" },
-  { id: 5, name: "MojaCoder" },
-] as { id: number; name: SiteName }[];
-
-const siteImg = {
-  AtCoder: "/svg/atcoder.png",
-  Codeforces: "/svg/codeforces.svg",
-  yukicoder: "/svg/yukicoder.png",
-  AOJ: "/svg/aoj.png",
-  MojaCoder: "/svg/mojacoder.svg",
-  "": "",
-};
-
-const sitePlaceholder = {
-  AtCoder: "contestID/tasks/problemID",
-  Codeforces: "contestID/problem/problemID",
-  yukicoder: "problemID",
-  AOJ: "problemID",
-  MojaCoder: "userID/problems/problemID",
-  "": "",
-};
-
-const CompSitesListbox: React.FC<CompSitesListboxProps> = ({ id, defaultProblem, handleSetProblem, handleDeleteInput }) => {
-  const [problemData, setProblemData] = useState<Problem>({ site: defaultProblem[0], value: defaultProblem[1] });
+const CompSitesListbox: React.FC<CompSitesListboxProps> = ({ id, defaultProblem, gotTitle, handleSetProblem, handleDeleteInput }) => {
+  const [problemData, setProblemData] = useState<Problem>({ site: defaultProblem[0], value: defaultProblem[1], isInputValid: false });
 
   const handleChange = useCallback(
     (site: SiteName) => {
-      setProblemData((prev) => ({ site, value: prev.value }));
-      handleSetProblem(id, site, problemData.value);
+      setProblemData((prev) => ({ site, value: prev.value, isInputValid: siteRegex[site].test(prev.value) }));
+      handleSetProblem(id, site, problemData.value, siteRegex[site].test(problemData.value));
     },
     [id, problemData.value, handleSetProblem]
   );
@@ -51,8 +19,8 @@ const CompSitesListbox: React.FC<CompSitesListboxProps> = ({ id, defaultProblem,
   const handleValueChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      setProblemData((prev) => ({ site: prev.site, value }));
-      handleSetProblem(id, problemData.site, value);
+      setProblemData((prev) => ({ site: prev.site, value, isInputValid: siteRegex[prev.site].test(value) }));
+      handleSetProblem(id, problemData.site, value, siteRegex[problemData.site].test(value));
     },
     [id, problemData.site, handleSetProblem]
   );
@@ -84,6 +52,9 @@ const CompSitesListbox: React.FC<CompSitesListboxProps> = ({ id, defaultProblem,
         value={problemData.value}
         className="w-96 ml-5 rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
       />
+      <div className={`flex justify-center transition h-full w-10 ml-5 rounded ${gotTitle === "got" ? "bg-green-400" : gotTitle === "notGot" ? "bg-red-400" : "bg-gray-400"}`}>
+        {gotTitle === "got" ? <FaCheck className="text-2xl my-auto text-white" /> : gotTitle === "notGot" ? <FaTimes className="text-2xl my-auto text-white" /> : <></>}
+      </div>
       <button onClick={() => handleDeleteInput(id)} className="bg-red-600 flex justify-center hover:bg-red-700 transition h-full w-10 ml-5 rounded">
         <FaTrash className="text-2xl my-auto text-white" />
       </button>
