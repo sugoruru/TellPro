@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/user.sql", "utf-8");
     _res = await db.one(sql, [session.user.email, userID]);
   }
-  let __res: { me: UserPublic[], user: UserPublic[], articles: Page[], questions: Page[] } = _res.result;
-  let result: { me: UserPublic | null, user: UserPublic | null, articles: Page[], questions: Page[] } = _res.result;
+  let __res: { me: UserPublic[], user: UserPublic[], articles: Page[], questions: Page[], problems: Page[] } = _res.result;
+  let result: { me: UserPublic | null, user: UserPublic | null, articles: Page[], questions: Page[], problems: Page[] } = _res.result;
   if (__res.user) {
     if (__res.user.length === 1) {
       delete (__res.user[0] as any).mail;
@@ -74,6 +74,9 @@ export async function GET(req: NextRequest) {
   }
   if (!result.questions) {
     result.questions = [];
+  }
+  if (!result.problems) {
+    result.problems = [];
   }
   const res = NextResponse.json({ ok: true, data: result }, { status: 200 });
   return res;

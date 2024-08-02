@@ -76,6 +76,7 @@ const ProposalPage = () => {
           </label>
           <textarea
             id="opinion"
+            maxLength={10000}
             placeholder="ご意見をお願いします"
             className="focus:ring transition duration-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-40"
           ></textarea>
