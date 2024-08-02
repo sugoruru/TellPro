@@ -17,7 +17,7 @@ const PageMenu = (props: {
   userID: string;
   pageID: string;
   me: UserPublic;
-  pageType: "articles" | "questions";
+  pageType: string;
 }) => {
   return (
     <>

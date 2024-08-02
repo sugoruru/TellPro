@@ -33,3 +33,19 @@ export const siteRegex = {
   "": /^$/,
 };
 
+export const siteURL = (site: SiteName, id: string) => {
+  switch (site) {
+    case "AtCoder":
+      return `https://atcoder.jp/contests/${id}`;
+    case "Codeforces":
+      return `https://codeforces.com/contest/${id}`;
+    case "yukicoder":
+      return `https://yukicoder.me/problems/no/${id}`;
+    case "AOJ":
+      return `https://onlinejudge.u-aizu.ac.jp/services/ice/?problemId=${id}`;
+    case "MojaCoder":
+      return `https://mojacoder.app/users/${id}`;
+    default:
+      return "";
+  }
+}
