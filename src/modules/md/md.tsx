@@ -269,7 +269,7 @@ const Text = (text: string): JSX.Element => {
     output = output.replace(/\`([^*]+?)\`/g, "<inline>$1</inline>"); // inline
     return <span dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
   };
-
+  
   return decorateText(text);
 };
 

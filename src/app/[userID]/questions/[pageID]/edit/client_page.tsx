@@ -279,7 +279,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
           <div className="text-center text-4xl font-bold text-gray-700 my-5">{title === "" ? "untitled" : title}</div>
           <div className="text-center text-base font-bold text-gray-700">公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="flex justify-center">
-            <div className="mt-2 px-1 flex-wrap">
+            <div className="mt-2 px-1 flex-wrap flex">
               {tagSearchValue.split(" ").map((e) =>
                 e === "" ? (
                   <Fragment key={returnRandomString(32)}></Fragment>

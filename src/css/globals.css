@@ -75,7 +75,6 @@ tfoot td {
 
 span[data-testid="react-katex"] {
   display: inline-block;
-  margin-top: 5px;
   margin-bottom: -8px;
 }
 
@@ -146,13 +145,13 @@ img[src=""] {
 dd {
   margin-bottom: 0.5rem;
   margin-left: 1.2rem;
-  display: inline;
+  word-break: break-all;
 }
 
 dt {
   font-weight: bold;
   margin-top: 0.5rem;
-  display: inline;
+  word-break: break-all;
 }
 
 .nonLocation {
