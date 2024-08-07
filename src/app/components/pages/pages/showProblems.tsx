@@ -1,6 +1,7 @@
 "use client";
 import { siteImg, siteURL } from "@/modules/other/compSitesConstants";
 import Link from "next/link";
+import Lex from "@/modules/md/md";
 
 const ShowProblems = (props: { data: ProblemJSON }) => {
   const { data } = props;
@@ -12,13 +13,13 @@ const ShowProblems = (props: { data: ProblemJSON }) => {
     <div className="text-gray-800 mb-5">
       <div className="mb-5">
         <p className="text-2xl font-semibold"># 説明</p>
-        <p className="text-lg">{data.description}</p>
+        <p className="text-lg">{Lex({ text: data.description })}</p>
       </div>
       <div>
         <p className="text-2xl font-semibold"># 問題集</p>
         {data.problems.map((e) => (
           <div key={e[0]} className="flex my-1">
-            <img src={siteImg[e[1].site]} alt="" width={30} className="mr-3" />
+            <img src={siteImg[e[1].site]} alt="" width={30} height={30} className="mr-3 h-8 w-8 my-auto" />
             <Link href={siteURL(e[1].site, e[1].value)} target="_blank" className="myLink my-auto">
               {titleData.get(e[0]) ?? ""}
             </Link>

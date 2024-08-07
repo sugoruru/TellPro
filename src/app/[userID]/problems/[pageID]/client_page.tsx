@@ -1,5 +1,4 @@
 "use client";
-import Lex from "@/modules/md/md";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
@@ -84,7 +83,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
         if (page.isExist && page.page && page.pageUser) {
           setPage(page.page);
           const problemsData = JSON.parse(page.page.content) as ProblemJSON;
-          setContent(<ShowProblems data={problemsData}/>);
+          setContent(<ShowProblems data={problemsData} />);
           setUserIcon(page.pageUser.icon || "");
           setMe(page.me || ({ id: "" } as UserPublic));
           if (page.me) setIsLogin(true);
