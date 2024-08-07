@@ -3,13 +3,14 @@ import PageLinkBlock from "@/app/components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { PageList } from "@/types/page";
 import { UserPublic } from "@/types/user";
+import { UserContext } from "@/app/components/providers/userProvider";
 
 // 検索ページ.
 export default function SearchPage({ params }: { params: { tag: string } }) {
-  const route = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const page = searchParams.get("page");
   const [tag, setTag] = useState<TagData | null>(null);
@@ -18,6 +19,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   const [problems, setProblems] = useState<PageList[]>([]);
   const [navPlace, setNavPlace] = useState("pages");
   const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
+  const headerData = useContext(UserContext);
 
   useEffect(() => {
     document.title = "Tag｜TellPro";
@@ -29,7 +31,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
       if (page === null) {
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
-        route.replace(`/search/${params.tag}?page=1`);
+        router.replace(`/search/${params.tag}?page=1`);
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else {
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=${page}`);
@@ -39,18 +41,17 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
       setQuestions(res.data.questions);
       setProblems(res.data.problems);
       setUserMap(res.data.userMap);
-      console.log(res.data.userMap);
     };
     fetcher();
-  }, [page]);
+  }, [router, params.tag, page]);
 
   return (
-    <>
+    <div className="h-full">
       {tag === null ? (
-        <></>
+        <div className="h-full"></div>
       ) : (
         <>
-          <div className="p-5 md:flex sm:block bg-white">
+          <div className={`p-5 md:flex sm:block ${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
             <img alt="" src={tag === undefined ? "/svg/tag.svg" : tag.image === "local" ? "/svg/tag.svg" : tag.image} width={100} height={100} className="md:mx-5" />
             <div>
               <div>
@@ -67,7 +68,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
             <></>
           ) : (
             <>
-              <div className="bg-white">
+              <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
                 <nav className="pl-5 pb-1">
                   <span className={`cursor-pointer px-2 ${navPlace === "pages" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("pages")}>
                     Pages({tag.page_count})
@@ -80,9 +81,9 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                   </span>
                 </nav>
               </div>
-              <div className="bg-slate-100">
+              <div className={`${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-slate-100"}`}>
                 {navPlace === "pages" ? (
-                  <div className="bg-slate-100">
+                  <div className={`${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-slate-100"}`}>
                     {pages.map((page) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={page} pageUser={userMap[page.user_id]} pageType="articles" />
@@ -90,7 +91,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                     ))}
                   </div>
                 ) : navPlace === "questions" ? (
-                  <div className="bg-slate-100">
+                  <div className={`${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-slate-100"}`}>
                     {questions.map((question) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" />
@@ -98,7 +99,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-slate-100">
+                  <div className={`${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-slate-100"}`}>
                     {problems.map((problem) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={problem} pageUser={userMap[problem.user_id]} pageType="problems" />
@@ -111,6 +112,6 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
           )}
         </>
       )}
-    </>
+    </div>
   );
 }

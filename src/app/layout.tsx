@@ -13,6 +13,7 @@ import Footer from "./components/main/footer";
 import Link from "next/link";
 import Script from "next/script";
 import * as gtag from "@/modules/network/gtag";
+import BackGround from "./background";
 
 function wildcardToRegex(pattern: string) {
   return new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
@@ -66,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="bg-slate-100 flex-col flex h-screen" style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
+      <body className={`flex-col flex h-screen`} style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
         <SessionProvider refetchOnWindowFocus={false}>
           <NextTopLoader
             color="#2299DD"
@@ -84,12 +85,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
           <div className="grid h-full">
             <div>
-              <UserProvider>{isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}</UserProvider>
-              <TagsProvider>
-                <Suspense>{<>{children}</>}</Suspense>
-              </TagsProvider>
+              <UserProvider>
+                <BackGround>
+                  {isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}
+                  <TagsProvider>
+                    <Suspense>{<>{children}</>}</Suspense>
+                  </TagsProvider>
+                  {isMatch(pathname, hideFooterPage) ? null : <Footer />}
+                </BackGround>
+              </UserProvider>
             </div>
-            {isMatch(pathname, hideFooterPage) ? null : <Footer />}
           </div>
         </SessionProvider>
       </body>

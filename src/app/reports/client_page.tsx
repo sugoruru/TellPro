@@ -3,11 +3,13 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { UserPublic } from "@/types/user";
 import axios from "axios";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../components/providers/userProvider";
 
 const Reports = () => {
   const [user, setUser] = useState(null as UserPublic | null);
   const [reports, setReports] = useState([] as Report[]);
+  const headerData = useContext(UserContext);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -22,15 +24,15 @@ const Reports = () => {
   }, []);
 
   return (
-    <div>
+    <div className="h-full">
       {!user ? (
-        <>ロード中</>
+        <div className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>ロード中</div>
       ) : user.is_admin ? (
-        <>
+        <div className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>
           <div className="flex justify-center">
             <table>
               <thead>
-                <tr>
+                <tr className="text-black">
                   <th>user_id</th>
                   <th>reported_user_id</th>
                   <th>report_value</th>
@@ -57,9 +59,9 @@ const Reports = () => {
               </tbody>
             </table>
           </div>
-        </>
+        </div>
       ) : (
-        <>Admin以外は閲覧できません</>
+        <div className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>Admin以外は閲覧できません</div>
       )}
     </div>
   );

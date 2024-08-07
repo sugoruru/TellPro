@@ -1,9 +1,10 @@
 import { Page } from "@/types/page";
 import { UserPublic } from "@/types/user";
 import Link from "next/link";
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useContext } from "react";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart, FaSquareXTwitter } from "react-icons/fa6";
 import { MdEditNote } from "react-icons/md";
+import { UserContext } from "../../providers/userProvider";
 
 const PageMenu = (props: {
   handleGoodButton: MouseEventHandler<HTMLButtonElement>;
@@ -19,6 +20,7 @@ const PageMenu = (props: {
   me: UserPublic;
   pageType: string;
 }) => {
+  const headerData = useContext(UserContext);
   return (
     <>
       <div className="fixed right-0 p-1 w-full lg:w-auto bottom-0 bg-slate-100 lg:right-2 lg:bottom-2 lg:bg-inherit">
@@ -32,7 +34,7 @@ const PageMenu = (props: {
             >
               {props.isLike ? <FaHeart className="inline-flex text-sm lg:text-3xl text-red-500" /> : <FaRegHeart className="inline-flex text-sm lg:text-3xl text-red-500" />}
             </button>
-            <b className="ml-1 my-auto">{Number(props.page.like_count)}</b>
+            <b className={`ml-1 my-auto ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>{Number(props.page.like_count)}</b>
           </div>
           <div className="text-center mb-2 lg:mr-2 mx-2">
             <button

@@ -5,7 +5,7 @@ import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { SlNotebook } from "react-icons/sl";
-import { MdAutoDelete, MdReportGmailerrorred } from "react-icons/md";
+import { MdAutoDelete, MdReportGmailerrorred, MdDarkMode, MdLightMode } from "react-icons/md";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, FocusTrap, Menu, Transition } from "@headlessui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -28,17 +28,22 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-white h-20">
+      <div className={`h-20 ${headerData.user.isDarkMode ? "bg-neutral-800" : "bg-white"}`}>
         <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
           <header className="flex items-center justify-between py-4 md:py-4">
-            <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl md:leading-10 leading-10" aria-label="logo" title="TellPro">
+            <Link
+              href="/"
+              className={`inline-flex items-center gap-2.5 text-2xl font-bold md:text-3xl md:leading-10 leading-10 ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}
+              aria-label="logo"
+              title="TellPro"
+            >
               <Image src="/svg/logo.svg" width={30} height={30} alt={""} priority />
               TellPro
             </Link>
             {status == "unauthenticated" ? (
               <div className="flex items-center gap-3">
                 <Link href="/search">
-                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer" />
+                  <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                 </Link>
                 <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)} id="header_login_button">
                   <span className="rounded-lg bg-indigo-500 px-5 py-2 text-center text-xs font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">
@@ -49,7 +54,7 @@ const Header = () => {
             ) : status == "authenticated" && user ? (
               <div className="flex items-center gap-3">
                 <Link href="/search">
-                  <IoSearch className="flex-shrink-0 text-lg cursor-pointer hover:text-3xl" />
+                  <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                 </Link>
                 <Link
                   href="/notifications"
@@ -58,9 +63,9 @@ const Header = () => {
                   }}
                 >
                   {headerData.user.notificationCount > 0 ? (
-                    <IoMailUnread className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
+                    <IoMailUnread className={`flex-shrink-0 text-2xl cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                   ) : (
-                    <IoMail className="flex-shrink-0 text-2xl cursor-pointer hover:text-3xl" />
+                    <IoMail className={`flex-shrink-0 text-2xl cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                   )}
                 </Link>
                 <Menu>
@@ -140,6 +145,35 @@ const Header = () => {
                                 設定
                               </button>
                             </Link>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <div className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} rounded-md`}>
+                              {headerData.user.isDarkMode ? (
+                                <button
+                                  className={`group flex w-full items-center px-2 py-2 text-base`}
+                                  onClick={() => {
+                                    localStorage.setItem("isDarkMode", "false");
+                                    if (headerData.setUser) headerData.setUser({ ...headerData.user, isDarkMode: false });
+                                  }}
+                                >
+                                  <MdLightMode className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  ライトモードに切り替え
+                                </button>
+                              ) : (
+                                <button
+                                  className={`group flex w-full items-center px-2 py-2 text-base`}
+                                  onClick={() => {
+                                    localStorage.setItem("isDarkMode", "true");
+                                    if (headerData.setUser) headerData.setUser({ ...headerData.user, isDarkMode: true });
+                                  }}
+                                >
+                                  <MdDarkMode className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                  ダークモードに切り替え
+                                </button>
+                              )}
+                            </div>
                           )}
                         </Menu.Item>
                         {user.is_admin ? (

@@ -2,12 +2,17 @@
 import sleep from "@/modules/main/sleep";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useGetWindowSize } from "../components/hooks/useGetWindowSize";
+import { pageContentSize } from "@/modules/other/uiOptions";
+import { UserContext } from "../components/providers/userProvider";
 
 const ProposalPage = () => {
   const [message, setMessage] = useState<string>("");
   const [isSending, setIsSending] = useState<boolean>(false);
   const router = useRouter();
+  const { width } = useGetWindowSize();
+  const headerData = useContext(UserContext);
 
   const sendProposal = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,11 +61,11 @@ const ProposalPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">サイト案</h1>
+    <div className="mx-auto p-8" style={{ width: `${Math.floor(width * pageContentSize)}px` }}>
+      <h1 className={`text-3xl font-bold mb-6 ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>サイト案</h1>
       <form onSubmit={sendProposal}>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+          <label className={`block text-sm font-bold mb-2 ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`} htmlFor="title">
             タイトル
           </label>
           <input
@@ -71,7 +76,7 @@ const ProposalPage = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="opinion">
+          <label className={`block text-sm font-bold mb-2 ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`} htmlFor="opinion">
             意見
           </label>
           <textarea

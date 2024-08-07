@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -8,6 +8,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import { PageList } from "@/types/page";
 import { UserPublic } from "@/types/user";
+import { UserContext } from "../components/providers/userProvider";
 
 export default function Bookmark() {
   const { status } = useSession();
@@ -19,6 +20,8 @@ export default function Bookmark() {
   const [articles, setArticles] = useState<PageList[]>([] as PageList[]);
   const [questions, setQuestions] = useState<PageList[]>([] as PageList[]);
   const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
+  const headerData = useContext(UserContext);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       setIsLoading(false);
@@ -75,10 +78,10 @@ export default function Bookmark() {
   }, [isLoading, isLogin]);
 
   return isLoading ? (
-    <></>
+    <div className="h-full"></div>
   ) : isLogin ? (
-    <>
-      <div className="bg-white">
+    <div className="h-full">
+      <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
         <nav className="pl-5 pb-[5.5px]">
           <span className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
             Articles
@@ -88,11 +91,11 @@ export default function Bookmark() {
           </span>
         </nav>
       </div>
-      <div className="bg-slate-100">
+      <div>
         {isBookmarkLoading ? (
           navPlace === "articles" ? (
             articles.length === 0 ? (
-              <p className="mt-4 text-center">記事のブックマークは存在しません</p>
+              <p className={`mt-4 text-center ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>記事のブックマークは存在しません</p>
             ) : (
               <div>
                 {articles.map((article) => (
@@ -103,7 +106,7 @@ export default function Bookmark() {
               </div>
             )
           ) : questions.length === 0 ? (
-            <p className="mt-4 text-center">質問のブックマークは存在しません</p>
+            <p className={`mt-4 text-center ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>質問のブックマークは存在しません</p>
           ) : (
             <div>
               {questions.map((question) => (
@@ -114,12 +117,12 @@ export default function Bookmark() {
             </div>
           )
         ) : (
-          <></>
+          <div className="h-full"></div>
         )}
       </div>
-    </>
+    </div>
   ) : (
-    <>
+    <div className="h-full">
       <div className="h-full bg-slate-100 text-center text-2xl font-black text-gray-600 py-10">
         <div className="flex justify-center">
           <BsExclamationCircle className="text-green-500 text-6xl" />
@@ -133,6 +136,6 @@ export default function Bookmark() {
           <span>からホームに戻ることが出来ます)</span>
         </p>
       </div>
-    </>
+    </div>
   );
 }

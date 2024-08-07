@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors";
 import { max } from "@/modules/algo/max_min";
 import { UserPublic } from "@/types/user";
+import { UserContext } from "../components/providers/userProvider";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,8 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const [codeforcesRatingColor, setCodeforcesRatingColor] = useState("#000000");
   const [atcoderRatingColor, setAtcoderRatingColor] = useState("#000000");
   const router = useRouter();
-  let isFetched = false;
+  const headerData = useContext(UserContext);
+  const isFetched = useRef(false);
 
   const canSendReportChecker = () => {
     if (me) {
@@ -54,8 +56,8 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   useEffect(() => {
     try {
       const fetcher = async () => {
-        if (isFetched) return;
-        isFetched = true;
+        if (isFetched.current) return;
+        isFetched.current = true;
         const res = await axios.get(`/api/pages/user?userID=${params.userID}`);
         if (res.data.ok) {
           if (res.data.data.user) {
@@ -170,11 +172,11 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   };
 
   return isLoading ? (
-    <></>
+    <div className="h-full"></div>
   ) : isExist ? (
     <>
       <div className="mb-2">
-        <div className="bg-white">
+        <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
           <div className="p-5 md:flex sm:block">
             <img alt={pageUser.username} src={pageUser.icon} width={100} height={100} className="md:mx-5 w-24 h-24" />
             <div className="flex mt-3 md:mt-0">
@@ -225,7 +227,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                   <></>
                 ) : (
                   <div className="flex mb-1">
-                    <img src="/svg/atcoder.png" alt="atcoder:" width={25} height={25} />
+                    <img src={`${headerData.user.isDarkMode ? "/svg/atcoder_logo_white.png" : "/svg/atcoder.png"}`} alt="atcoder:" width={25} height={25} />
                     <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
                       {pageUser.atcoder_id}
                     </Link>
@@ -254,7 +256,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
               </div>
             </div>
           </div>
-          <div className="bg-white">
+          <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
             <nav className="pl-5 pb-1">
               <span className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
                 Articles
@@ -339,12 +341,12 @@ export default function UserPage({ params }: { params: { userID: string } }) {
             </div>
           </Dialog>
         </Transition>
-        <div className="bg-slate-100">
+        <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
           {navPlace === "articles" ? (
             pages.length === 0 ? (
               <div className="m-5">記事はありません</div>
             ) : (
-              <div className="bg-slate-100">
+              <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
                 {pages.map((page) => (
                   <div key={returnRandomString(32)}>
                     <PageLinkBlock page={page} pageUser={pageUser} pageType="articles" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
@@ -356,7 +358,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
             questions.length === 0 ? (
               <div className="m-5">質問はありません</div>
             ) : (
-              <div className="bg-slate-100">
+              <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
                 {questions.map((question) => (
                   <div key={returnRandomString(32)}>
                     <PageLinkBlock page={question} pageUser={pageUser} pageType="questions" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
@@ -367,7 +369,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           ) : problems.length === 0 ? (
             <div className="m-5">問題集はありません</div>
           ) : (
-            <div className="bg-slate-100">
+            <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
               {problems.map((problem) => (
                 <div key={returnRandomString(32)}>
                   <PageLinkBlock page={problem} pageUser={pageUser} pageType="problems" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />

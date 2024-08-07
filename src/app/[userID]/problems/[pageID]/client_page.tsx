@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DeleteCommentModal from "@/app/components/pages/comments/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/pages/comments/updateCommentModal";
 import { Page } from "@/types/page";
@@ -23,6 +23,7 @@ import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { pageContentSize } from "@/modules/other/uiOptions";
 import ShowProblems from "@/app/components/pages/pages/showProblems";
+import { UserContext } from "@/app/components/providers/userProvider";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -53,6 +54,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
   const router = useRouter();
   const searchParams = useSearchParams();
   const { width } = useGetWindowSize();
+  const headerData = useContext(UserContext);
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -131,15 +133,15 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     } else {
       document.title = "ページが存在しません｜TellPro";
     }
-  }, [isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
+  }, [searchParams, isAllLoaded, isExist, me.id, page.is_public, params.userID, page.title]);
 
   return !isAllLoaded ? (
-    <></>
+    <div className="h-full"></div>
   ) : isExist ? (
     me.id === params.userID || page.is_public ? (
       <div className="w-[calc(100vw-calc(100vw-100%))]">
-        <div className="text-center text-4xl font-bold text-gray-700 my-5">{page.title === "" ? "untitled" : page.title}</div>
-        <div className="text-center text-base font-bold text-gray-700">公開日時:{page.date.split("T")[0]}</div>
+        <div className={`text-center text-4xl font-bold my-5 ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>{page.title === "" ? "untitled" : page.title}</div>
+        <div className={`text-center text-base font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>公開日時:{page.date.split("T")[0]}</div>
         <div className="flex justify-center">
           <div className={`${page.is_public ? (page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block`}>
             {page.is_public ? (page.is_closed ? "クローズ" : "公開") : "非公開"}
@@ -269,7 +271,7 @@ export default function Articles({ params }: { params: { userID: string; pageID:
       // ページが非公開の時.
       <PageNotPublic />
     ) : (
-      <></>
+      <div className="h-full"></div>
     )
   ) : (
     // ページが存在しない時.

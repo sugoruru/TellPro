@@ -3,10 +3,11 @@ import { handleUserNameChange } from "@/modules/handle/handleUserNameChange";
 import axios from "axios";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import { UserPublic } from "@/types/user";
+import { UserContext } from "../components/providers/userProvider";
 
 export default function Settings() {
   const { data: session, status } = useSession();
@@ -25,6 +26,7 @@ export default function Settings() {
   const [codeForcesID, setCodeForcesID] = useState("");
   const [xID, setXID] = useState("");
   const router = useRouter();
+  const headerData = useContext(UserContext);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -167,16 +169,16 @@ export default function Settings() {
   return (
     <>
       {isSignIn && existUser ? (
-        <div className="bg-white py-6">
+        <div className={`py-6 ${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-white"}`}>
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="mb-10 md:mb-16">
-              <h2 className="text-center text-2xl font-bold text-gray-800 lg:text-3xl">Settings</h2>
-              <h4 className="text-center font-bold text-gray-800">(ヘッダーロゴを押すとホームに戻れます)</h4>
+              <h2 className={`text-center text-2xl font-bold lg:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>Settings</h2>
+              <h4 className={`text-center font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>(ヘッダーロゴを押すとホームに戻れます)</h4>
             </div>
-            <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl">アカウント設定</div>
+            <div className={`mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>アカウント設定</div>
             <div className="mx-auto mb-8 grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label htmlFor="userName_tellPro" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="userName_tellPro" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
                   ユーザー名
                   <p className="text-red-500">{userNameErrorMessage}</p>
                 </label>
@@ -193,7 +195,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="AtCoder_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="AtCoder_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
                   AtCoderID
                 </label>
                 <input
@@ -208,7 +210,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="CodeForces_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="CodeForces_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
                   CodeForcesID
                 </label>
                 <input
@@ -223,7 +225,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="X_ID" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+                <label htmlFor="X_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
                   X(旧Twitter)ID
                 </label>
                 <div className="flex">
@@ -261,7 +263,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="my-auto mx-5 text-center">
-                  <span>preview</span>
+                  <span className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>preview</span>
                   <img src={selectedImage == "" ? user!.icon : selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "80px", height: "80px" }} alt={""} />
                 </div>
               </div>
@@ -298,7 +300,7 @@ export default function Settings() {
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mt-5 font-bold text-2xl text-red-600">アカウント削除設定</div>
             <div className="mx-auto max-w-screen-md gap-10 sm:grid-cols-2 w-full">
               <div className="h-64 w-full">
-                <p className="text-xl my-2 font-bold">削除したアカウントはもとに戻すことができません！！</p>
+                <p className={`text-xl my-2 font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>削除したアカウントはもとに戻すことができません！！</p>
                 <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mb-5">
                   <div className="flex items-center justify-between sm:col-span-2">
                     <button
@@ -308,7 +310,7 @@ export default function Settings() {
                     >
                       アカウントを削除する
                     </button>
-                    <p>{deleteAccountStateMessage}</p>
+                    <p className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>{deleteAccountStateMessage}</p>
                   </div>
                 </div>
               </div>
@@ -316,7 +318,7 @@ export default function Settings() {
           </div>
         </div>
       ) : (
-        <></>
+        <div className="h-full"></div>
       )}
     </>
   );

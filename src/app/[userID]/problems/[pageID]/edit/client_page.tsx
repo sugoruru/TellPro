@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, memo, Fragment } from "react";
+import React, { useEffect, useState, useCallback, memo, Fragment, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
 import { signOut, useSession } from "next-auth/react";
@@ -15,6 +15,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import handleProblemUpload from "@/modules/handle/handleProblemUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
+import { UserContext } from "@/app/components/providers/userProvider";
 
 interface MakeProblemsProps {
   params: {
@@ -42,6 +43,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
   const [defaultProblems, setDefaultProblems] = useState<Map<string, Problem>>(new Map());
   const router = useRouter();
   const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
+  const headerData = useContext(UserContext);
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -143,7 +145,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
     } else if (status === "unauthenticated") {
       router.replace("/");
     }
-  }, [status]);
+  }, [params.pageID, params.userID, router, setTagSearchValue, status]);
 
   useEffect(() => {
     if (status === "loading" || !existUser) {
@@ -173,13 +175,13 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
 
   return status == "loading" || !existUser ? (
     // ロード中またはユーザーが存在しない場合.
-    <></>
+    <div className="h-full"></div>
   ) : canEdit ? (
     <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
-      <h1 className="text-2xl text-center mt-3 font-bold">問題集の編集</h1>
+      <h1 className={`text-2xl text-center mt-3 font-bold ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>問題集の編集</h1>
       {/* Title input */}
       <div className="mx-auto mb-8 max-w-screen-md">
-        <label htmlFor="title" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+        <label htmlFor="title" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>
           タイトル(残り: {title.length}/50)
         </label>
         <input
@@ -194,7 +196,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
       </div>
       {/* Description input */}
       <div className="mx-auto mb-8 max-w-screen-md">
-        <label htmlFor="description" className="mb-2 font-bold inline-block text-sm text-gray-800 sm:text-base">
+        <label htmlFor="description" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>
           説明(残り: {description.length}/1000)
         </label>
         <textarea
@@ -202,12 +204,12 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
           maxLength={1000}
           id="description"
           defaultValue={description}
-          className={`resize-none w-full h-64 rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring`}
+          className={`resize-none w-full h-64 rounded border bg-gray-50 px-3 py-2 outline-none ring-indigo-300 transition duration-100 focus:ring `}
         />
       </div>
       {/* Tag settings */}
       <div className="mx-auto mb-8 max-w-screen-md">
-        <b>タグ(残り: {tagSearchValue === "" ? 5 : 5 - tagSearchValue.trim().split(" ").length}/5)</b>
+        <b className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>タグ(残り: {tagSearchValue === "" ? 5 : 5 - tagSearchValue.trim().split(" ").length}/5)</b>
         <div className="flex">
           <button onClick={() => handleSetIsOpenTagEditor(true)} title="タグの設定" className="flex bg-green-500 px-5 py-2 rounded hover:bg-green-600 text-white transition">
             <FaTag className="inline-flex my-auto" />
@@ -230,7 +232,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
       </div>
       {/* Problems */}
       <div className="mx-auto mb-8 max-w-screen-md">
-        <b>問題(残り: {10 - problems.size}/10)</b>
+        <b className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>問題(残り: {10 - problems.size}/10)</b>
         <div>
           {Array.from(problems.keys()).map((id) => (
             <div key={id} className="flex">

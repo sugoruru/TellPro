@@ -3,12 +3,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdEditNote, MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useContext } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { PageList } from "@/types/page";
 import { PageType } from "@/modules/other/pageTypes";
 import { UserPublic } from "@/types/user";
+import { UserContext } from "../../providers/userProvider";
 
 const PageLinkBlock = (props: {
   page: PageList;
@@ -17,11 +18,12 @@ const PageLinkBlock = (props: {
   me?: UserPublic | null;
   stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
 }) => {
+  const headerData = useContext(UserContext);
   const router = useRouter();
   return (
     <>
-      <div className="border-gray-200">
-        <div className="bg-white transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto">
+      <div className={`border-gray-200 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>
+        <div className={`transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto ${headerData.user.isDarkMode ? "bg-slate-700" : "bg-white"}`}>
           <Link href={`/${props.page.user_id}/${props.pageType}/${props.page.id}`} prefetch className="min-h-40 block">
             <div className="flex p-5">
               <div>
@@ -40,7 +42,7 @@ const PageLinkBlock = (props: {
                 <div className={`${props.page.is_public ? (props.page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>
                   {props.page.is_public ? (props.page.is_closed ? "クローズ" : "公開") : "非公開"}
                 </div>
-                <div className="flex flex-wrap mb-2">
+                <div className="flex flex-wrap mb-2 text-black">
                   {props.page.tags.length !== 0 ? (
                     props.page.tags.map((e) =>
                       e === "" ? (
@@ -65,7 +67,7 @@ const PageLinkBlock = (props: {
             <div className={`absolute top-3 right-3`}>
               <div className="flex">
                 <Link title="編集" className={`cursor-pointer z-10`} href={`/${props.page.user_id}/${props.pageType}/${props.page.id}/edit`}>
-                  <div className="flex items-center justify-center w-8 h-8 bg-blue-100 mr-1 hover:bg-blue-200 transition rounded-full">
+                  <div className="flex items-center justify-center w-8 text-black h-8 bg-blue-100 mr-1 hover:bg-blue-200 transition rounded-full">
                     <MdEditNote className="inline-flex text-xl" />
                   </div>
                 </Link>

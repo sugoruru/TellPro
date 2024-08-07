@@ -52,7 +52,6 @@ tfoot td {
 .location {
   border-bottom-width: 2px;
   --tw-border-opacity: 1;
-  border-color: rgb(17 24 39 / var(--tw-border-opacity));
   padding-bottom: 0.25rem;
 }
 
@@ -80,11 +79,6 @@ span[data-testid="react-katex"] {
 
 nextjs-portal {
   display: none;
-}
-
-.terms > p,
-ul {
-  color: #444;
 }
 
 pre {
@@ -156,7 +150,6 @@ dt {
 
 .nonLocation {
   --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity));
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
@@ -164,7 +157,6 @@ dt {
 
 .nonLocation:hover {
   --tw-text-opacity: 1;
-  color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
 .gsi-material-button {
