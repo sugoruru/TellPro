@@ -109,32 +109,22 @@ export default function UserPage({ params }: { params: { userID: string } }) {
     }
   }, [isLoading, isExist, pageUser.username]);
 
-  const deletePage = async () => {
+  const deletePage = async (pageType: string) => {
     setIsDeleteSending(true);
     if (!me) return;
     await axios.post("/api/db/pages/delete", {
       pageID: deletePageID,
       pageUserID: params.userID,
       userID: me.id,
-      pageType: "articles",
+      pageType: pageType,
     });
-    setPages(pages.filter((e) => e.id !== deletePageID));
-    setIsOpenDeletePageModal(false);
-    // 削除ボタン連打防止.
-    await sleep(1000);
-    setIsDeleteSending(false);
-  };
-
-  const deleteQuestion = async () => {
-    setIsDeleteSending(true);
-    if (!me) return;
-    await axios.post("/api/db/pages/delete", {
-      pageID: deletePageID,
-      pageUserID: params.userID,
-      userID: me.id,
-      pageType: "questions",
-    });
-    setQuestions(questions.filter((e) => e.id !== deletePageID));
+    if (pageType === "articles") {
+      setPages(pages.filter((e) => e.id !== deletePageID));
+    } else if (pageType === "questions") {
+      setQuestions(questions.filter((e) => e.id !== deletePageID));
+    } else if (pageType === "problems") {
+      setProblems(problems.filter((e) => e.id !== deletePageID));
+    }
     setIsOpenDeletePageModal(false);
     // 削除ボタン連打防止.
     await sleep(1000);
@@ -424,9 +414,11 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                           className="mr-2 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                           onClick={() => {
                             if (navPlace === "articles") {
-                              deletePage();
-                            } else {
-                              deleteQuestion();
+                              deletePage("articles");
+                            } else if (navPlace === "questions") {
+                              deletePage("questions");
+                            } else if (navPlace === "problems") {
+                              deletePage("problems");
                             }
                           }}
                           disabled={isDeleteSending}

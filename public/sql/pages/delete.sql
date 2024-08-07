@@ -20,7 +20,18 @@ insert into temp_tags (tag)
 select unnest($4::text []);
 -- 削除.
 update tags
-set page_count = tags.page_count - 1
+set page_count = case
+        when $3 = 'articles' then page_count - 1
+        else page_count
+    end,
+    question_count = case
+        when $3 = 'questions' then question_count - 1
+        else question_count
+    end,
+    problem_count = case
+        when $3 = 'problems' then problem_count - 1
+        else problem_count
+    end
 where name in (
         select tag
         from temp_tags
@@ -28,5 +39,6 @@ where name in (
 -- どっちも0の場合は削除.
 delete from tags
 where page_count = 0
-    and question_count = 0;
+    and question_count = 0
+    and problem_count = 0;
 commit;

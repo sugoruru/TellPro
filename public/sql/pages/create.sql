@@ -19,7 +19,7 @@ create temp table temp_tags (tag text) on commit drop;
 insert into temp_tags (tag)
 select unnest($5::text []);
 -- アップサート操作.
-insert into tags (name, image, page_count, question_count)
+insert into tags (name, image, page_count, question_count, problem_count)
 select tag,
     'local',
     case
@@ -28,6 +28,10 @@ select tag,
     end,
     case
         when $7 = 'questions' then 1
+        else 0
+    end,
+    case
+        when $7 = 'problems' then 1
         else 0
     end
 from temp_tags on conflict (name) do
@@ -39,5 +43,9 @@ set page_count = case
     question_count = case
         when $7 = 'questions' then tags.question_count + 1
         else tags.question_count
+    end,
+    problem_count = case
+        when $7 = 'problems' then tags.problem_count + 1
+        else tags.problem_count
     end;
 commit;

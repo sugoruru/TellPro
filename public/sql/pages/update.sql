@@ -23,7 +23,8 @@ where name in (
 -- どっちも0の場合は削除.
 delete from tags
 where page_count = 0
-    and question_count = 0;
+    and question_count = 0
+    and problem_count = 0;
 -- ページの更新.
 update pages
 set title = $1,
@@ -48,7 +49,13 @@ select unnest(
         )
     );
 -- アップサート操作.
-insert into tags (name, image, page_count, question_count)
+insert into tags (
+        name,
+        image,
+        page_count,
+        question_count,
+        problem_count
+    )
 select tag,
     'local',
     case
@@ -57,6 +64,10 @@ select tag,
     end,
     case
         when $7 = 'questions' then 1
+        else 0
+    end,
+    case
+        when $7 = 'problems' then 1
         else 0
     end
 from temp_tags on conflict (name) do
@@ -68,5 +79,9 @@ set page_count = case
     question_count = case
         when $7 = 'questions' then tags.question_count + 1
         else tags.question_count
+    end,
+    problem_count = case
+        when $7 = 'problems' then tags.problem_count + 1
+        else tags.problem_count
     end;
 commit;

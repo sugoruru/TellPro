@@ -1,8 +1,8 @@
 with numbered_tags as (
     select *,
-        page_count + question_count as total_count,
+        page_count + question_count + problem_count as total_count,
         row_number() over (
-            order by page_count + question_count desc
+            order by page_count + question_count + problem_count desc
         ) as row_num
     from tags
 )

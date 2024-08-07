@@ -68,7 +68,7 @@ const ImageUploader = (props: {
                       type="file"
                       className="hidden"
                       disabled={isSendingImage}
-                      accept=".jpg, .jpeg, .png"
+                      accept=".jpg, .jpeg, .png, .gif"
                     />
                   </div>
                   <img

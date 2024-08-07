@@ -15,6 +15,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   const [tag, setTag] = useState<TagData | null>(null);
   const [pages, setPages] = useState<PageList[]>([]);
   const [questions, setQuestions] = useState<PageList[]>([]);
+  const [problems, setProblems] = useState<PageList[]>([]);
   const [navPlace, setNavPlace] = useState("pages");
   const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
 
@@ -36,7 +37,9 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
       setTag(res.data.data);
       setPages(res.data.pages);
       setQuestions(res.data.questions);
+      setProblems(res.data.problems);
       setUserMap(res.data.userMap);
+      console.log(res.data.userMap);
     };
     fetcher();
   }, [page]);
@@ -55,7 +58,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
               </div>
               <div>
                 <span>
-                  <b>{tag === undefined ? 0 : Number(tag.page_count) + Number(tag.question_count)}</b> Scores
+                  <b>{tag === undefined ? 0 : Number(tag.page_count) + Number(tag.question_count) + Number(tag.problem_count)}</b> Scores
                 </span>
               </div>
             </div>
@@ -72,6 +75,9 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                   <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
                     Questions({tag.question_count})
                   </span>
+                  <span className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
+                    Problems({tag.problem_count})
+                  </span>
                 </nav>
               </div>
               <div className="bg-slate-100">
@@ -83,11 +89,19 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : navPlace === "questions" ? (
                   <div className="bg-slate-100">
                     {questions.map((question) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-slate-100">
+                    {problems.map((problem) => (
+                      <div key={returnRandomString(32)}>
+                        <PageLinkBlock page={problem} pageUser={userMap[problem.user_id]} pageType="problems" />
                       </div>
                     ))}
                   </div>
