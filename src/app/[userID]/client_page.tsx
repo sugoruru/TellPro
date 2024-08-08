@@ -9,7 +9,7 @@ import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import { Page } from "@/types/page";
 import { IoShieldCheckmark } from "react-icons/io5";
 import { SiCodeforces } from "react-icons/si";
-import { BsTwitterX } from "react-icons/bs";
+import { BsTwitterX, BsTwitter } from "react-icons/bs";
 import Link from "next/link";
 import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors";
 import { max } from "@/modules/algo/max_min";
@@ -174,7 +174,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   return isLoading ? (
     <div className="h-full"></div>
   ) : isExist ? (
-    <>
+    <div className="h-full">
       <div className="mb-2">
         <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
           <div className="p-5 md:flex sm:block">
@@ -247,7 +247,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                   <></>
                 ) : (
                   <div className="flex mb-1">
-                    <BsTwitterX width={25} height={25} className="text-xl mx-1" />
+                    {headerData.user.hateX ? <BsTwitter width={25} height={25} className="text-xl mx-1" /> : <BsTwitterX width={25} height={25} className="text-xl mx-1" />}
                     <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
                       {pageUser.x_id}
                     </Link>
@@ -444,10 +444,10 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           </Transition>
         </div>
       </div>
-    </>
+    </div>
   ) : (
-    <>
+    <div className="h-full">
       <p>⚠ユーザーが存在しませんでした</p>
-    </>
+    </div>
   );
 }

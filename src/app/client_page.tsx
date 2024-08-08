@@ -42,7 +42,7 @@ export default function Home() {
     getNotice();
   }, []);
   return (
-    <>
+    <div className="h-full">
       <HomeNav pathName="/"></HomeNav>
       <div className="m-10">
         <div className={`text-3xl font-semibold text-center ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>トレンド記事</div>
@@ -68,6 +68,6 @@ export default function Home() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }

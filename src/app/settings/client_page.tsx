@@ -226,7 +226,7 @@ export default function Settings() {
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="X_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
-                  X(旧Twitter)ID
+                  {headerData.user.hateX ? "Twitter" : "X"}({headerData.user.hateX ? "現X" : "旧Twitter"})ID
                 </label>
                 <div className="flex">
                   <span className="bg-gray-200 border p-3 rounded-tl rounded-bl">@</span>
@@ -237,11 +237,28 @@ export default function Settings() {
                     disabled={isSending}
                     defaultValue={user ? user.x_id : ""}
                     id="X_ID"
-                    placeholder="X(旧Twitter)ID"
+                    placeholder={`${headerData.user.hateX ? "Twitter" : "X"}(${headerData.user.hateX ? "現X" : "旧Twitter"})ID`}
                     className={`w-full rounded-br rounded-tr border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring`}
                   />
                 </div>
               </div>
+              <div className="flex">
+                <span>{headerData.user.hateX ? "Twitter" : "X"}過激派ボタン:</span>
+                <label className="inline-flex items-center cursor-pointer ml-4">
+                  <input
+                    type="checkbox"
+                    value=""
+                    className="sr-only peer"
+                    checked={headerData.user.hateX}
+                    onChange={() => {
+                      localStorage.setItem("hateX", headerData.user.hateX ? "false" : "true");
+                      headerData.setUser!((prev) => ({ ...prev, hateX: !prev.hateX }));
+                    }}
+                  />
+                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 dark:peer-focus:ring-violet-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600"></div>
+                </label>
+              </div>
+              <br />
               <div className="flex">
                 <div className="rounded-md border border-indigo-500 bg-gray-50 p-4 shadow-md w-36">
                   <label htmlFor="upload" className="flex flex-col items-center gap-2 cursor-pointer">

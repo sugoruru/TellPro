@@ -10,8 +10,12 @@ const Footer = () => {
       <div className="md:flex flex-wrap gap-10 justify-center">
         <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">About</li>
-          <li>使い方</li>
-          <li>開発</li>
+          <li>
+            <Link href="/howToUse">使い方</Link>
+          </li>
+          <li>
+            <Link href="/dev">開発</Link>
+          </li>
         </ul>
         <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">Legal</li>

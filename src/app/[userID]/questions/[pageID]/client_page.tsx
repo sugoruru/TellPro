@@ -179,7 +179,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
         </div>
         <PageTags tags={page.tags} />
         <PageUser userID={params.userID} userIcon={userIcon} />
-        <div className="bg-white mx-auto my-3 p-5 rounded" style={{ maxWidth: `${Math.floor(width * pageContentSize)}px` }}>
+        <div className="bg-white mx-auto my-3 p-5 rounded" style={{ maxWidth: `${width >= 640 ? Math.floor(width * pageContentSize) + "px" : (width * 4.8) / 5 + "px"}` }}>
           {content}
           {/* 回答 */}
           <SendComment

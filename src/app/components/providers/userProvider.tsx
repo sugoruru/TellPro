@@ -4,18 +4,19 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
 export const UserContext = createContext<{
-  user: { user: UserPublic | null; notificationCount: number; isDarkMode: boolean };
-  setUser: Dispatch<SetStateAction<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean }>> | null;
+  user: { user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean };
+  setUser: Dispatch<SetStateAction<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean }>> | null;
 }>({
-  user: { user: null, notificationCount: 0, isDarkMode: false },
+  user: { user: null, notificationCount: 0, isDarkMode: false, hateX: false },
   setUser: null,
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean }>({
+  const [user, setUser] = useState<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean }>({
     user: null,
     notificationCount: 0,
     isDarkMode: false,
+    hateX: false,
   });
   const { status } = useSession();
   const router = useRouter();
@@ -34,8 +35,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               if (localStorage.getItem("isDarkMode") === null) {
                 localStorage.setItem("isDarkMode", "false");
               }
+              if (localStorage.getItem("hateX") === null) {
+                localStorage.setItem("hateX", "false");
+              }
               const isDarkMode = localStorage.getItem("isDarkMode") === "true";
-              setUser({ user: userData, notificationCount: Number(havingNotification.data.data.count), isDarkMode: isDarkMode });
+              const hateX = localStorage.getItem("hateX") === "true";
+              setUser({ user: userData, notificationCount: Number(havingNotification.data.data.count), isDarkMode: isDarkMode, hateX: hateX });
             }
           } else {
             router.replace("/init");
@@ -48,7 +53,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [status, router]);
   useEffect(() => {
-    setUser((prev) => ({ ...prev, isDarkMode: localStorage.getItem("isDarkMode") === "true" }));
+    setUser((prev) => ({ ...prev, isDarkMode: localStorage.getItem("isDarkMode") === "true", hateX: localStorage.getItem("hateX") === "true" }));
   }, []);
   return <UserContext.Provider value={{ user: user, setUser: setUser }}>{children}</UserContext.Provider>;
 };
