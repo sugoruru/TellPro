@@ -1,5 +1,5 @@
 -- likesの個数によって実績を解除する
--- 1,10,50,100でif文をする
+-- 1, 10, 50, 100でif文をする
 do $$ begin if (
     select count(*)
     from likes
@@ -8,7 +8,7 @@ do $$ begin if (
             select id
             from pages
             where user_id != $1
-        );
+        )
 ) >= 1 then
 insert into achievement (id, user_id, achievement_name)
 select gen_random_uuid(),
@@ -29,7 +29,7 @@ if (
             select id
             from pages
             where user_id != $1
-        );
+        )
 ) >= 10 then
 insert into achievement (id, user_id, achievement_name)
 select gen_random_uuid(),
@@ -50,7 +50,7 @@ if (
             select id
             from pages
             where user_id != $1
-        );
+        )
 ) >= 50 then
 insert into achievement (id, user_id, achievement_name)
 select gen_random_uuid(),
@@ -71,7 +71,7 @@ if (
             select id
             from pages
             where user_id != $1
-        );
+        )
 ) >= 100 then
 insert into achievement (id, user_id, achievement_name)
 select gen_random_uuid(),
