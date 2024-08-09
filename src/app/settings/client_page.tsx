@@ -243,7 +243,7 @@ export default function Settings() {
                 </div>
               </div>
               <div className="flex">
-                <span>{headerData.user.hateX ? "Twitter" : "X"}過激派ボタン:</span>
+                <span className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>{headerData.user.hateX ? "Twitter" : "X"}過激派ボタン:</span>
                 <label className="inline-flex items-center cursor-pointer ml-4">
                   <input
                     type="checkbox"

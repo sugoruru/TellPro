@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
   // ページの存在を確認.
   try {
-    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+    if (body["pageType"] === "articles" || body["pageType"] === "questions" || body["pageType"] === "problems") {
       const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/exist.sql", "utf-8");
       const page = await db.any(sql, [body["pageID"], body["pageUserID"], body["pageType"]]);
       if (page.length === 0) {
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   // ページがすでにいいねしていれば400を返す.
   try {
-    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+    if (body["pageType"] === "articles" || body["pageType"] === "questions" || body["pageType"] === "problems") {
       const sql = fs.readFileSync(path.resolve("./public") + "/sql/likes/exist.sql", "utf-8");
       const likes = await db.any(sql, [body["myID"], body["pageID"], body["pageType"]]);
       if (likes.length > 0) {
@@ -109,8 +109,9 @@ export async function POST(req: NextRequest) {
   }
 
   // いいねを作成.
+  let myLikedCount = 0;
   await db.tx(async (t) => {
-    if (body["pageType"] === "articles" || body["pageType"] === "questions") {
+    if (body["pageType"] === "articles" || body["pageType"] === "questions" || body["pageType"] === "problems") {
       // ページの場合.
       const create = fs.readFileSync(path.resolve("./public") + "/sql/likes/create.sql", "utf-8");
       await t.any(create, [returnRandomString(64), body["myID"], body["pageType"], body["pageID"]]);
@@ -125,6 +126,9 @@ export async function POST(req: NextRequest) {
       const updateComments = fs.readFileSync(path.resolve("./public") + "/sql/comments/increment_like_count.sql", "utf-8");
       await t.any(updateComments, [body["pageID"], body["pageUserID"]]);
     }
+    const getLikeCount = fs.readFileSync(path.resolve("./public") + "/sql/likes/get_like_count.sql", "utf-8");
+    const likeCount = await t.any(getLikeCount, [body["myID"]]);
+    myLikedCount = likeCount[0].count;
   });
-  return NextResponse.json({ ok: true }, { status: 200 });
+  return NextResponse.json({ ok: true, likedCount: myLikedCount }, { status: 200 });
 }

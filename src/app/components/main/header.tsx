@@ -3,7 +3,7 @@ import Image from "next/image";
 import { IoSearch, IoSettingsOutline, IoBookmarks, IoDocumentTextSharp, IoMail, IoMailUnread } from "react-icons/io5";
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { PiSignOut } from "react-icons/pi";
-import { FaRegCircleUser } from "react-icons/fa6";
+import { FaRegCircleUser, FaAward } from "react-icons/fa6";
 import { SlNotebook } from "react-icons/sl";
 import { MdAutoDelete, MdReportGmailerrorred, MdDarkMode, MdLightMode } from "react-icons/md";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -99,6 +99,16 @@ const Header = () => {
                               <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
                                 <IoBookmarks className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
                                 ブックマーク
+                              </button>
+                            </Link>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <Link href="/achievement">
+                              <button className={`${active ? "bg-violet-500 text-white" : "text-gray-700"} group flex w-full items-center rounded-md px-2 py-2 text-base`}>
+                                <FaAward className={`${active ? "bg-violet-500 text-white" : "text-gray-500"} mr-2`} />
+                                実績
                               </button>
                             </Link>
                           )}

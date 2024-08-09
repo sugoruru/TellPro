@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -19,8 +19,10 @@ export default function Bookmark() {
   const [navPlace, setNavPlace] = useState("articles");
   const [articles, setArticles] = useState<PageList[]>([] as PageList[]);
   const [questions, setQuestions] = useState<PageList[]>([] as PageList[]);
+  const [problems, setProblems] = useState<PageList[]>([] as PageList[]);
   const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
   const headerData = useContext(UserContext);
+  const isFetched = useRef(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -45,19 +47,30 @@ export default function Bookmark() {
     if (me) {
       const fetcher = async () => {
         try {
-          const [_articles, _questions] = await Promise.all([axios.get(`/api/db/bookmarks/getPages?pageType=articles`), axios.get(`/api/db/bookmarks/getPages?pageType=questions`)]);
-          setArticles(_articles.data.pages);
-          setQuestions(_questions.data.pages);
-          const userDataOfArticles = _articles.data.userData as UserPublic[];
-          const userDataOfQuestions = _questions.data.userData as UserPublic[];
-          const _userMap: { [key: string]: UserPublic } = {};
-          userDataOfArticles.forEach((user) => {
-            _userMap[user.id] = user;
-          });
-          userDataOfQuestions.forEach((user) => {
-            _userMap[user.id] = user;
-          });
-          setUserMap(_userMap);
+          if (isFetched.current) return;
+          isFetched.current = true;
+          const bookmarks = (await axios.get(`/api/pages/bookmarks`)).data;
+          if (bookmarks.ok === false) {
+            console.error("Error");
+            return;
+          }
+          if (bookmarks.pages.articles !== null) {
+            setArticles(bookmarks.pages.articles);
+          }
+          if (bookmarks.pages.questions !== null) {
+            setQuestions(bookmarks.pages.questions);
+          }
+          if (bookmarks.pages.problems !== null) {
+            setProblems(bookmarks.pages.problems);
+          }
+          // bookmarks.userDataからuserMapを作成する.
+          if (bookmarks.userData.length !== 0) {
+            const _userMap: { [key: string]: UserPublic } = {};
+            bookmarks.userData.forEach((user: UserPublic) => {
+              _userMap[user.id] = user;
+            });
+            setUserMap(_userMap);
+          }
           setIsBookmarkLoading(true);
         } catch (e) {
           console.error(e);
@@ -89,6 +102,9 @@ export default function Bookmark() {
           <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
             Questions
           </span>
+          <span className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
+            Problems
+          </span>
         </nav>
       </div>
       <div>
@@ -105,16 +121,32 @@ export default function Bookmark() {
                 ))}
               </div>
             )
-          ) : questions.length === 0 ? (
-            <p className={`mt-4 text-center ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>質問のブックマークは存在しません</p>
+          ) : navPlace === "questions" ? (
+            questions.length === 0 ? (
+              <p className={`mt-4 text-center ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>質問のブックマークは存在しません</p>
+            ) : (
+              <div>
+                {questions.map((question) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" me={me} />
+                  </div>
+                ))}
+              </div>
+            )
+          ) : navPlace === "problems" ? (
+            problems.length === 0 ? (
+              <p className={`mt-4 text-center ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>問題集のブックマークは存在しません</p>
+            ) : (
+              <div>
+                {problems.map((problem) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={problem} pageUser={userMap[problem.user_id]} pageType="problems" me={me} />
+                  </div>
+                ))}
+              </div>
+            )
           ) : (
-            <div>
-              {questions.map((question) => (
-                <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" me={me} />
-                </div>
-              ))}
-            </div>
+            <div className="h-full"></div>
           )
         ) : (
           <div className="h-full"></div>

@@ -58,7 +58,7 @@ const Notifications = () => {
     }
   }, [router]);
   return (
-    <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded">
+    <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5 rounded h-full">
       <p className="text-gray-500">(通知は15日以上立つと消去されます)</p>
       <hr />
       {isLoading ? (
@@ -94,6 +94,8 @@ const Notifications = () => {
                       </p>
                     </div>
                   </div>
+                ) : e.notification_type === "achievement" ? (
+                  <>{e.notification_value}</>
                 ) : (
                   <></>
                 )}
