@@ -41,7 +41,7 @@ export default function Questions() {
       {isLoading ? (
         <></>
       ) : pages.length === 0 ? (
-        <p className="text-center mt-4">質問は存在しません</p>
+        <p className={`text-center mt-4 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>質問は存在しません</p>
       ) : (
         pages.map((e) => <PageLinkBlock key={returnRandomString(32)} pageUser={pageUser[e.user_id]} page={e} pageType="questions"></PageLinkBlock>)
       )}

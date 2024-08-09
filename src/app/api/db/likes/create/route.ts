@@ -109,7 +109,6 @@ export async function POST(req: NextRequest) {
   }
 
   // いいねを作成.
-  let myLikedCount = 0;
   await db.tx(async (t) => {
     if (body["pageType"] === "articles" || body["pageType"] === "questions" || body["pageType"] === "problems") {
       // ページの場合.
@@ -126,9 +125,8 @@ export async function POST(req: NextRequest) {
       const updateComments = fs.readFileSync(path.resolve("./public") + "/sql/comments/increment_like_count.sql", "utf-8");
       await t.any(updateComments, [body["pageID"], body["pageUserID"]]);
     }
-    const getLikeCount = fs.readFileSync(path.resolve("./public") + "/sql/likes/get_like_count.sql", "utf-8");
-    const likeCount = await t.any(getLikeCount, [body["myID"]]);
-    myLikedCount = likeCount[0].count;
+    const achievement = fs.readFileSync(path.resolve("./public") + "/sql/achievement/likes.sql", "utf-8");
+    await t.any(achievement, [body["myID"]]);
   });
-  return NextResponse.json({ ok: true, likedCount: myLikedCount }, { status: 200 });
+  return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -41,7 +41,7 @@ export default function Problems() {
       {isLoading ? (
         <></>
       ) : pages.length === 0 ? (
-        <p className="text-center mt-4">問題集は存在しません</p>
+        <p className={`text-center mt-4 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>問題集は存在しません</p>
       ) : (
         pages.map((e) => <PageLinkBlock key={returnRandomString(32)} pageUser={pageUser[e.user_id]} page={e} pageType="problems"></PageLinkBlock>)
       )}

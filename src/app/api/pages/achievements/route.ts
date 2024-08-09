@@ -3,8 +3,6 @@ import { getServerSession } from "next-auth/next"
 import db from "@/modules/network/db";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
-import { userBlockKey } from "@/modules/other/DBBlockKey";
-import { Page } from "@/types/page";
 import fs from "fs";
 import path from "path";
 import { UserPublic } from "@/types/user";
@@ -55,24 +53,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
-  // ブックマークを取得する.
-  const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/getBookmarks.sql", "utf-8");
-  const pages = (await db.any(sql, [userID]))[0].result;
-  let userData: UserPublic[] = [];
-  const users: string[] = [];
-  if (pages.articles !== null) {
-    pages.articles.forEach((e: Page) => users.push(e.user_id));
-  }
-  if (pages.questions !== null) {
-    pages.questions.forEach((e: Page) => users.push(e.user_id));
-  }
-  if (pages.problems !== null) {
-    pages.problems.forEach((e: Page) => users.push(e.user_id));
-  }
-  if (users.length !== 0) {
-    userData = await db.any(`select ${userBlockKey} from users where id in ($1:csv)`, [users]) as UserPublic[];
-  }
-
-  // 結果送信.
-  return NextResponse.json({ ok: true, pages, userData }, { status: 200 });
+  // 実績を取得する.
+  const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/getAchievement.sql", "utf-8");
+  const achievements = (await db.any(sql, [userID]));
+  return NextResponse.json({ ok: true, achievements }, { status: 200 });
 }

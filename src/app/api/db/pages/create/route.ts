@@ -87,6 +87,16 @@ export async function POST(req: NextRequest) {
     const tagsToUpdate = `{${body.tags.join(',')}}`;
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/pages/create.sql", "utf-8");
     await t.any(sql, [body.ID, body.userID, body.title, body.content, tagsToUpdate, body.isPublic, body.pageType]);
+    if (body.pageType === "articles") {
+      const achievement = fs.readFileSync(path.resolve("./public") + "/sql/achievement/articles.sql", "utf-8");
+      await t.any(achievement, [body.userID]);
+    } else if (body.pageType === "questions") {
+      const achievement = fs.readFileSync(path.resolve("./public") + "/sql/achievement/questions.sql", "utf-8");
+      await t.any(achievement, [body.userID]);
+    } else if (body.pageType === "problems") {
+      const achievement = fs.readFileSync(path.resolve("./public") + "/sql/achievement/problems.sql", "utf-8");
+      await t.any(achievement, [body.userID]);
+    }
   });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

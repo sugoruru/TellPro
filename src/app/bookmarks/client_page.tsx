@@ -159,7 +159,7 @@ export default function Bookmark() {
         <div className="flex justify-center">
           <BsExclamationCircle className="text-green-500 text-6xl" />
         </div>
-        <p>ログインしてください</p>
+        <p className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>ログインしてください</p>
         <p className="text-sm pt-5">
           <span>(</span>
           <Link href="/" className="text-blue-300">
