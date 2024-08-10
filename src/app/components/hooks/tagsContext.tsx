@@ -16,6 +16,7 @@ export const TagsProvider = ({ children }: { children: React.ReactNode }) => {
   const { tags, setTags } = useTagSearch(tagSearchValue);
   const handleSetTagValue = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.split(" ").length > 5) return;
+    if (!/^[a-zA-Zぁ-んァ-ヶー一-龥0-9\-\_\s]+$/.test(e.target.value)) return;
     setTagSearchValue(e.target.value);
   }, []);
   const handleTagClick = useCallback(

@@ -8,7 +8,13 @@ const TagsInput = memo(function TagsInputMemo() {
 
   return (
     <>
-      <input value={tagSearchValue} onChange={handleSetTagValue} type="text" className="border w-full outline-sky-400" placeholder="タグを検索(半角スペース区切り)" />
+      <input
+        value={tagSearchValue}
+        onChange={handleSetTagValue}
+        type="text"
+        className="border w-full outline-sky-400"
+        placeholder="タグを検索(半角スペース区切り)"
+      />
       <div id="tagDialog" className="mt-2 border flex px-1 h-32 overflow-y-scroll flex-wrap text-gray-900">
         {tags.map((e) => (
           <div onClick={() => handleTagClick(e.name)} key={returnRandomString(16)} className="select-none m-2 px-2 cursor-pointer flex rounded-sm h-6 bg-slate-200">

@@ -52,6 +52,18 @@ const handlePageUpload = async (props: {
     setIsSending(false);
     return;
   }
+  if (tagSearchValue.split(" ").length > 5) {
+    setSendingMessage("タグは5つまでです");
+    alert("タグは5つまでです");
+    setIsSending(false);
+    return;
+  }
+  if (!/^[a-zA-Zぁ-んァ-ヶー一-龥0-9\-\_\s]+$/.test(tagSearchValue)) {
+    setSendingMessage("タグに使える文字は半角英数字とひらがな、カタカナ、漢字、-、_です");
+    alert("タグに使える文字は半角英数字とひらがな、カタカナ、漢字です");
+    setIsSending(false);
+    return;
+  }
   if (isPageExist) {
     try {
       await axios.post("/api/db/pages/update", {
