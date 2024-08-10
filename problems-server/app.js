@@ -131,7 +131,8 @@ app.post("/getTitle", async (req, res) => {
               }
             }
             res_prob.set(problemPair[0], { title: title, err: isError });
-            resolve();
+            // 1秒待ってからresolve
+            setTimeout(resolve, 1000);
           });
         });
       }

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { UserPublic } from "@/types/user";
 import { UserContext } from "../components/providers/userProvider";
-import { achievements } from "@/modules/other/Achievements";
+import { achievements, achievementsDescription } from "@/modules/other/Achievements";
 import { GrAchievement, GrTrophy } from "react-icons/gr";
 
 export default function AchievementPage() {
@@ -88,7 +88,10 @@ export default function AchievementPage() {
                 <GrTrophy className={`text-4xl my-auto mr-3 ${headerData.user.isDarkMode ? "text-gray-300" : "text-gray-600"}`} />
               )}
               <div>
-                <p className="text-xl font-bold">{key}</p>
+                <p className="text-xl font-bold">
+                  {key}
+                  <span className="text-gray-700 font-normal text-sm ml-3">{achievementsDescription[key]}</span>
+                </p>
                 <p className={`${headerData.user.isDarkMode ? "text-gray-200" : "text-gray-600"}`}>{gotAchievements.has(key) ? achievements[key] : "???"}</p>
               </div>
             </div>

@@ -313,8 +313,9 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
             </Menu.Items>
           </Transition>
         </Menu>
-        <TagsDialog />
+        <span className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>{isSending ? `Too Many Requestsを防止するため${problems.size}秒+αかかります。少しお待ちください` : ""}</span>
       </div>
+      <TagsDialog />
     </div>
   ) : (
     // 編集権限が無い場合.
