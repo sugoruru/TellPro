@@ -67,7 +67,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`flex-col flex h-screen`} style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}>
+      <body
+        className={`flex-col flex h-screen overflow-x-hidden`}
+        style={{ fontFamily: '-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif,"Segoe UI Emoji"' }}
+      >
         <SessionProvider refetchOnWindowFocus={false}>
           <NextTopLoader
             color="#2299DD"

@@ -15,6 +15,7 @@ import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors
 import { max } from "@/modules/algo/max_min";
 import { UserPublic } from "@/types/user";
 import { UserContext } from "../components/providers/userProvider";
+import { useGetWindowSize } from "../components/hooks/useGetWindowSize";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +39,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const router = useRouter();
   const headerData = useContext(UserContext);
   const isFetched = useRef(false);
+  const { width } = useGetWindowSize();
 
   const canSendReportChecker = () => {
     if (me) {
@@ -256,19 +258,24 @@ export default function UserPage({ params }: { params: { userID: string } }) {
               </div>
             </div>
           </div>
-          <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
-            <nav className="pl-5 pb-1">
-              <span className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
-                Articles
-              </span>
-              <span className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
-                Questions
-              </span>
-              <span className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
-                Problems
-              </span>
-            </nav>
-          </div>
+          <nav className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white border-white" : "bg-white text-black border-black"}`} style={{ width: `${width}px` }}>
+            <div className="mr-3 overflow-x-auto hidden-scrollbar">
+              <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
+                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
+                  <span>Articles</span>
+                </li>
+                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
+                  <span>Questions</span>
+                </li>
+                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
+                  <span>Problems</span>
+                </li>
+                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "MyShojin" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("MyShojin")}>
+                  <span>My精進ツリー</span>
+                </li>
+              </ul>
+            </div>
+          </nav>
         </div>
         <Transition appear show={isOpenReportModal} as={Fragment}>
           <Dialog as="div" className="relative z-10" onClose={() => setIsOpenReportModal(false)}>
@@ -366,16 +373,20 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                 ))}
               </div>
             )
-          ) : problems.length === 0 ? (
-            <div className="m-5">問題集はありません</div>
+          ) : navPlace === "problems" ? (
+            problems.length === 0 ? (
+              <div className="m-5">問題集はありません</div>
+            ) : (
+              <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
+                {problems.map((problem) => (
+                  <div key={returnRandomString(32)}>
+                    <PageLinkBlock page={problem} pageUser={pageUser} pageType="problems" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
+                  </div>
+                ))}
+              </div>
+            )
           ) : (
-            <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
-              {problems.map((problem) => (
-                <div key={returnRandomString(32)}>
-                  <PageLinkBlock page={problem} pageUser={pageUser} pageType="problems" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
-                </div>
-              ))}
-            </div>
+            <div className="m-5">My精進ツリーはありません</div>
           )}
           <Transition appear show={isOpenDeletePageModal} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={() => setIsOpenDeletePageModal(false)}>

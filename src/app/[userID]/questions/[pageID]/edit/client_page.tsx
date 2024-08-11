@@ -136,7 +136,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
           onClick={() => setIsMarkdown(false)}
           className={`${headerData.user.isDarkMode ? (!isMarkdown ? "text-gray-100 border-b-2" : "text-white") : !isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} ${
             headerData.user.isDarkMode ? "hover:text-gray-300" : "hover:text-gray-800"
-          } hover:text-gray-800 text-sm font-bold py-2 px-4 border-blue-500`}
+          } text-sm font-bold py-2 px-4 border-blue-500`}
         >
           プレビュー
         </button>
@@ -168,7 +168,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
                   <>
                     <div className="absolute right-0 mx-6 my-2 text-3xl cursor-pointer">
                       <BiCopyAlt
-                        className="absolute right-0 mx-6 my-2 text-3xl cursor-pointer"
+                        className={`absolute right-0 mx-6 my-2 text-3xl cursor-pointer ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}
                         title="簡易リアルタイムプレビュー"
                         onClick={() => {
                           setRealTimePreview(!realTimePreview);
@@ -189,7 +189,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
               </div>
               {realTimePreview && width && width > 1042 ? (
                 <div className="relative w-full break-all overflow-y-scroll">
-                  <div className="absolute h-full w-full bg-white">{Lex({ text: mdAreaValue })}</div>
+                  <div className="absolute w-full bg-white min-h-full">{Lex({ text: mdAreaValue })}</div>
                 </div>
               ) : (
                 <></>
