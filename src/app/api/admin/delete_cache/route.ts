@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   }
 
   // キャッシュの削除.
-  const cachePath = "/tmp/cache";
+  const cachePath = "./tmp/cache";
 
   // すべてのファイルを削除.
   try {

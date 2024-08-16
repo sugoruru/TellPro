@@ -32,12 +32,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Maintenance" }, { status: 401 });
   }
 
-  // キャッシュの取得.
+  // キャッシュの取得
   const time = new Date().getTime();
-  const day = Math.floor(time / 60000);
-  const cacheFilePath = path.resolve(`/tmp/cache/root.json`);
-  if (!fs.existsSync('/tmp/cache')) {
-    fs.mkdirSync('/tmp/cache');
+  const day = Math.floor(time / 60 * 1000);
+  const cacheFilePath = path.resolve(`./tmp/cache/root.json`);
+  if (!fs.existsSync('./tmp')) {
+    fs.mkdirSync('./tmp');
+  }
+  if (!fs.existsSync('./tmp/cache')) {
+    fs.mkdirSync('./tmp/cache');
   }
   if (fs.existsSync(cacheFilePath)) {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/root.sql", "utf-8");

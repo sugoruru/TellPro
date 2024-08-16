@@ -43,14 +43,17 @@ export async function GET(req: NextRequest) {
   const day = Math.floor(time / 60000);
   let cacheFilePath = "";
   if (pageType === "articles") {
-    cacheFilePath = path.resolve(`/tmp/cache/pageNewArrival.json`);
+    cacheFilePath = path.resolve(`./tmp/cache/pageNewArrival.json`);
   } else if (pageType === "questions") {
-    cacheFilePath = path.resolve(`/tmp/cache/questionNewArrival.json`);
+    cacheFilePath = path.resolve(`./tmp/cache/questionNewArrival.json`);
   } else if (pageType === "problems") {
-    cacheFilePath = path.resolve(`/tmp/cache/problemsNewArrival.json`);
+    cacheFilePath = path.resolve(`./tmp/cache/problemsNewArrival.json`);
   }
-  if (!fs.existsSync('/tmp/cache')) {
-    fs.mkdirSync('/tmp/cache');
+  if (!fs.existsSync('./tmp')) {
+    fs.mkdirSync('./tmp');
+  }
+  if (!fs.existsSync('./tmp/cache')) {
+    fs.mkdirSync('./tmp/cache');
   }
   if (fs.existsSync(cacheFilePath)) {
     // 毎分更新.
