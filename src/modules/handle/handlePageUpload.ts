@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PageType } from "../other/pageTypes";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { cantUseURL } from "../other/cantUseURL";
 
 const handlePageUpload = async (props: {
   setIsSending: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,7 +59,7 @@ const handlePageUpload = async (props: {
     setIsSending(false);
     return;
   }
-  if (!/^[a-zA-Zぁ-んァ-ヶー一-龥0-9\-\_\s]+$/.test(tagSearchValue)) {
+  if (cantUseURL.test(tagSearchValue)) {
     setSendingMessage("タグに使える文字は半角英数字とひらがな、カタカナ、漢字、-、_です");
     alert("タグに使える文字は半角英数字とひらがな、カタカナ、漢字です");
     setIsSending(false);
