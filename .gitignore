@@ -22,3 +22,4 @@ problems-server/node_modules
 image-server/node_modules
 private_key.txt
 *.drawio
+/tmp
