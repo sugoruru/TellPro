@@ -35,12 +35,12 @@ export async function GET(req: NextRequest) {
   // キャッシュの取得
   const time = new Date().getTime();
   const day = Math.floor(time / 60 * 1000);
-  const cacheFilePath = path.resolve(`./tmp/cache/root.json`);
-  if (!fs.existsSync('./tmp')) {
-    fs.mkdirSync('./tmp');
+  const cacheFilePath = path.resolve(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache/root.json`);
+  if (!fs.existsSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}`)) {
+    fs.mkdirSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}`);
   }
-  if (!fs.existsSync('./tmp/cache')) {
-    fs.mkdirSync('./tmp/cache');
+  if (!fs.existsSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache`)) {
+    fs.mkdirSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache`);
   }
   if (fs.existsSync(cacheFilePath)) {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/root.sql", "utf-8");

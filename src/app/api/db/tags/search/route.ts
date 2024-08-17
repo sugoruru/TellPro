@@ -24,12 +24,12 @@ export async function GET(req: NextRequest) {
   }
   const time = new Date().getTime();
   const fiveMinutes = Math.floor(time / 300000);
-  const cacheFilePath = path.resolve(`./tmp/cache/tags.json`);
-  if (!fs.existsSync('./tmp')) {
-    fs.mkdirSync('./tmp');
+  const cacheFilePath = path.resolve(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache/tags.json`);
+  if (!fs.existsSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}`)) {
+    fs.mkdirSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}`);
   }
-  if (!fs.existsSync('./tmp/cache')) {
-    fs.mkdirSync('./tmp/cache');
+  if (!fs.existsSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache`)) {
+    fs.mkdirSync(`${process.env.IS_DEV === "true" ? "./tmp" : "/tmp"}/cache`);
   }
   if (fs.existsSync(cacheFilePath)) {
     const cacheFile = fs.readFileSync(cacheFilePath, 'utf-8');
