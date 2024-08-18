@@ -15,7 +15,6 @@ import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors
 import { max } from "@/modules/algo/max_min";
 import { UserPublic } from "@/types/user";
 import { UserContext } from "../components/providers/userProvider";
-import { useGetWindowSize } from "../components/hooks/useGetWindowSize";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +38,6 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const router = useRouter();
   const headerData = useContext(UserContext);
   const isFetched = useRef(false);
-  const { width } = useGetWindowSize();
 
   const canSendReportChecker = () => {
     if (me) {
