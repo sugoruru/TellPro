@@ -42,7 +42,7 @@ const Header = () => {
             </Link>
             {status == "unauthenticated" ? (
               <div className="flex items-center gap-3">
-                <Link href="/search">
+                <Link href="/tags">
                   <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                 </Link>
                 <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)} id="header_login_button">
@@ -53,7 +53,7 @@ const Header = () => {
               </div>
             ) : status == "authenticated" && user ? (
               <div className="flex items-center gap-3">
-                <Link href="/search">
+                <Link href="/tags">
                   <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`} />
                 </Link>
                 <Link

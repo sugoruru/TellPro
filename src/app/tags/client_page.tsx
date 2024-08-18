@@ -28,7 +28,7 @@ export default function SearchPage() {
         setPageID(1);
         setTags(data.data.data);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
-        router.replace("/search");
+        router.replace("/tags");
         const data = await axios.get("/api/db/tags/get?page=1");
         setPageID(1);
         setTags(data.data.data);
@@ -57,7 +57,7 @@ export default function SearchPage() {
           </div>
           <div className="flex flex-wrap justify-center">
             {tags.map((e: TagData) => (
-              <Link key={returnRandomString(32)} href={`/search/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
+              <Link key={returnRandomString(32)} href={`/tags/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
                 <div className="text-center">
                   <b>{e.name}</b>
                 </div>
@@ -72,13 +72,13 @@ export default function SearchPage() {
       )}
       {isLoaded && (
         <div className="flex flex-wrap justify-center mt-5">
-          <Link href={pageID != 1 ? `search?page=${pageID - 1}` : ""}>
+          <Link href={pageID != 1 ? `tags?page=${pageID - 1}` : ""}>
             <button disabled={pageID === 1} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 transition text-white rounded mx-2 text-xl p-2 pr-3 flex">
               <GrFormPrevious className="my-auto" />
               prev
             </button>
           </Link>
-          <Link href={tags.length === 30 ? `search?page=${pageID + 1}` : ""}>
+          <Link href={tags.length === 30 ? `tags?page=${pageID + 1}` : ""}>
             <button disabled={tags.length !== 30} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 transition text-white rounded mx-2 text-xl p-2 pl-3 flex">
               next
               <GrFormNext className="my-auto" />
