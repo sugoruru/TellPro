@@ -173,29 +173,24 @@ export default function UserPage({ params }: { params: { userID: string } }) {
     setIsSendingUpdateBanned(false);
   };
 
-  return isLoading ? (
-    <div className="h-full"></div>
-  ) : isExist ? (
+  if (isLoading) return <div className="h-full"></div>;
+  if (!isExist) return <div className="h-full"><p>⚠ユーザーが存在しませんでした</p></div>;
+
+  return (
     <div className="h-full flex flex-col">
       <div>
         <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
           <div className="p-5 md:flex sm:block">
-            <img alt={pageUser.username} src={pageUser.icon} width={100} height={100} className="md:mx-5 w-24 h-24" />
-            <div className="flex mt-3 md:mt-0">
+            <img alt={pageUser.username} src={pageUser.icon} width={128} height={128} className="md:mx-5 size-24" />
+            <div className="flex mt-3 md:mt-0 space-x-4">
               <div>
-                <div className="flex">
-                  <b>{pageUser.username}</b>
-                  {pageUser.is_admin ? <IoShieldCheckmark className="text-purple-700 text-xl" title="Admin"></IoShieldCheckmark> : <></>}
+                <div className="flex space-x-1">
+                  <span className="font-bold">{pageUser.username}</span>
+                  {pageUser.is_admin && <IoShieldCheckmark className="text-purple-700 size-5" title="Admin"></IoShieldCheckmark>}
                 </div>
                 <div>{pageUser.status_message}</div>
-                <div>
-                  <span>
-                    <b>{Number(pageUser.answer_score) + Number(pageUser.page_score)}</b> Scores
-                  </span>
-                </div>
-                {pageUser.is_admin || !me ? (
-                  <></>
-                ) : (
+                <div><span className="font-bold">{pageUser.answer_score + pageUser.page_score}</span> Scores</div>
+                {me && !pageUser.is_admin && (<>
                   <button
                     onClick={() => {
                       canSendReportChecker();
@@ -206,72 +201,47 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                   >
                     通報
                   </button>
-                )}
-                {!me ? (
-                  <></>
-                ) : me.is_admin && !pageUser.is_admin ? (
-                  <div className="flex align-middle">
-                    ban:
-                    <input
-                      type="checkbox"
-                      checked={pageUser.is_banned}
-                      onChange={() => {
-                        if (!isSendingUpdateBanned) handleSwitchBanned();
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <></>
-                )}
+                  {me!.is_admin && (
+                    <div>ban: <input type="checkbox" checked={pageUser.is_banned} onChange={isSendingUpdateBanned ? ()=>{} : handleSwitchBanned}/></div>
+                  )}
+                </>)}
               </div>
-              <div className="ml-4">
-                {pageUser.atcoder_id === "" ? (
-                  <></>
-                ) : (
-                  <div className="flex mb-1">
-                    <img src={`${headerData.user.isDarkMode ? "/svg/atcoder_logo_white.png" : "/svg/atcoder.png"}`} alt="atcoder:" width={25} height={25} />
-                    <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
-                      {pageUser.atcoder_id}
-                    </Link>
-                  </div>
-                )}
-                {pageUser.codeforces_id === "" ? (
-                  <></>
-                ) : (
-                  <div className="flex mb-1">
-                    <SiCodeforces width={25} height={25} className={`text-xl mx-1`} />
-                    <Link href={`https://codeforces.com/profile/${pageUser.codeforces_id}`} target="_blank" style={{ color: `${codeforcesRatingColor}` }}>
-                      {pageUser.codeforces_id}
-                    </Link>
-                  </div>
-                )}
-                {pageUser.x_id === "" ? (
-                  <></>
-                ) : (
-                  <div className="flex mb-1">
-                    {headerData.user.hateX ? <BsTwitter width={25} height={25} className="text-xl mx-1" /> : <BsTwitterX width={25} height={25} className="text-xl mx-1" />}
-                    <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
-                      {pageUser.x_id}
-                    </Link>
-                  </div>
-                )}
+              <div className="grid gap-x-2" style={{ gridTemplateColumns: "auto auto" }}>
+                {pageUser.atcoder_id && <>
+                  <img src={`${headerData.user.isDarkMode ? "/svg/atcoder_logo_white.png" : "/svg/atcoder.png"}`} alt="atcoder:" width={25} height={25} />
+                  <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
+                    {pageUser.atcoder_id}
+                  </Link>
+                </>}
+                {pageUser.codeforces_id && <>
+                  <SiCodeforces width={25} height={25} className={`text-xl mx-1`} />
+                  <Link href={`https://codeforces.com/profile/${pageUser.codeforces_id}`} target="_blank" style={{ color: `${codeforcesRatingColor}` }}>
+                    {pageUser.codeforces_id}
+                  </Link>
+                </>}
+                {pageUser.x_id && <>
+                  {headerData.user.hateX ? <BsTwitter width={25} height={25} className="text-xl mx-1" /> : <BsTwitterX width={25} height={25} className="text-xl mx-1" />}
+                  <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
+                    {pageUser.x_id}
+                  </Link>
+                </>}
               </div>
             </div>
           </div>
-          <nav className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white border-white" : "bg-white text-black border-black"}`} style={{ width: `${width}px` }}>
+          <nav className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white border-white" : "bg-white text-black border-black"} w-lvw`}>
             <div className="mr-3 overflow-x-auto hidden-scrollbar">
-              <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
-                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
-                  <span>Articles</span>
+              <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8 break-keep cursor-pointer">
+                <li className={`px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
+                  Articles
                 </li>
-                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
-                  <span>Questions</span>
+                <li className={`px-2 ${navPlace === "questions" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("questions")}>
+                  Questions
                 </li>
-                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
-                  <span>Problems</span>
+                <li className={`px-2 ${navPlace === "problems" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("problems")}>
+                  Problems
                 </li>
-                <li style={{ wordBreak: "keep-all" }} className={`cursor-pointer px-2 ${navPlace === "MyShojin" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("MyShojin")}>
-                  <span>My精進ツリー</span>
+                <li className={`px-2 ${navPlace === "MyShojin" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("MyShojin")}>
+                  My精進ツリー
                 </li>
               </ul>
             </div>
@@ -458,10 +428,6 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           </div>
         </Dialog>
       </Transition>
-    </div>
-  ) : (
-    <div className="h-full">
-      <p>⚠ユーザーが存在しませんでした</p>
     </div>
   );
 }
