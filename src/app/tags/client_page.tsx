@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../components/providers/userProvider";
+import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 
 // 検索ページ.
 export default function SearchPage() {
@@ -13,6 +14,7 @@ export default function SearchPage() {
   const page = searchParams.get("page");
   const [tags, setTags] = useState<TagData[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [pageID, setPageID] = useState(1);
   const headerData = useContext(UserContext);
 
   useEffect(() => {
@@ -23,13 +25,16 @@ export default function SearchPage() {
     const fetcher = async () => {
       if (page === null) {
         const data = await axios.get("/api/db/tags/get?page=1");
+        setPageID(1);
         setTags(data.data.data);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
-        router.replace("/search");
+        router.replace("/tags");
         const data = await axios.get("/api/db/tags/get?page=1");
+        setPageID(1);
         setTags(data.data.data);
       } else {
         const data = await axios.get(`/api/db/tags/get?page=${page}`);
+        setPageID(Number(page));
         setTags(data.data.data);
       }
       setIsLoaded(true);
@@ -52,7 +57,7 @@ export default function SearchPage() {
           </div>
           <div className="flex flex-wrap justify-center">
             {tags.map((e: TagData) => (
-              <Link key={returnRandomString(32)} href={`/search/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
+              <Link key={returnRandomString(32)} href={`/tags/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
                 <div className="text-center">
                   <b>{e.name}</b>
                 </div>
@@ -64,6 +69,22 @@ export default function SearchPage() {
             ))}
           </div>
         </>
+      )}
+      {isLoaded && (
+        <div className="flex flex-wrap justify-center mt-5">
+          <Link href={pageID != 1 ? `tags?page=${pageID - 1}` : ""}>
+            <button disabled={pageID === 1} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 transition text-white rounded mx-2 text-xl p-2 pr-3 flex">
+              <GrFormPrevious className="my-auto" />
+              prev
+            </button>
+          </Link>
+          <Link href={tags.length === 30 ? `tags?page=${pageID + 1}` : ""}>
+            <button disabled={tags.length !== 30} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 transition text-white rounded mx-2 text-xl p-2 pl-3 flex">
+              next
+              <GrFormNext className="my-auto" />
+            </button>
+          </Link>
+        </div>
       )}
     </div>
   );

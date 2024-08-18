@@ -31,7 +31,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
       if (page === null) {
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
-        router.replace(`/search/${params.tag}?page=1`);
+        router.replace(`/tags/${params.tag}?page=1`);
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else {
         res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=${page}`);
