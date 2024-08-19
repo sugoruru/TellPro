@@ -3,13 +3,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdEditNote, MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { PageList } from "@/types/page";
 import { PageType } from "@/modules/other/pageTypes";
 import { UserPublic } from "@/types/user";
-import { UserContext } from "../../providers/userProvider";
 
 const PageLinkBlock = (props: {
   page: PageList;
@@ -18,12 +17,11 @@ const PageLinkBlock = (props: {
   me?: UserPublic | null;
   stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
 }) => {
-  const headerData = useContext(UserContext);
   const router = useRouter();
   return (
     <>
-      <div className={`border-gray-200 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>
-        <div className={`transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto ${headerData.user.isDarkMode ? "bg-slate-700" : "bg-white"}`}>
+      <div className={`border-gray-200 text-black dark:text-white`}>
+        <div className={`transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto bg-white dark:bg-slate-700`}>
           <Link href={`/${props.page.user_id}/${props.pageType}/${props.page.id}`} prefetch className="min-h-40 block">
             <div className="flex p-5">
               <div>

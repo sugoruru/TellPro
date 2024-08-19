@@ -3,8 +3,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
-import { UserContext } from "../components/providers/userProvider";
+import { useEffect, useState } from "react";
 import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 
 // 検索ページ.
@@ -15,7 +14,6 @@ export default function SearchPage() {
   const [tags, setTags] = useState<TagData[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [pageID, setPageID] = useState(1);
-  const headerData = useContext(UserContext);
 
   useEffect(() => {
     document.title = "Search｜TellPro";
@@ -46,14 +44,14 @@ export default function SearchPage() {
     <div className="h-full">
       {tags.length === 0 ? (
         isLoaded ? (
-          <div className={`text-center my-5 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>タグが見つかりませんでした。</div>
+          <div className={`text-center my-5 text-black dark:text-white`}>タグが見つかりませんでした。</div>
         ) : (
-          <div className={`text-center my-5 ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>読み込み中...</div>
+          <div className={`text-center my-5 text-black dark:text-white`}>読み込み中...</div>
         )
       ) : (
         <>
           <div className="text-center my-5">
-            <b className={`text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>タグ一覧</b>
+            <b className={`text-3xl text-black dark:text-white`}>タグ一覧</b>
           </div>
           <div className="flex flex-wrap justify-center">
             {tags.map((e: TagData) => (
