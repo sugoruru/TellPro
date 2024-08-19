@@ -169,16 +169,16 @@ export default function Settings() {
   return (
     <>
       {isSignIn && existUser ? (
-        <div className={`py-6 ${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-white"}`}>
+        <div className={`py-6 bg-white dark-bg-zinc-800`}>
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="mb-10 md:mb-16">
-              <h2 className={`text-center text-2xl font-bold lg:text-3xl ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>Settings</h2>
-              <h4 className={`text-center font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>(ヘッダーロゴを押すとホームに戻れます)</h4>
+              <h2 className={`text-center text-2xl font-bold lg:text-3xl text-gray-800 dark:text-white`}>Settings</h2>
+              <h4 className={`text-center font-bold text-gray-800 dark:text-white`}>(ヘッダーロゴを押すとホームに戻れます)</h4>
             </div>
-            <div className={`mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>アカウント設定</div>
+            <div className={`mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 font-bold text-2xl text-black dark:text-white`}>アカウント設定</div>
             <div className="mx-auto mb-8 grid max-w-screen-md gap-10 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label htmlFor="userName_tellPro" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
+                <label htmlFor="userName_tellPro" className={`mb-2 font-bold inline-block text-sm sm:text-base text-gray-800 dark:text-white`}>
                   ユーザー名
                   <p className="text-red-500">{userNameErrorMessage}</p>
                 </label>
@@ -195,7 +195,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="AtCoder_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
+                <label htmlFor="AtCoder_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base text-gray-800 dark:text-white`}>
                   AtCoderID
                 </label>
                 <input
@@ -210,7 +210,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="CodeForces_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
+                <label htmlFor="CodeForces_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base text-gray-800 dark:text-white`}>
                   CodeForcesID
                 </label>
                 <input
@@ -225,7 +225,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="X_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>
+                <label htmlFor="X_ID" className={`mb-2 font-bold inline-block text-sm sm:text-base text-gray-800 dark:text-white`}>
                   {headerData.user.hateX ? "Twitter" : "X"}({headerData.user.hateX ? "現X" : "旧Twitter"})ID
                 </label>
                 <div className="flex">
@@ -243,7 +243,7 @@ export default function Settings() {
                 </div>
               </div>
               <div className="flex">
-                <span className={`${headerData.user.isDarkMode ? "text-white" : "text-black"}`}>Twitter過激派ボタン:</span>
+                <span className={`text-black dark:text-white`}>Twitter過激派ボタン:</span>
                 <label className="inline-flex items-center cursor-pointer ml-4">
                   <input
                     type="checkbox"
@@ -280,7 +280,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="my-auto mx-5 text-center">
-                  <span className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>preview</span>
+                  <span className={`text-gray-800 dark:text-white`}>preview</span>
                   <img src={selectedImage == "" ? user!.icon : selectedImage} className="border rounded-full object-cover" width={60} height={60} style={{ width: "80px", height: "80px" }} alt={""} />
                 </div>
               </div>
@@ -317,7 +317,7 @@ export default function Settings() {
             <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mt-5 font-bold text-2xl text-red-600">アカウント削除設定</div>
             <div className="mx-auto max-w-screen-md gap-10 sm:grid-cols-2 w-full">
               <div className="h-64 w-full">
-                <p className={`text-xl my-2 font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>削除したアカウントはもとに戻すことができません！！</p>
+                <p className={`text-xl my-2 font-bold text-gray-800 dark:text-white`}>削除したアカウントはもとに戻すことができません！！</p>
                 <div className="mx-auto grid max-w-screen-md gap-10 sm:grid-cols-2 mb-5">
                   <div className="flex items-center justify-between sm:col-span-2">
                     <button
@@ -327,7 +327,7 @@ export default function Settings() {
                     >
                       アカウントを削除する
                     </button>
-                    <p className={`${headerData.user.isDarkMode ? "text-white" : "text-gray-800"}`}>{deleteAccountStateMessage}</p>
+                    <p className={`text-gray-800 dark:text-white`}>{deleteAccountStateMessage}</p>
                   </div>
                 </div>
               </div>

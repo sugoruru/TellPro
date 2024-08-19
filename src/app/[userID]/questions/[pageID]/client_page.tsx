@@ -3,7 +3,7 @@ import Lex from "@/modules/md/md";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Prism from "prismjs";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import sleep from "@/modules/main/sleep";
 import DeleteCommentModal from "@/app/components/pages/comments/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/pages/comments/updateCommentModal";
@@ -56,7 +56,6 @@ export default function Questions({ params }: { params: { userID: string; pageID
   const router = useRouter();
   const searchParams = useSearchParams();
   const { width } = useGetWindowSize();
-  const headerData = useContext(UserContext);
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -154,8 +153,8 @@ export default function Questions({ params }: { params: { userID: string; pageID
   ) : isExist ? (
     me.id === params.userID || page.is_public ? (
       <div className="w-[calc(100vw-calc(100vw-100%))]">
-        <div className={`text-center text-4xl font-bold my-5 ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>{page.title === "" ? "untitled" : page.title}</div>
-        <div className={`text-center text-base font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>公開日時:{page.date.split("T")[0]}</div>
+        <div className={`text-center text-4xl font-bold my-5 text-gray-700 dark:text-white`}>{page.title === "" ? "untitled" : page.title}</div>
+        <div className={`text-center text-base font-bold text-gray-700 dark:text-white`}>公開日時:{page.date.split("T")[0]}</div>
         <div className="flex justify-center">
           <div className={`${page.is_public ? (page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block`}>
             {page.is_public ? (page.is_closed ? "クローズ" : "公開") : "非公開"}

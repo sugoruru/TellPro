@@ -1,12 +1,8 @@
 import Link from "next/link";
-import { useContext } from "react";
-import { UserContext } from "../providers/userProvider";
 
 const Footer = () => {
-  const headerData = useContext(UserContext);
-
   return (
-    <div className={`p-10 border-t border-gray-500 border-dashed ${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-gray-700"}`}>
+    <div className={`p-10 border-t border-gray-500 border-dashed bg-white text-gray-700 dark:bg-neutral-800 dark:text-white`}>
       <div className="md:flex flex-wrap gap-10 justify-center">
         <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">About</li>

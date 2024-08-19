@@ -1,6 +1,6 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { MdKeyboardArrowDown } from "react-icons/md";
@@ -20,7 +20,6 @@ import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
 import handlePageUpload from "@/modules/handle/handlePageUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
-import { UserContext } from "@/app/components/providers/userProvider";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -41,7 +40,6 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [content, setContent] = useState<JSX.Element>(<></>);
   const { width } = useGetWindowSize();
   const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
-  const headerData = useContext(UserContext);
 
   useEffect(() => {
     if (!/^[a-zA-Z]+$/.test(params.pageID)) {
@@ -121,21 +119,21 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
     <></>
   ) : canEdit ? (
     // 編集権限がある場合.
-    <div className={`grow ${headerData.user.isDarkMode ? (isMarkdown ? "bg-neutral-800" : "bg-gray-800") : isMarkdown ? "bg-white" : "bg-slate-100"} flex-col flex h-[calc(100vh-80px)]`}>
-      <div className={`${headerData.user.isDarkMode ? "bg-neutral-800" : "bg-white"}`}>
+    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} dark:${isMarkdown ? "bg-neutral-800" : "bg-gray-800"} flex-col flex h-[calc(100vh-80px)]`}>
+      <div className={`bg-white dark:bg-neutral-800`}>
         <button
           onClick={() => setIsMarkdown(true)}
-          className={`${headerData.user.isDarkMode ? (isMarkdown ? "text-gray-100 border-b-2" : "text-white") : isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} ${
-            headerData.user.isDarkMode ? "hover:text-gray-300" : "hover:text-gray-800"
-          } text-sm font-bold py-2 px-4 border-blue-500`}
+          className={`${isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} ${
+            isMarkdown ? "dark:text-gray-100 dark:border-b-2" : "dark:text-white"
+          } hover:text-gray-800 dark:hover:text-gray-300 text-sm font-bold py-2 px-4 border-blue-500`}
         >
           編集(Markdown)
         </button>
         <button
           onClick={() => setIsMarkdown(false)}
-          className={`${headerData.user.isDarkMode ? (!isMarkdown ? "text-gray-100 border-b-2" : "text-white") : !isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} ${
-            headerData.user.isDarkMode ? "hover:text-gray-300" : "hover:text-gray-800"
-          } text-sm font-bold py-2 px-4 border-blue-500`}
+          className={`${!isMarkdown ? "text-gray-800 border-b-2" : "text-gray-500"} dark:${
+            !isMarkdown ? "text-gray-100 dark:border-b-2" : "text-white"
+          } hover:text-gray-800 dark:hover:text-gray-300 text-sm font-bold py-2 px-4 border-blue-500`}
         >
           プレビュー
         </button>
@@ -147,9 +145,9 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
           <div className="border-b w-full p-3">
             <input
               type="text"
-              className={`border ${sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""} outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full ${
-                headerData.user.isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
-              }`}
+              className={`border ${
+                sendingMessage === "タイトルを入力してください" && title === "" ? "border-red-500" : ""
+              } outline-1 outline-sky-400 rounded p-1 h-10 text-xl w-full bg-white text-black dark:bg-gray-700 dark:text-white`}
               placeholder="タイトル"
               onChange={(e) => {
                 if (e.target.value.length <= 50) {
@@ -167,7 +165,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   <>
                     <div className="absolute right-0 mx-6 my-2 text-3xl cursor-pointer">
                       <BiCopyAlt
-                        className={`absolute right-0 mx-6 my-2 text-3xl cursor-pointer ${headerData.user.isDarkMode ? "text-white" : "text-black"}`}
+                        className={`absolute right-0 mx-6 my-2 text-3xl cursor-pointer text-black dark:text-white`}
                         title="簡易リアルタイムプレビュー"
                         onClick={() => {
                           setRealTimePreview(!realTimePreview);
@@ -177,9 +175,9 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                   </>
                 )}
                 <textarea
-                  className={`border ${sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""} h-full outline-1 resize-none rounded outline-sky-400 p-1 w-full ${
-                    headerData.user.isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
-                  }`}
+                  className={`border ${
+                    sendingMessage === "本文を入力してください" && mdAreaValue === "" ? "border-red-500" : ""
+                  } h-full outline-1 resize-none rounded outline-sky-400 p-1 w-full bg-white text-black dark:bg-gray-700 dark:text-white`}
                   placeholder="本文(Markdown)"
                   onChange={(e) => setMdAreaValue(e.target.value)}
                   value={mdAreaValue}
@@ -290,9 +288,9 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         </>
       ) : (
         // プレビュータブの場合.
-        <div className={`w-[calc(100vw-calc(100vw-100%))] ${headerData.user.isDarkMode ? "bg-zinc-800" : "bg-slate-100"}`}>
-          <div className={`text-center text-4xl font-bold my-5 ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>{title === "" ? "untitled" : title}</div>
-          <div className={`text-center text-base font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>公開日時:{new Date().toISOString().split("T")[0]}</div>
+        <div className={`w-[calc(100vw-calc(100vw-100%))] bg-slate-100 dark-bg-zinc-800`}>
+          <div className={`text-center text-4xl font-bold my-5 text-gray-700 dark:text-white`}>{title === "" ? "untitled" : title}</div>
+          <div className={`text-center text-base font-bold text-gray-700 dark:text-white`}>公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="flex justify-center">
             <div className="mt-2 px-1 flex-wrap flex">
               {tagSearchValue.split(" ").map((e) =>
@@ -307,7 +305,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               )}
             </div>
           </div>
-          <div className={`flex justify-center mx-auto text-base font-bold ${headerData.user.isDarkMode ? "text-white" : "text-gray-700"}`}>
+          <div className={`flex justify-center mx-auto text-base font-bold text-gray-700 dark:text-white`}>
             <div
               className="flex cursor-pointer"
               onClick={() => {

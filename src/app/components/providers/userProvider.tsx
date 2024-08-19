@@ -3,16 +3,24 @@ import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
+
+interface UserProviderProps {
+  user: UserPublic | null;
+  notificationCount: number;
+  isDarkMode: boolean;
+  hateX: boolean;
+}
+
 export const UserContext = createContext<{
-  user: { user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean };
-  setUser: Dispatch<SetStateAction<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean }>> | null;
+  user: UserProviderProps;
+  setUser: Dispatch<SetStateAction<UserProviderProps>> | null;
 }>({
   user: { user: null, notificationCount: 0, isDarkMode: false, hateX: false },
   setUser: null,
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<{ user: UserPublic | null; notificationCount: number; isDarkMode: boolean; hateX: boolean }>({
+  const [user, setUser] = useState<UserProviderProps>({
     user: null,
     notificationCount: 0,
     isDarkMode: false,
@@ -55,5 +63,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     setUser((prev) => ({ ...prev, isDarkMode: localStorage.getItem("isDarkMode") === "true", hateX: localStorage.getItem("hateX") === "true" }));
   }, []);
+  useEffect(() => {
+    if (localStorage.getItem("isDarkMode") === "true") document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+  }, [user.isDarkMode]);
   return <UserContext.Provider value={{ user: user, setUser: setUser }}>{children}</UserContext.Provider>;
 };

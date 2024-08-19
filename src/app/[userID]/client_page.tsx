@@ -15,7 +15,6 @@ import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors
 import { max } from "@/modules/algo/max_min";
 import { UserPublic } from "@/types/user";
 import { UserContext } from "../components/providers/userProvider";
-import { useGetWindowSize } from "../components/hooks/useGetWindowSize";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +38,6 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const router = useRouter();
   const headerData = useContext(UserContext);
   const isFetched = useRef(false);
-  const { width } = useGetWindowSize();
 
   const canSendReportChecker = () => {
     if (me) {
@@ -174,12 +172,17 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   };
 
   if (isLoading) return <div className="h-full"></div>;
-  if (!isExist) return <div className="h-full"><p>⚠ユーザーが存在しませんでした</p></div>;
+  if (!isExist)
+    return (
+      <div className="h-full">
+        <p>⚠ユーザーが存在しませんでした</p>
+      </div>
+    );
 
   return (
     <div className="h-full flex flex-col">
       <div>
-        <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-white text-black"}`}>
+        <div className={`bg-white text-black dark:bg-neutral-800 dark:text-white`}>
           <div className="p-5 md:flex sm:block">
             <img alt={pageUser.username} src={pageUser.icon} width={128} height={128} className="md:mx-5 size-24" />
             <div className="flex mt-3 md:mt-0 space-x-4">
@@ -189,46 +192,58 @@ export default function UserPage({ params }: { params: { userID: string } }) {
                   {pageUser.is_admin && <IoShieldCheckmark className="text-purple-700 size-5" title="Admin"></IoShieldCheckmark>}
                 </div>
                 <div>{pageUser.status_message}</div>
-                <div><span className="font-bold">{pageUser.answer_score + pageUser.page_score}</span> Scores</div>
-                {me && !pageUser.is_admin && (<>
-                  <button
-                    onClick={() => {
-                      canSendReportChecker();
-                      setIsOpenReportModal(true);
-                      setReportValue("");
-                    }}
-                    className="bg-red-500 hover:bg-red-600 transition px-3 rounded text-white"
-                  >
-                    通報
-                  </button>
-                  {me!.is_admin && (
-                    <div>ban: <input type="checkbox" checked={pageUser.is_banned} onChange={isSendingUpdateBanned ? ()=>{} : handleSwitchBanned}/></div>
-                  )}
-                </>)}
+                <div>
+                  <span className="font-bold">{pageUser.answer_score + pageUser.page_score}</span> Scores
+                </div>
+                {me && !pageUser.is_admin && (
+                  <>
+                    <button
+                      onClick={() => {
+                        canSendReportChecker();
+                        setIsOpenReportModal(true);
+                        setReportValue("");
+                      }}
+                      className="bg-red-500 hover:bg-red-600 transition px-3 rounded text-white"
+                    >
+                      通報
+                    </button>
+                    {me!.is_admin && (
+                      <div>
+                        ban: <input type="checkbox" checked={pageUser.is_banned} onChange={isSendingUpdateBanned ? () => {} : handleSwitchBanned} />
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
               <div className="grid gap-x-2" style={{ gridTemplateColumns: "auto auto" }}>
-                {pageUser.atcoder_id && <>
-                  <img src={`${headerData.user.isDarkMode ? "/svg/atcoder_logo_white.png" : "/svg/atcoder.png"}`} alt="atcoder:" width={25} height={25} />
-                  <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
-                    {pageUser.atcoder_id}
-                  </Link>
-                </>}
-                {pageUser.codeforces_id && <>
-                  <SiCodeforces width={25} height={25} className={`text-xl mx-1`} />
-                  <Link href={`https://codeforces.com/profile/${pageUser.codeforces_id}`} target="_blank" style={{ color: `${codeforcesRatingColor}` }}>
-                    {pageUser.codeforces_id}
-                  </Link>
-                </>}
-                {pageUser.x_id && <>
-                  {headerData.user.hateX ? <BsTwitter width={25} height={25} className="text-xl mx-1" /> : <BsTwitterX width={25} height={25} className="text-xl mx-1" />}
-                  <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
-                    {pageUser.x_id}
-                  </Link>
-                </>}
+                {pageUser.atcoder_id && (
+                  <>
+                    <img src={`${headerData.user.isDarkMode ? "/svg/atcoder_logo_white.png" : "/svg/atcoder.png"}`} alt="atcoder:" width={25} height={25} />
+                    <Link href={`https://atcoder.jp/users/${pageUser.atcoder_id}`} target="_blank" style={{ color: `${atcoderRatingColor}` }}>
+                      {pageUser.atcoder_id}
+                    </Link>
+                  </>
+                )}
+                {pageUser.codeforces_id && (
+                  <>
+                    <SiCodeforces width={25} height={25} className={`text-xl mx-1`} />
+                    <Link href={`https://codeforces.com/profile/${pageUser.codeforces_id}`} target="_blank" style={{ color: `${codeforcesRatingColor}` }}>
+                      {pageUser.codeforces_id}
+                    </Link>
+                  </>
+                )}
+                {pageUser.x_id && (
+                  <>
+                    {headerData.user.hateX ? <BsTwitter width={25} height={25} className="text-xl mx-1" /> : <BsTwitterX width={25} height={25} className="text-xl mx-1" />}
+                    <Link href={`https://x.com/${pageUser.x_id}`} target="_blank">
+                      {pageUser.x_id}
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
-          <nav className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white border-white" : "bg-white text-black border-black"} w-lvw`}>
+          <nav className={`bg-white text-black border-black dark:bg-neutral-800 dark:text-white dark:border-white w-lvw`}>
             <div className="mr-3 overflow-x-auto hidden-scrollbar">
               <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8 break-keep cursor-pointer">
                 <li className={`px-2 ${navPlace === "articles" ? "location" : "nonLocation"}`} onClick={() => setNavPlace("articles")}>
@@ -319,12 +334,12 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           </Dialog>
         </Transition>
       </div>
-      <div className={`h-full ${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
+      <div className={`h-full bg-slate-100 text-black dark:bg-neutral-800 dark:text-white`}>
         {navPlace === "articles" ? (
           pages.length === 0 ? (
             <div className="m-5">記事はありません</div>
           ) : (
-            <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
+            <div className={`bg-slate-100 text-black dark:bg-neutral-800 dark:text-white`}>
               {pages.map((page) => (
                 <div key={returnRandomString(32)}>
                   <PageLinkBlock page={page} pageUser={pageUser} pageType="articles" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
@@ -336,7 +351,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           questions.length === 0 ? (
             <div className="m-5">質問はありません</div>
           ) : (
-            <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
+            <div className={`bg-slate-100 text-black dark:bg-neutral-800 dark:text-white`}>
               {questions.map((question) => (
                 <div key={returnRandomString(32)}>
                   <PageLinkBlock page={question} pageUser={pageUser} pageType="questions" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
@@ -348,7 +363,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
           problems.length === 0 ? (
             <div className="m-5">問題集はありません</div>
           ) : (
-            <div className={`${headerData.user.isDarkMode ? "bg-neutral-800 text-white" : "bg-slate-100 text-black"}`}>
+            <div className={`bg-slate-100 text-black dark:bg-neutral-800 dark:text-white`}>
               {problems.map((problem) => (
                 <div key={returnRandomString(32)}>
                   <PageLinkBlock page={problem} pageUser={pageUser} pageType="problems" me={me} stateFunctions={{ setIsOpenDeletePageModal, setDeletePageID }} />
