@@ -1,276 +1,489 @@
-import returnRandomString from "../algo/returnRandomString";
-import sanitize from "sanitize-html";
-import H1 from "./header/h1";
-import H2 from "./header/h2";
-import H3 from "./header/h3";
-import H4 from "./header/h4";
-import H5 from "./header/h5";
-import H6 from "./header/h6";
-import YouTube from "react-youtube";
 import HighlightedCodeBlock from "@/app/components/pages/main/HighlightedCodeBlock";
-import Image from "next/image";
-import { Fragment } from "react";
+import returnRandomString from "@/modules/algo/returnRandomString";
 import { MdCheckCircleOutline, MdInfoOutline, MdOutlineDangerous, MdOutlineWarningAmber } from "react-icons/md";
 import { InlineMath } from "react-katex";
-const head: string[] = ["#", "##", "###", "####", "#####", "######"];
+import YouTube from "react-youtube";
+import sanitize from "sanitize-html";
 
-const Lex = (props: { text: string }) => {
-  const { text } = props;
-  const list = text.split("\n");
-  const result: JSX.Element[] = [];
-  let isCodeBlock = false;
-  let isAlert = false;
-  let codes: string[] = [];
-  let alerts: string[] = [];
-  let lang: string = "";
-  let alertType: string = "";
-  for (const elem of list) {
-    // 1つめのスペースで切り分ける(header textという構文).
-    const [header, ...text] = elem.split(" ");
-    if (header.slice(0, 3) === "```" && !isAlert) {
-      // コードブロックの場合.
-      isCodeBlock = !isCodeBlock;
-      if (isCodeBlock) {
-        codes = [];
-        lang = header.slice(3, header.length);
-      } else {
-        result.push(<HighlightedCodeBlock code={codes.join("\n")} lang={lang} key={returnRandomString(64)} />);
-      }
-      continue;
-    }
-    if (header.slice(0, 3) === ":::" && !isCodeBlock) {
-      isAlert = !isAlert;
-      if (isAlert) {
-        alerts = [];
-        alertType = header.slice(3, header.length);
-      } else {
-        if (alertType === "info") {
-          result.push(
-            <div className="mt-2 text-sm text-white rounded-lg p-4 flex" role="alert" style={{ backgroundColor: "#2563eb" }} key={returnRandomString(64)}>
-              <MdInfoOutline className="text-blue-200 text-xl mr-1" />
-              {alerts.join("\n")}
-            </div>
-          );
-        } else if (alertType === "success") {
-          result.push(
-            <div className="mt-2 text-sm text-white rounded-lg p-4 flex" style={{ backgroundColor: "#14b8a6" }} role="alert" key={returnRandomString(64)}>
-              <MdCheckCircleOutline className="text-teal-200 text-xl mr-1" />
-              {alerts.join("\n")}
-            </div>
-          );
-        } else if (alertType === "warning") {
-          result.push(
-            <div className="mt-2 text-sm text-white rounded-lg p-4 flex" style={{ backgroundColor: "#eab308" }} role="alert" key={returnRandomString(64)}>
-              <MdOutlineWarningAmber className="text-yellow-200 text-xl mr-1" />
-              {alerts.join("\n")}
-            </div>
-          );
-        } else if (alertType === "danger") {
-          result.push(
-            <div className="mt-2 text-sm text-white rounded-lg p-4 flex" style={{ backgroundColor: "#ef4444" }} role="alert" key={returnRandomString(64)}>
-              <MdOutlineDangerous className="text-red-200 text-xl mr-1" />
-              {alerts.join("\n")}
-            </div>
-          );
-        } else {
-          result.push(
-            <div className="mt-2 text-sm text-white rounded-lg p-4 flex" style={{ backgroundColor: "#6b7280" }} role="alert" key={returnRandomString(64)}>
-              {alerts.join("\n")}
-            </div>
-          );
-        }
-      }
-      continue;
-    }
-    if (isCodeBlock) {
-      codes.push(elem);
-      continue;
-    }
-    if (isAlert) {
-      alerts.push(elem);
-      continue;
-    }
-    if (elem === "") {
-      result.push(<div className="block my-2 content-none" key={returnRandomString(64)} />);
-      continue;
-    }
-    if (text.length === 0 || !head.includes(header)) {
-      if (header.length === header.split("").filter((char) => char === "-").length && header.length >= 3) {
-        // ---という横切り線の場合.
-        result.push(<hr key={returnRandomString(32)} />);
-      } else if (/!\[.*\]\{(.*)\}.*/g.test(elem)) {
-        // 画像の場合.
-        const alt = elem.match(/!\[.*\]/g)![0].slice(2, -1);
-        const src = elem
-          .match(/\{.*\}/g)![0]
-          .slice(1, -1)
-          .split(" ")[0];
-        const param1 = elem
-          .match(/\{.*\}/g)![0]
-          .slice(1, -1)
-          .split(" ")[1];
-        const text = elem.replace(/!\[.*\]\{.*\}/g, "");
-        const opt = { size: 150 };
-        if (param1 !== undefined) {
-          if (param1.startsWith("size=")) {
-            const size = param1.split("=")[1];
-            opt.size = Number(size);
-          }
-        }
-        result.push(
-          <div className="block" key={returnRandomString(64)}>
-            <Image src={src} alt={alt} width={opt.size} height={150} priority />
-            <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(text)}</span>
-          </div>
-        );
-      } else if (/\\\[.*\]\{(.*)\}.*/g.test(elem)) {
-        // 別タブリンクの場合.
-        const textBeforeBrackets = elem.replace(/\\\[.*\]\{(.*)\}/g, ",").split(",")[0];
-        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
-        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\\\[.*\]\{(.*)\}/g, ",").split(",")[1];
-        if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
-          result.push(
-            <Fragment key={returnRandomString(64)}>
-              {Text(textBeforeBrackets)}
-              <a href={href} className="myLink" target="_blank">
-                {Text(text)}
-              </a>
-              <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
-              <br />
-            </Fragment>
-          );
-        } else {
-          result.push(
-            <Fragment key={returnRandomString(64)}>
-              {Text(textBeforeBrackets)}
-              <span>{Text("\\[" + text + "]" + "{" + href + "}")}</span>
-              {Text(after)}
-              <br />
-            </Fragment>
-          );
-        }
-      } else if (/@\[youtube\]\{(.*)\}.*/g.test(elem)) {
-        // メンションの場合.
-        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const videoID = href.split("v=")[1];
-        result.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
-      } else if (/\%\[.*\]\{(.*)\}.*/g.test(elem)) {
-        // 色付きのテキストの場合.
-        const textBeforeBrackets = elem.replace(/\%\[.*\]\{(.*)\}/g, ",").split(",")[0];
-        const color = elem.match(/\%\[.*\]/g)![0].slice(2, -1);
-        const text = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\%\[.*\]\{(.*)\}/g, ",").split(",")[1];
-        result.push(
-          <div key={returnRandomString(64)}>
-            {Text(textBeforeBrackets)}
-            <span style={{ color: color }}>{Text(text)}</span>
-            {Text(after)}
-            <br />
-          </div>
-        );
-      } else if (/\[.*\]\{(.*)\}.*/g.test(elem)) {
-        // リンクの場合.
-        const textBeforeBrackets = elem.replace(/\[.*\]\{(.*)\}/g, ",").split(",")[0];
-        const text = elem.match(/\[.*\]/g)![0].slice(1, -1);
-        const href = elem.match(/\{.*\}/g)![0].slice(1, -1);
-        const after = elem.replace(/\[.*\]\{(.*)\}/g, ",").split(",")[1];
-        if (href.startsWith("http") || href.startsWith("https") || href.startsWith("mailto")) {
-          result.push(
-            <Fragment key={returnRandomString(64)}>
-              {Text(textBeforeBrackets)}
-              <a href={href} className="myLink">
-                {Text(text)}
-              </a>
-              <span style={{ marginTop: "auto", wordBreak: "break-all" }}>{Text(after)}</span>
-              <br />
-            </Fragment>
-          );
-        } else {
-          result.push(
-            <Fragment key={returnRandomString(64)}>
-              {Text(textBeforeBrackets)}
-              <span>{Text("[" + text + "]" + "{" + href + "}")}</span>
-              {Text(after)}
-              <br />
-            </Fragment>
-          );
-        }
-      } else if (/\$\$.*\$\$/g.test(elem)) {
-        // inline数式の場合.
-        let text_array = elem.split("$$");
-        if (!elem.startsWith("$$")) {
-          const text = text_array.shift();
-          if (text) {
-            result.push(
-              <span className="text-base text-gray-800" key={returnRandomString(64)}>
-                {Text(text)}
-              </span>
-            );
-          }
-        }
-        text_array = text_array.filter((elem) => elem !== "");
-        // 数式→テキスト→数式→テキスト→数式→...という構造になっている.
-        for (let i = 0; i < text_array.length; i++) {
-          if (i % 2 === 0) {
-            result.push(
-              <span className="inline-block" style={{ maxWidth: "100%" }} key={returnRandomString(64)}>
-                <InlineMath math={text_array[i]} />
-              </span>
-            );
-          } else {
-            result.push(
-              <span className="text-base text-gray-800" key={returnRandomString(64)}>
-                {Text(text_array[i])}
-              </span>
-            );
-          }
-        }
-        result.push(<br key={returnRandomString(64)} />);
-      } else {
-        // 通常のテキストの場合.
-        result.push(
-          <span className="text-gray-800" key={returnRandomString(64)}>
-            {Text(elem)}
-            <br />
-          </span>
-        );
-      }
-      continue;
-    }
+type TokenType =
+  | "Break"
+  | "Heading"
+  | "Indent"
+  | "List"
+  | "HorizontalLine"
+  | "Image"
+  | "Media"
+  | "CodeBlock"
+  | "AlertBox"
+  | "InlineMath"
+  | "Link"
+  | "BlankTargetLink"
+  | "ColorText"
+  | "CollapsibleSection"
+  | "Text";
 
-    // ヘッダーの場合.
-    if (head.includes(header)) {
-      if (header === "#") {
-        result.push(<H1 text={Lex({ text: elem.slice(2) })} key={returnRandomString(64)} />);
-      } else if (header === "##") {
-        result.push(<H2 text={Lex({ text: elem.slice(3) })} key={returnRandomString(64)} />);
-      } else if (header === "###") {
-        result.push(<H3 text={Lex({ text: elem.slice(4) })} key={returnRandomString(64)} />);
-      } else if (header === "####") {
-        result.push(<H4 text={Lex({ text: elem.slice(5) })} key={returnRandomString(64)} />);
-      } else if (header === "#####") {
-        result.push(<H5 text={Lex({ text: elem.slice(6) })} key={returnRandomString(64)} />);
-      } else if (header === "######") {
-        result.push(<H6 text={Lex({ text: elem.slice(7) })} key={returnRandomString(64)} />);
-      }
-    }
-  }
-  return <>{result}</>;
-};
+interface Token {
+  type: TokenType;
+  content: string;
+  level?: number; // 見出しやインデントのレベル
+  options?: Record<string, string>; // 画像のオプションなど
+  children?: Token[];
+}
 
-const Text = (text: string): JSX.Element => {
-  // 関数を定義して、マークダウンのパターンに応じた置換を行う
-  const decorateText = (input: string): JSX.Element => {
-    let output: string = input;
+const decorateText = (input: string): string => {
+  let output: string = input;
+  for (let i = 0; i < 10; i++) {
     output = output.replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>"); // bold
     output = output.replace(/\*([^*]+?)\*/g, "<i>$1</i>"); // italic
     output = output.replace(/\~([^*]+?)\~/g, "<s>$1</s>"); // strike
     output = output.replace(/\`([^*]+?)\`/g, "<inline>$1</inline>"); // inline
-    return <span dangerouslySetInnerHTML={{ __html: sanitize(output, { allowedTags: ["inline", "i", "b", "s", "dl", "dd", "dt", "pre", "code"] }) }} key={returnRandomString(64)} />;
-  };
-  
-  return decorateText(text);
+  }
+  return output;
+};
+
+function lex(input: string): Token[] {
+  const tokens: Token[] = [];
+  let current = 0;
+
+  while (current < input.length) {
+    let char = input[current];
+    if (char === "\n") {
+      current++;
+      tokens.push({ type: "Break", content: "" });
+      continue;
+    }
+
+    // Heading (e.g., #, ##, ###, etc.)
+    if (char === "#") {
+      let level = 0;
+      while (char === "#") {
+        level++;
+        char = input[++current];
+      }
+      if (input[current] === " ") {
+        let value = "";
+        current++; // Skip the space after the heading
+        while (current < input.length && input[current] !== "\n") {
+          value += input[current++];
+        }
+        current++;
+        value = decorateText(value.trim());
+        tokens.push({ type: "Heading", content: value, level });
+        continue;
+      }
+    }
+
+    // Indent (e.g., ~)
+    if (char === "~") {
+      let level = 0;
+      while (char === "~") {
+        level++;
+        char = input[++current];
+      }
+      if (input[current] === " ") {
+        let value = "";
+        current++; // Skip the space after the indent
+        while (current < input.length && input[current] !== "\n") {
+          value += input[current++];
+        }
+        value = decorateText(value.trim());
+        current++; // Skip the newline after the indent
+        tokens.push({ type: "Indent", content: value, level });
+        continue;
+      } else {
+        // Textとして扱う
+        let value = "";
+        for (let i = 0; i < level; i++) {
+          value += "~";
+        }
+        tokens.push({ type: "Text", content: value });
+        continue;
+      }
+    }
+
+    // List (e.g., -)
+    if (char === "-") {
+      let level = 0;
+      while (char === "-") {
+        level++;
+        char = input[++current];
+      }
+      if (input[current] === " ") {
+        let value = "";
+        current++; // Skip the space after the list marker
+        let math = false;
+        let subTokens: Token[] = [];
+        while (current < input.length && input[current] !== "\n") {
+          if (input[current] === "$" && input[current + 1] === "$") {
+            current += 2;
+            if (math) {
+              subTokens.push({ type: "InlineMath", content: value.trim(), level });
+            } else {
+              value = decorateText(value.trim());
+              subTokens.push({ type: "Text", content: value, level });
+            }
+            math = !math;
+            value = "";
+          }
+          if (input[current] === "\n") {
+            break;
+          }
+          value += input[current++];
+        }
+        value = decorateText(value.trim());
+        subTokens.push({ type: "Text", content: value, level });
+        current++; // Skip the newline after the list
+        tokens.push({ type: "List", content: "", level, children: subTokens });
+        continue;
+      } else if (input[current] === "\n") {
+        tokens.push({ type: "HorizontalLine", content: "" });
+        continue;
+      }
+    }
+
+    // Image (e.g., ![alt]{src|A=B|C=D|...})...
+    if (char === "!" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+      let alt = "";
+      current += 2; // Skip ![
+      while (input[current] !== "]") {
+        alt += input[current++];
+      }
+      current += 2; // Skip ]{
+      let src = "";
+      while (input[current] !== "}" && input[current] !== "|") {
+        src += input[current++];
+      }
+      let options: Record<string, string> = {};
+      while (input[current] === "|") {
+        let key = "";
+        let value = "";
+        current++; // Skip |
+        while (input[current] !== "=") {
+          key += input[current++];
+        }
+        current++; // Skip =
+        while (input[current] !== "|" && input[current] !== "}") {
+          value += input[current++];
+        }
+        options[key] = value;
+      }
+      tokens.push({ type: "Image", content: alt, options: { src, ...options } });
+      current++; // Skip }
+      continue;
+    }
+
+    // Media (e.g., @[media name]{src})
+    if (char === "@") {
+      if (input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+        let media = "";
+        current += 2; // Skip @[
+        while (input[current] !== "]") {
+          media += input[current++];
+        }
+        current += 2; // Skip ]{
+        let src = "";
+        while (input[current] !== "}") {
+          src += input[current++];
+        }
+        tokens.push({ type: "Media", content: src, options: { media } });
+        current++; // Skip }
+        continue;
+      }
+    }
+
+    // Code Block (e.g., ```lang txt```)
+    if (char === "`" && input[current + 1] === "`" && input[current + 2] === "`") {
+      current += 3; // Skip ```
+      let lang = "";
+      while (current < input.length && input[current] !== "\n") {
+        lang += input[current++];
+      }
+      current++; // Skip the newline after language
+      let code = "";
+      while (current < input.length && !(input[current] === "`" && input[current + 1] === "`" && input[current + 2] === "`")) {
+        code += input[current++];
+      }
+      tokens.push({ type: "CodeBlock", content: code.trim(), options: { lang } });
+      current += 3; // Skip ```
+      continue;
+    }
+
+    // Alert Box (e.g., :::type)
+    if (char === ":" && input[current + 1] === ":" && input[current + 2] === ":") {
+      current += 3; // Skip :::
+      let type = "";
+      while (current < input.length && input[current] !== "\n") {
+        type += input[current++];
+      }
+      let content = "";
+      while (current < input.length && !(input[current] === ":" && input[current + 1] === ":" && input[current + 2] === ":")) {
+        content += input[current++];
+      }
+      content = decorateText(content.trim());
+      tokens.push({ type: "AlertBox", content: content, options: { type } });
+      current += 3; // Skip :::
+      continue;
+    }
+
+    // Inline Math (e.g., $$Math$$)
+    if (char === "$" && input[current + 1] === "$") {
+      current += 2; // Skip $$
+      let math = "";
+      while (current < input.length && !(input[current] === "$" && input[current + 1] === "$")) {
+        math += input[current++];
+      }
+      tokens.push({ type: "InlineMath", content: math.trim() });
+      current += 2; // Skip $$
+      continue;
+    }
+
+    // Link (e.g., [text]{url})
+    if (char === "[" && input.indexOf("]{", current + 1) !== -1) {
+      let text = "";
+      current++; // Skip [
+      while (input[current] !== "]") {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let url = "";
+      while (input[current] !== "}") {
+        url += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "Link", content: text, options: { url } });
+      current++; // Skip }
+      continue;
+    }
+
+    // Blank Target Link (e.g., \[text]{url})
+    if (char === "\\" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+      let text = "";
+      current += 2; // Skip \[
+      while (input[current] !== "]") {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let url = "";
+      while (input[current] !== "}") {
+        url += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "BlankTargetLink", content: text, options: { url } });
+      current++; // Skip }
+      continue;
+    }
+
+    // Color Text (e.g., %[text]{color})
+    if (char === "%" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+      let text = "";
+      current += 2; // Skip %[
+      while (input[current] !== "]") {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let color = "";
+      while (input[current] !== "}") {
+        color += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "ColorText", content: text, options: { color } });
+      current++; // Skip }
+      continue;
+    }
+
+    // Collapsible Section (e.g., [)
+    if (char === "[" && input[current + 1] === "\n") {
+      let content = "";
+      let deep = 1;
+      current += 2; // Skip [
+      while (current < input.length && deep > 0) {
+        let c = input[current++];
+        if (c === "[" && input[current] === "\n") {
+          deep++;
+          current++;
+        } else if (c === "]" && input[current] === "\n") {
+          deep--;
+          current += 1;
+        } else {
+          content += c;
+        }
+      }
+      tokens.push({ type: "CollapsibleSection", content });
+      continue;
+    }
+
+    // normal char
+    tokens.push({ type: "Text", content: char });
+    current++;
+  }
+  return tokens;
+}
+
+// 続いているTextトークンを結合する
+function joinTextTokens(tokens: Token[]): Token[] {
+  const newTokens: Token[] = [];
+  let current = 0;
+  while (current < tokens.length) {
+    let token = tokens[current];
+    if (token.type === "Text") {
+      let content = token.content;
+      while (current + 1 < tokens.length && tokens[current + 1].type === "Text") {
+        content += tokens[++current].content;
+      }
+      content = decorateText(content);
+      newTokens.push({ type: "Text", content });
+    } else {
+      newTokens.push(token);
+    }
+    current++;
+  }
+  // breakが連続している場合は1つにまとめる
+  const finalTokens: Token[] = [];
+  for (let i = 0; i < newTokens.length; i++) {
+    if (newTokens[i].type === "Break") {
+      finalTokens.push(newTokens[i]);
+      while (i + 1 < newTokens.length && newTokens[i + 1].type === "Break") {
+        i++;
+      }
+    } else {
+      finalTokens.push(newTokens[i]);
+    }
+  }
+  return finalTokens;
+}
+
+const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
+  let tokens: Token[] = [];
+  if (isString && typeof input === "string") {
+    tokens = joinTextTokens(lex(input));
+  } else {
+    tokens = input as Token[];
+  }
+  const elements: React.JSX.Element[] = [];
+  for (let token of tokens) {
+    switch (token.type) {
+      case "Break":
+        elements.push(<br key={returnRandomString(64)} />);
+        break;
+      case "Heading":
+        elements.push(
+          <p className="dark:text-white font-bold text-gray-900" style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
+            <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+          </p>
+        );
+        break;
+      case "Indent":
+        elements.push(
+          <div style={{ marginLeft: `${(token.level ?? 0) * 20}px` }} key={returnRandomString(64)}>
+            <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+          </div>
+        );
+        break;
+      case "List":
+        elements.push(
+          <li style={{ marginLeft: `${((token.level ?? 0) - 1) * 20}px` }} key={returnRandomString(64)}>
+            {Lex(token.children ?? [])}
+          </li>
+        );
+        break;
+      case "HorizontalLine":
+        elements.push(<hr key={returnRandomString(64)} />);
+        break;
+      case "Image":
+        elements.push(<img className="inline" src={token.options ? token.options.src : ""} alt={token.content} key={returnRandomString(64)} />);
+        break;
+      case "Media":
+        if (token.options?.media === "youtube") {
+          const videoID = token.content.split("v=").pop();
+          elements.push(<YouTube videoId={videoID} className="youtube-iframe" key={returnRandomString(64)} />);
+        }
+        break;
+      case "CodeBlock":
+        elements.push(<HighlightedCodeBlock code={token.content} lang={token.options?.lang === undefined ? "" : token.options.lang} key={returnRandomString(64)} />);
+        break;
+      case "AlertBox":
+        const alertType = token.options?.type;
+        if (alertType === "info") {
+          elements.push(
+            <div className="flex rounded border-l-4 border-blue-500 text-white p-4" role="alert" style={{ backgroundColor: "#2563eb" }} key={returnRandomString(64)}>
+              <MdInfoOutline className="text-xl mr-1" />
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            </div>
+          );
+        } else if (alertType === "warning") {
+          elements.push(
+            <div className="flex rounded border-l-4 border-yellow-500 text-white p-4" style={{ backgroundColor: "#14b8a6" }} role="alert" key={returnRandomString(64)}>
+              <MdCheckCircleOutline className="text-xl mr-1" />
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            </div>
+          );
+        } else if (alertType === "danger") {
+          elements.push(
+            <div className="flex rounded border-l-4 border-red-500 text-white p-4" style={{ backgroundColor: "#eab308" }} role="alert" key={returnRandomString(64)}>
+              <MdOutlineWarningAmber className="text-xl mr-1" />
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            </div>
+          );
+        } else if (alertType === "success") {
+          elements.push(
+            <div className="flex rounded border-l-4 border-green-500 text-white  p-4" style={{ backgroundColor: "#ef4444" }} role="alert" key={returnRandomString(64)}>
+              <MdOutlineDangerous className="text-xl mr-1" />
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            </div>
+          );
+        } else {
+          elements.push(
+            <div className="flex rounded border-l-4 border-gray-500 text-white p-4" style={{ backgroundColor: "#6b7280" }} role="alert" key={returnRandomString(64)}>
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            </div>
+          );
+        }
+        break;
+      case "InlineMath":
+        elements.push(
+          <span key={returnRandomString(64)} className="inline-block" style={{ maxWidth: "100%" }}>
+            <InlineMath math={token.content} />
+          </span>
+        );
+        break;
+      case "Link":
+        elements.push(
+          <a href={token.options?.url} className="break-all myLink" key={returnRandomString(64)}>
+            <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+          </a>
+        );
+        break;
+      case "BlankTargetLink":
+        elements.push(
+          <a href={token.options?.url} target="_blank" className="break-all myLink" key={returnRandomString(64)}>
+            <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+          </a>
+        );
+        break;
+      case "ColorText":
+        elements.push(
+          <span
+            style={{ color: `${token.options?.color}` }}
+            className="break-all"
+            dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }}
+            key={returnRandomString(64)}
+          />
+        );
+        break;
+      case "CollapsibleSection":
+        elements.push(
+          <details key={returnRandomString(64)}>
+            <summary>クリックして展開</summary>
+            {Lex(token.content)}
+          </details>
+        );
+        break;
+      case "Text":
+        elements.push(<span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} key={returnRandomString(64)} />);
+        break;
+    }
+  }
+  return <>{elements}</>;
 };
 
 export default Lex;

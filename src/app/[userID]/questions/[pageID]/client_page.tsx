@@ -85,7 +85,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
         setIsExist(page.isExist);
         if (page.isExist && page.page && page.pageUser) {
           setPage(page.page);
-          setContent(Lex({ text: page.page.content }));
+          setContent(Lex(page.page.content));
           setUserIcon(page.pageUser.icon || "");
           setMe(page.me || ({ id: "" } as UserPublic));
           if (page.me) setIsLogin(true);

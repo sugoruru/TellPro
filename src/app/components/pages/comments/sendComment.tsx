@@ -74,7 +74,7 @@ const SendComment = (props: {
             ></textarea>
           ) : (
             <div>
-              <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: props.mdAreaValue })}</div>
+              <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex(props.mdAreaValue)}</div>
             </div>
           )}
           <div>
@@ -203,7 +203,7 @@ const SendComment = (props: {
                     <></>
                   )}
                 </div>
-                <div className="w-full break-words">{Lex({ text: e.content })}</div>
+                <div className="w-full break-words">{Lex(e.content)}</div>
                 {
                   <div className={`text-center flex`}>
                     <button
