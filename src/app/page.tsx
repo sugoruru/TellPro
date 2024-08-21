@@ -4,7 +4,7 @@ import Home from "./client_page";
 export const metadata: Metadata = {
   openGraph: {
     url: process.env.NEXT_PUBLIC_TRUTH_URL,
-    title: `TellPro`,
+    title: "TellPro",
     siteName: "TellPro",
     type: "article",
     description: "TellProのホームページです。",
@@ -21,8 +21,6 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <>
-      <Home />
-    </>
+    <Home />
   );
 }

@@ -42,13 +42,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <link rel="icon" href="/svg/logo.svg" />
           </head>
           <body>
-      <p className="m-5 text-center text-xl">
-        現在、メンテナンス中です。内容は
+            <p className="m-5 text-center text-xl">
+              現在、メンテナンス中です。内容は
               <a href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
-          公式X
+                公式X
               </a>
-        を確認してください。
-      </p>
+              を確認してください。
+            </p>
           </body>
       </html>
     );
@@ -94,11 +94,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div>
               <UserProvider>
                 <BackGround>
-                  {isMatch(pathname, hideHeaderPage) ? null : <HeaderMemo />}
+                  {!isMatch(pathname, hideHeaderPage) && <HeaderMemo />}
                   <TagsProvider>
                     <Suspense>{<>{children}</>}</Suspense>
                   </TagsProvider>
-                  {isMatch(pathname, hideFooterPage) ? null : <Footer />}
+                  {!isMatch(pathname, hideFooterPage) && <Footer />}
                 </BackGround>
               </UserProvider>
             </div>
