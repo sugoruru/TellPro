@@ -44,6 +44,7 @@ const decorateText = (input: string): string => {
 function lex(input: string): Token[] {
   const tokens: Token[] = [];
   let current = 0;
+  input += "\n";
 
   while (current < input.length) {
     let char = input[current];
@@ -56,7 +57,7 @@ function lex(input: string): Token[] {
     // Heading (e.g., #, ##, ###, etc.)
     if (char === "#") {
       let level = 0;
-      while (char === "#") {
+      while (char === "#" && current < input.length) {
         level++;
         char = input[++current];
       }
@@ -76,7 +77,7 @@ function lex(input: string): Token[] {
     // Indent (e.g., ~).
     if (char === "~") {
       let level = 0;
-      while (char === "~") {
+      while (char === "~" && current < input.length) {
         level++;
         char = input[++current];
       }
@@ -110,7 +111,7 @@ function lex(input: string): Token[] {
     // List (e.g., -)
     if (char === "-") {
       let level = 0;
-      while (char === "-") {
+      while (char === "-" && current < input.length) {
         level++;
         char = input[++current];
       }
@@ -151,12 +152,12 @@ function lex(input: string): Token[] {
     if (char === "!" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
       let alt = "";
       current += 2; // Skip ![
-      while (input[current] !== "]") {
+      while (input[current] !== "]" && current < input.length) {
         alt += input[current++];
       }
       current += 2; // Skip ]{
       let src = "";
-      while (input[current] !== "}" && input[current] !== "|") {
+      while (input[current] !== "}" && input[current] !== "|" && current < input.length) {
         src += input[current++];
       }
       let options: Record<string, string> = {};
@@ -164,11 +165,11 @@ function lex(input: string): Token[] {
         let key = "";
         let value = "";
         current++; // Skip |
-        while (input[current] !== "=") {
+        while (input[current] !== "=" && current < input.length) {
           key += input[current++];
         }
         current++; // Skip =
-        while (input[current] !== "|" && input[current] !== "}") {
+        while (input[current] !== "|" && input[current] !== "}" && current < input.length) {
           value += input[current++];
         }
         options[key.trim()] = value.trim();
@@ -183,12 +184,12 @@ function lex(input: string): Token[] {
       if (input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
         let media = "";
         current += 2; // Skip @[
-        while (input[current] !== "]") {
+        while (input[current] !== "]" && current < input.length) {
           media += input[current++];
         }
         current += 2; // Skip ]{
         let src = "";
-        while (input[current] !== "}") {
+        while (input[current] !== "}" && current < input.length) {
           src += input[current++];
         }
         tokens.push({ type: "Media", content: src, options: { media } });
