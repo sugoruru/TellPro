@@ -73,7 +73,7 @@ function lex(input: string): Token[] {
       }
     }
 
-    // Indent (e.g., ~)
+    // Indent (e.g., ~).
     if (char === "~") {
       let level = 0;
       while (char === "~") {
@@ -83,20 +83,26 @@ function lex(input: string): Token[] {
       if (input[current] === " ") {
         let value = "";
         current++; // Skip the space after the indent
+        let subTokens: Token[] = [];
         while (current < input.length && input[current] !== "\n") {
+          if (input[current] === "$" && input[current + 1] === "$") {
+            current += 2;
+            let math = "";
+            while (current < input.length && !(input[current] === "$" && input[current + 1] === "$")) {
+              math += input[current++];
+            }
+            subTokens.push({ type: "InlineMath", content: math.trim(), level });
+            current += 2;
+          }
+          if (input[current] === "\n") {
+            break;
+          }
           value += input[current++];
         }
         value = decorateText(value.trim());
+        subTokens.push({ type: "Text", content: value, level });
         current++; // Skip the newline after the indent
-        tokens.push({ type: "Indent", content: value, level });
-        continue;
-      } else {
-        // Textとして扱う
-        let value = "";
-        for (let i = 0; i < level; i++) {
-          value += "~";
-        }
-        tokens.push({ type: "Text", content: value });
+        tokens.push({ type: "Indent", content: "", level, children: subTokens });
         continue;
       }
     }
@@ -165,7 +171,7 @@ function lex(input: string): Token[] {
         while (input[current] !== "|" && input[current] !== "}") {
           value += input[current++];
         }
-        options[key] = value;
+        options[key.trim()] = value.trim();
       }
       tokens.push({ type: "Image", content: alt, options: { src, ...options } });
       current++; // Skip }
@@ -237,6 +243,27 @@ function lex(input: string): Token[] {
       continue;
     }
 
+    // Collapsible Section (e.g., [)
+    if (char === "[" && input[current + 1] === "\n") {
+      let content = "";
+      let deep = 1;
+      current += 2; // Skip [
+      while (current < input.length && deep > 0) {
+        let c = input[current++];
+        if (c === "[" && input[current] === "\n") {
+          deep++;
+          current++;
+        } else if (c === "]" && input[current] === "\n") {
+          deep--;
+          current += 1;
+        } else {
+          content += c;
+        }
+      }
+      tokens.push({ type: "CollapsibleSection", content });
+      continue;
+    }
+
     // Link (e.g., [text]{url})
     if (char === "[" && input.indexOf("]{", current + 1) !== -1) {
       let text = "";
@@ -288,27 +315,6 @@ function lex(input: string): Token[] {
       text = decorateText(text);
       tokens.push({ type: "ColorText", content: text, options: { color } });
       current++; // Skip }
-      continue;
-    }
-
-    // Collapsible Section (e.g., [)
-    if (char === "[" && input[current + 1] === "\n") {
-      let content = "";
-      let deep = 1;
-      current += 2; // Skip [
-      while (current < input.length && deep > 0) {
-        let c = input[current++];
-        if (c === "[" && input[current] === "\n") {
-          deep++;
-          current++;
-        } else if (c === "]" && input[current] === "\n") {
-          deep--;
-          current += 1;
-        } else {
-          content += c;
-        }
-      }
-      tokens.push({ type: "CollapsibleSection", content });
       continue;
     }
 
@@ -375,7 +381,7 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
       case "Indent":
         elements.push(
           <div style={{ marginLeft: `${(token.level ?? 0) * 20}px` }} key={returnRandomString(64)}>
-            <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            {Lex(token.children ?? [])}
           </div>
         );
         break;
@@ -390,6 +396,12 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
         elements.push(<hr key={returnRandomString(64)} />);
         break;
       case "Image":
+        if (token.options?.src === undefined) break;
+        if (token.options?.src === "") break;
+        if (token.options?.size !== undefined) {
+          elements.push(<img className="inline" src={token.options ? token.options.src : ""} alt={token.content} width={Number(token.options.size)} key={returnRandomString(64)} />);
+          break;
+        }
         elements.push(<img className="inline" src={token.options ? token.options.src : ""} alt={token.content} key={returnRandomString(64)} />);
         break;
       case "Media":
