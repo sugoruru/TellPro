@@ -13,7 +13,7 @@ const ShowProblems = (props: { data: ProblemJSON }) => {
     <div className="text-gray-800 mb-5">
       <div className="mb-5">
         <p className="text-2xl font-semibold"># 説明</p>
-        <p className="text-lg">{Lex({ text: data.description })}</p>
+        <p className="text-lg">{Lex(data.description)}</p>
       </div>
       <div>
         <p className="text-2xl font-semibold"># 問題集</p>

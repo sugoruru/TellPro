@@ -5,7 +5,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
-import Lex from "@/modules/md/md";
 import Prism from "prismjs";
 import { FaTag } from "react-icons/fa6";
 import { IoMdImages } from "react-icons/io";
@@ -20,6 +19,7 @@ import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
 import handlePageUpload from "@/modules/handle/handlePageUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
+import Lex from "@/modules/md/md";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -110,7 +110,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
 
   useEffect(() => {
     if (!isMarkdown) {
-      setContent(Lex({ text: mdAreaValue }));
+      setContent(Lex(mdAreaValue));
     }
   }, [isMarkdown, mdAreaValue]);
 
@@ -186,7 +186,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               </div>
               {realTimePreview && width && width > 1042 ? (
                 <div className="relative w-full break-all overflow-y-scroll">
-                  <div className="absolute w-full bg-white min-h-full">{Lex({ text: mdAreaValue })}</div>
+                  <div className="absolute w-full bg-white min-h-full">{Lex(mdAreaValue)}</div>
                 </div>
               ) : (
                 <></>
@@ -288,7 +288,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
         </>
       ) : (
         // プレビュータブの場合.
-        <div className={`w-[calc(100vw-calc(100vw-100%))] bg-slate-100 dark-bg-zinc-800`}>
+        <div className={`w-lvw bg-slate-100 dark-bg-zinc-800`}>
           <div className={`text-center text-4xl font-bold my-5 text-gray-700 dark:text-white`}>{title === "" ? "untitled" : title}</div>
           <div className={`text-center text-base font-bold text-gray-700 dark:text-white`}>公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="flex justify-center">
@@ -316,7 +316,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
               <u>@{params.userID}</u>
             </div>
           </div>
-          <div className="lg:w-3/5 w-full bg-white mx-auto my-3 p-5">{content}</div>
+          <div className="lg:w-3/5 w-lvw bg-white mx-auto my-3 p-5">{content}</div>
         </div>
       )}
     </div>

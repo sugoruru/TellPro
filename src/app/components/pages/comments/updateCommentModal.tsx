@@ -72,7 +72,7 @@ const UpdateCommentModal = (props: UpdateCommentModalProps) => {
                       ></textarea>
                     ) : (
                       <div>
-                        <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex({ text: props.updateMdAreaValue })}</div>
+                        <div className="overflow-y-scroll h-72 mt-2 border outline-1 outline-sky-400 p-1 w-full">{Lex(props.updateMdAreaValue)}</div>
                       </div>
                     )}
                   </>
