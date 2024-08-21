@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import HomeNav from "./components/main/homeNav";
+import HomeNav, { HomeNavItems } from "./components/main/homeNav";
 import NoticeBlock from "./components/main/noticeBlock";
 import axios from "axios";
 import { Page } from "@/types/page";
@@ -41,7 +41,7 @@ export default function Home() {
   }, []);
   return (
     <div className="h-full">
-      <HomeNav pathName="/"></HomeNav>
+      <HomeNav path={HomeNavItems.Home} />
       <div className="m-10">
         <div className={`text-3xl font-semibold text-center text-gray-800 dark:text-white`}>トレンド記事</div>
         {trendPages.map((page) => (

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import HomeNav from "../components/main/homeNav";
+import HomeNav, { HomeNavItems } from "../components/main/homeNav";
 import axios from "axios";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
@@ -34,7 +34,7 @@ export default function Questions() {
 
   return (
     <div className="h-full">
-      <HomeNav pathName="/questions"></HomeNav>
+      <HomeNav path={HomeNavItems.Questions} />
       <p className={`mt-4 text-3xl text-center font-bold text-gray-800 dark:text-white`}>新着質問</p>
       {isLoading ? (
         <></>

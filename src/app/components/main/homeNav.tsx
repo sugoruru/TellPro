@@ -1,30 +1,33 @@
 import Link from "next/link";
 
-const HomeNav = (props: { pathName: string }) => {
-  const IsLocation = (path: string) => {
-    if (path == props.pathName) return "location";
-    return "nonLocation";
-  };
+const HomeNavItems = {
+  "Home"     : "/",
+  "Articles" : "/articles",
+  "Questions": "/questions",
+  "Problems" : "/problems",
+} as const;
+
+type valueOf<T> = T[keyof T];
+
+const HomeNav = (props: { path: valueOf<typeof HomeNavItems> }) => {
+  const pathname = props.path;
+
   return (
-    <nav className={`bg-white text-black border-black dark:bg-neutral-800 dark:text-white dark:border-white w-lvw`}>
-      <div className="mr-3 overflow-x-auto hidden-scrollbar">
+    <div className={`bg-white text-black border-black dark:bg-neutral-800 dark:text-white dark:border-white w-screen`}>
+      <nav className="mr-3 overflow-x-auto hidden-scrollbar font-medium">
         <ul className="flex text-base mx-auto max-w-screen-2xl px-2 md:px-8">
-          <li className={"px-2 font-medium" + " " + IsLocation("/")}>
-            <Link href="/">Home</Link>
-          </li>
-          <li className={"px-2 font-medium" + " " + IsLocation("/articles")}>
-            <Link href="/articles">Articles</Link>
-          </li>
-          <li className={"px-2 font-medium" + " " + IsLocation("/questions")}>
-            <Link href="/questions">Questions</Link>
-          </li>
-          <li className={"px-2 font-medium" + " " + IsLocation("/problems")}>
-            <Link href="/problems">Problems</Link>
-          </li>
+          {Object.entries(HomeNavItems).map(([name, _pathname]) => {
+            return (
+              <li className={`px-2 ${pathname === _pathname && "border-b-2 pb-1"}`} key={name}>
+                <Link href={_pathname}>{name}</Link>
+              </li>
+            )
+          })}
         </ul>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 
 export default HomeNav;
+export { HomeNavItems };
