@@ -10,7 +10,6 @@ import { UserProvider } from "./components/providers/userProvider";
 import { TagsProvider } from "./components/hooks/tagsContext";
 import { hideHeaderPage, hideFooterPage } from "@/modules/other/hideComponentPage";
 import Footer from "./components/main/footer";
-import Link from "next/link";
 import Script from "next/script";
 import * as gtag from "@/modules/network/gtag";
 import BackGround from "./background";
@@ -33,15 +32,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   Prism.manual = true;
   const HeaderMemo = React.memo(Header);
+
   if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
     return (
+      <html lang="ja">
+          <head>
+            <title>メンテナンス中｜TellPro</title>
+            <meta name="referrer" content="no-referrer" />
+            <link rel="icon" href="/svg/logo.svg" />
+          </head>
+          <body>
       <p className="m-5 text-center text-xl">
         現在、メンテナンス中です。内容は
-        <Link href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+              <a href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
           公式X
-        </Link>
+              </a>
         を確認してください。
       </p>
+          </body>
+      </html>
     );
   }
 
