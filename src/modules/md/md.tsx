@@ -267,6 +267,21 @@ function lex(input: string): Token[] {
     // Link (e.g., [text]{url})
     if (char === "[" && input.indexOf("]{", current + 1) !== -1) {
       let text = "";
+
+      let tempText = "";
+      let tempCurrent = current;
+      // \nが来るまでの文字列を取得
+      while (input[tempCurrent] !== "\n") {
+        tempText += input[tempCurrent++];
+      }
+      // 正規表現で、[text]{url}の形式かどうかを判定
+      const reg = /\[(.*?)\]{(.*?)}/;
+      if (!reg.test(tempText)) {
+        tokens.push({ type: "Text", content: char });
+        current++;
+        continue;
+      }
+
       current++; // Skip [
       while (input[current] !== "]") {
         text += input[current++];
@@ -323,6 +338,11 @@ function lex(input: string): Token[] {
     current++;
   }
   return tokens;
+}
+
+function isGoodURL(str: string): boolean {
+  const pattern = new RegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
+  return pattern.test(str);
 }
 
 // 続いているTextトークンを結合する
@@ -399,7 +419,15 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
         if (token.options?.src === undefined) break;
         if (token.options?.src === "") break;
         if (token.options?.size !== undefined) {
-          elements.push(<img className="inline" src={token.options ? token.options.src : ""} alt={token.content} width={Number(token.options.size)} key={returnRandomString(64)} />);
+          elements.push(
+            <img
+              className="inline"
+              src={token.options ? (isGoodURL(token.options.src) ? token.options.src : "") : ""}
+              alt={token.content}
+              width={Number(token.options.size)}
+              key={returnRandomString(64)}
+            />
+          );
           break;
         }
         elements.push(<img className="inline" src={token.options ? token.options.src : ""} alt={token.content} key={returnRandomString(64)} />);
@@ -460,14 +488,14 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
         break;
       case "Link":
         elements.push(
-          <a href={token.options?.url} className="break-all myLink" key={returnRandomString(64)}>
+          <a href={isGoodURL(String(token.options?.url)) ? token.options?.url : ""} className="break-all myLink" key={returnRandomString(64)}>
             <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
           </a>
         );
         break;
       case "BlankTargetLink":
         elements.push(
-          <a href={token.options?.url} target="_blank" className="break-all myLink" key={returnRandomString(64)}>
+          <a href={isGoodURL(String(token.options?.url)) ? token.options?.url : ""} target="_blank" className="break-all myLink" key={returnRandomString(64)}>
             <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
           </a>
         );
