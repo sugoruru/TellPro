@@ -13,6 +13,15 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      fontFamily: {
+        default: [
+          "-apple-system,BlinkMacSystemFont",
+          "Hiragino Kaku Gothic ProN",
+          "Hiragino Sans",
+          "Meiryo,sans-serif",
+          "Segoe UI Emoji"
+        ]
+      },
     },
   },
   darkMode: "selector",
