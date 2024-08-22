@@ -53,6 +53,17 @@ function lex(input: string): Token[] {
       tokens.push({ type: "Break", content: "" });
       continue;
     }
+    if (char === "\\") {
+      current++;
+      if (input.length <= current) {
+        tokens.push({ type: "Text", content: char });
+        continue;
+      } else {
+        tokens.push({ type: "Text", content: input[current] });
+        current++;
+        continue;
+      }
+    }
 
     // Heading (e.g., #, ##, ###, etc.)
     if (char === "#") {
