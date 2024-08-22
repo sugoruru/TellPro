@@ -53,6 +53,69 @@ function lex(input: string): Token[] {
       tokens.push({ type: "Break", content: "" });
       continue;
     }
+
+    // Link (e.g., [text]{url})
+    if (char === "[" && input.indexOf("]{", current + 1) !== -1) {
+      let text = "";
+      let tempText = "";
+      let tempCurrent = current;
+      // \nが来るまでの文字列を取得
+      while (input[tempCurrent] !== "\n" && tempCurrent < input.length) {
+        tempText += input[tempCurrent++];
+      }
+      // 正規表現で、[text]{url}の形式かどうかを判定
+      const reg = /\[(.*?)\]{(.*?)}/;
+      if (!reg.test(tempText)) {
+        tokens.push({ type: "Text", content: char });
+        current++;
+        continue;
+      }
+
+      current++; // Skip [
+      while (input[current] !== "]" && current < input.length) {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let url = "";
+      while (input[current] !== "}" && current < input.length) {
+        url += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "Link", content: text, options: { url } });
+      current++; // Skip }
+      continue;
+    }
+
+    // Blank Target Link (e.g., \[text]{url}).
+    if (char === "\\" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+      let text = "";
+      let tempText = "";
+      let tempCurrent = current;
+      while (input[tempCurrent] !== "\n" && tempCurrent < input.length) {
+        tempText += input[tempCurrent++];
+      }
+      const reg = /\[(.*?)\]{(.*?)}/;
+      if (!reg.test(tempText)) {
+        tokens.push({ type: "Text", content: char });
+        current++;
+        continue;
+      }
+
+      current += 2; // Skip \[
+      while (input[current] !== "]" && current < input.length) {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let url = "";
+      while (input[current] !== "}" && current < input.length) {
+        url += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "BlankTargetLink", content: text, options: { url } });
+      current++; // Skip }
+      continue;
+    }
+
     if (char === "\\") {
       current++;
       if (input.length <= current) {
@@ -172,7 +235,7 @@ function lex(input: string): Token[] {
         src += input[current++];
       }
       let options: Record<string, string> = {};
-      while (input[current] === "|") {
+      while (input[current] === "|" && current < input.length) {
         let key = "";
         let value = "";
         current++; // Skip |
@@ -276,67 +339,16 @@ function lex(input: string): Token[] {
       continue;
     }
 
-    // Link (e.g., [text]{url})
-    if (char === "[" && input.indexOf("]{", current + 1) !== -1) {
-      let text = "";
-
-      let tempText = "";
-      let tempCurrent = current;
-      // \nが来るまでの文字列を取得
-      while (input[tempCurrent] !== "\n") {
-        tempText += input[tempCurrent++];
-      }
-      // 正規表現で、[text]{url}の形式かどうかを判定
-      const reg = /\[(.*?)\]{(.*?)}/;
-      if (!reg.test(tempText)) {
-        tokens.push({ type: "Text", content: char });
-        current++;
-        continue;
-      }
-
-      current++; // Skip [
-      while (input[current] !== "]") {
-        text += input[current++];
-      }
-      current += 2; // Skip ]{
-      let url = "";
-      while (input[current] !== "}") {
-        url += input[current++];
-      }
-      text = decorateText(text);
-      tokens.push({ type: "Link", content: text, options: { url } });
-      current++; // Skip }
-      continue;
-    }
-
-    // Blank Target Link (e.g., \[text]{url})
-    if (char === "\\" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
-      let text = "";
-      current += 2; // Skip \[
-      while (input[current] !== "]") {
-        text += input[current++];
-      }
-      current += 2; // Skip ]{
-      let url = "";
-      while (input[current] !== "}") {
-        url += input[current++];
-      }
-      text = decorateText(text);
-      tokens.push({ type: "BlankTargetLink", content: text, options: { url } });
-      current++; // Skip }
-      continue;
-    }
-
     // Color Text (e.g., %[text]{color})
     if (char === "%" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
       let text = "";
       current += 2; // Skip %[
-      while (input[current] !== "]") {
+      while (input[current] !== "]" && current < input.length) {
         text += input[current++];
       }
       current += 2; // Skip ]{
       let color = "";
-      while (input[current] !== "}") {
+      while (input[current] !== "}" && current < input.length) {
         color += input[current++];
       }
       text = decorateText(text);
