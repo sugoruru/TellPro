@@ -169,7 +169,7 @@ export default function Settings() {
   return (
     <>
       {isSignIn && existUser ? (
-        <div className={`py-6 bg-white dark-bg-zinc-800`}>
+        <div className={`py-6 bg-white dark:bg-zinc-800`}>
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="mb-10 md:mb-16">
               <h2 className={`text-center text-2xl font-bold lg:text-3xl text-gray-800 dark:text-white`}>Settings</h2>

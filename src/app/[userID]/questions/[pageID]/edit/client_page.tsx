@@ -121,7 +121,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
     <div className="h-full"></div>
   ) : canEdit ? (
     // 編集権限がある場合.
-    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} dark:${isMarkdown ? "bg-neutral-800" : "bg-gray-800"} flex-col flex h-[calc(100vh-80px)]`}>
+    <div className={`grow ${isMarkdown ? "bg-white" : "bg-slate-100"} dark:${isMarkdown ? "bg-neutral-800" : "bg-zinc-800"} flex-col flex h-[calc(100vh-80px)]`}>
       <div className={`bg-white dark:bg-neutral-800`}>
         <button
           onClick={() => setIsMarkdown(true)}
@@ -290,7 +290,7 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
         </>
       ) : (
         // プレビュータブの場合.
-        <div className={`w-lvw bg-slate-100 dark-bg-zinc-800`}>
+        <div className={`w-lvw bg-slate-100 dark:bg-zinc-800`}>
           <div className={`text-center text-4xl font-bold my-5 text-gray-700 dark:text-white`}>{title === "" ? "untitled" : title}</div>
           <div className={`text-center text-base font-bold text-gray-700 dark:text-white`}>公開日時:{new Date().toISOString().split("T")[0]}</div>
           <div className="flex justify-center">

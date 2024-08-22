@@ -79,9 +79,9 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                   </span>
                 </nav>
               </div>
-              <div className={`bg-slate-100 dark-bg-zinc-800`}>
+              <div className={`bg-slate-100 dark:bg-zinc-800`}>
                 {navPlace === "pages" ? (
-                  <div className={`bg-slate-100 dark-bg-zinc-800`}>
+                  <div className={`bg-slate-100 dark:bg-zinc-800`}>
                     {pages.map((page) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={page} pageUser={userMap[page.user_id]} pageType="articles" />
@@ -89,7 +89,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                     ))}
                   </div>
                 ) : navPlace === "questions" ? (
-                  <div className={`bg-slate-100 dark-bg-zinc-800`}>
+                  <div className={`bg-slate-100 dark:bg-zinc-800`}>
                     {questions.map((question) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={question} pageUser={userMap[question.user_id]} pageType="questions" />
@@ -97,7 +97,7 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
                     ))}
                   </div>
                 ) : (
-                  <div className={`bg-slate-100 dark-bg-zinc-800`}>
+                  <div className={`bg-slate-100 dark:bg-zinc-800`}>
                     {problems.map((problem) => (
                       <div key={returnRandomString(32)}>
                         <PageLinkBlock page={problem} pageUser={userMap[problem.user_id]} pageType="problems" />

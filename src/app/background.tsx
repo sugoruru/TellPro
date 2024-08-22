@@ -9,11 +9,7 @@ const BackGround = ({ children }: { children: React.ReactNode }) => {
 
   if (!isLoaded) return null;
 
-  return (
-    <div className="flex flex-col bg-slate-100 dark:bg-zinc-800 h-full">
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col bg-slate-100 dark:bg-zinc-800 h-full">{children}</div>;
 };
 
 export default BackGround;

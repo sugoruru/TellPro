@@ -394,7 +394,7 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
         break;
       case "Heading":
         elements.push(
-          <p className="dark:text-white font-bold text-gray-900" style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
+          <p className="font-bold text-gray-900" style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
             <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
           </p>
         );
