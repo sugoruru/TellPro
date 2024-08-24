@@ -3,7 +3,7 @@ import Problems from "./client_page";
 import axios from "axios";
 
 export const generateMetadata = async ({ params }: { params: { userID: string; pageID: string } }): Promise<Metadata> => {
-  const user = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/user_meta?pageID=${params.pageID}&pageType=problems&userID=${params.userID}`)).data;
+  const user = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles&userID=${params.userID}`)).data;
   return {
     openGraph: {
       url: process.env.NEXT_PUBLIC_TRUTH_URL,
