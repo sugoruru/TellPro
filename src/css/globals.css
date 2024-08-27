@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "KaTeX_Main";
+  src: url("/font/KaTeX_Main-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* NimbusRomNo9L-Reg.otf */
+@font-face {
+  font-family: "NimbusRomNo9L-Reg";
+  src: url("/font/NimbusRomNo9L-Reg.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Lato", "Helvetica Neue", arial, sans-serif;
+}
+
 table {
   border-collapse: collapse;
   border: 2px solid rgb(140 140 140);
@@ -20,6 +39,8 @@ span[data-testid="react-katex"] {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 thead,
@@ -66,6 +87,7 @@ tfoot td {
 
 .katex-html {
   display: none;
+  font-family: "normal 1.21em KaTeX_Main,Times New Roman,serif";
 }
 
 .katex-mathml {
@@ -73,8 +95,7 @@ tfoot td {
 }
 
 span[data-testid="react-katex"] {
-  display: inline-block;
-  margin-bottom: -8px;
+  display: inline-flex;
 }
 
 nextjs-portal {

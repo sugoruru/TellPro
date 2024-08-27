@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="flex flex-col h-screen overflow-x-hidden font-default">
+      <body className="flex flex-col h-screen overflow-x-hidden">
         <SessionProvider refetchOnWindowFocus={false}>
           <NextTopLoader
             color="#2299DD"

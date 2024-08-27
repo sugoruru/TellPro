@@ -250,6 +250,9 @@ function lex(input: string): Token[] {
         current++; // Skip the newline after the indent
         tokens.push({ type: "Indent", content: "", level, children: subTokens });
         continue;
+      } else {
+        tokens.push({ type: "Text", content: "~" });
+        continue;
       }
     }
 
@@ -460,14 +463,16 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
     tokens = input as Token[];
   }
   const elements: React.JSX.Element[] = [];
+  let cnt = 0;
   for (let token of tokens) {
+    cnt += 1;
     switch (token.type) {
       case "Break":
         elements.push(<br key={returnRandomString(64)} />);
         break;
       case "Heading":
         elements.push(
-          <p className="font-bold text-gray-900" style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
+          <p className={`font-bold text-gray-900 mb-1 ${cnt == 1 ? "" : "mt-4"}`} style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
             <span
               className="break-all"
               dangerouslySetInnerHTML={{

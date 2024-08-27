@@ -242,8 +242,8 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
                 {isPublic ? "公開する" : "下書き"}
               </button>
               {/* 公開/非公開選択ボタン */}
-              <Menu as="div" className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-r border-l flex align-middle">
-                <Menu.Button>
+              <Menu as="div" className="text-white font-bold flex align-middle">
+                <Menu.Button disabled={isSending} className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-500 rounded-r border-l">
                   <div className="py-1 px-2">
                     <MdKeyboardArrowDown className="text-xl" />
                   </div>
