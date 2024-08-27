@@ -4,6 +4,7 @@ import { MdCheckCircleOutline, MdInfoOutline, MdOutlineDangerous, MdOutlineWarni
 import { InlineMath } from "react-katex";
 import YouTube from "react-youtube";
 import sanitize from "sanitize-html";
+import validateColor from "validate-color";
 
 type TokenType =
   | "Break"
@@ -30,13 +31,62 @@ interface Token {
   children?: Token[];
 }
 
+const sanitizeOptions = {
+  allowedTags: ["inline", "i", "b", "s", "color", "link", "blankTargetLink", "span", "a"],
+  allowedAttributes: {
+    color: ["color"],
+    span: ["style"],
+    a: ["href", "class", "target"],
+  },
+};
+
 const decorateText = (input: string): string => {
   let output: string = input;
+  // すべてのspanタグ、aタグは使用不可.
+  output = output.replace(/<span(.*?)>/g, "");
+  output = output.replace(/<\/span>/g, "");
+  output = output.replace(/<a(.*?)>/g, "");
+  output = output.replace(/<\/a>/g, "");
+
   for (let i = 0; i < 10; i++) {
     output = output.replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>"); // bold
     output = output.replace(/\*([^*]+?)\*/g, "<i>$1</i>"); // italic
     output = output.replace(/\~([^*]+?)\~/g, "<s>$1</s>"); // strike
     output = output.replace(/\`([^*]+?)\`/g, "<inline>$1</inline>"); // inline
+    output = output.replace(/\%\[([^%]+?)\]\{([^%]+?)\}/g, "<color color='$2'>$1</color>"); // color
+    output = output.replace(/\\\[(.*?)]{(.*?)}/g, "<blankTargetLink href='$2'>$1</blankTargetLink>"); // blank target link
+    output = output.replace(/\[(.*?)]{(.*?)}/g, "<link href='$2'>$1</link>");
+  }
+  // colorタグのすべてをバリデーション.
+  const reg = /<color color='(.*?)'>(.*?)<\/color>/g;
+  let match;
+  while ((match = reg.exec(output)) !== null) {
+    if (!validateColor(match[1])) {
+      output = output.replace(match[0], match[2]);
+    } else {
+      // pタグのstyleに置き換える
+      output = output.replace(match[0], `<span style='color:${match[1]}'>${match[2]}</span>`);
+    }
+  }
+  // linkタグのすべてをバリデーション.
+  const reg2 = /<link href='(.*?)'>(.*?)<\/link>/g;
+  let match2;
+  while ((match2 = reg2.exec(output)) !== null) {
+    if (!isGoodURL(match2[1])) {
+      output = output.replace(match2[0], match2[2]);
+    } else {
+      output = output.replace(match2[0], `<a href='${match2[1]}' class='myLink'>${match2[2]}</a>`);
+    }
+  }
+  // blankTargetLinkタグのすべてをバリデーション.
+  const reg3 = /<blankTargetLink href='(.*?)'>(.*?)<\/blankTargetLink>/g;
+  let match3;
+  while ((match3 = reg3.exec(output)) !== null) {
+    if (!isGoodURL(match3[1])) {
+      output = output.replace(match3[0], match3[2]);
+    } else {
+      output = output.replace(match3[0], `<a href='${match3[1]}' class='myLink' target='_blank'>${match3[2]}</a>`);
+    }
   }
   return output;
 };
@@ -51,6 +101,27 @@ function lex(input: string): Token[] {
     if (char === "\n") {
       current++;
       tokens.push({ type: "Break", content: "" });
+      continue;
+    }
+
+    // Collapsible Section (e.g., [)
+    if (char === "[" && input[current + 1] === "\n") {
+      let content = "";
+      let deep = 1;
+      current += 2; // Skip [
+      while (current < input.length && deep > 0) {
+        let c = input[current++];
+        if (c === "[" && input[current] === "\n") {
+          deep++;
+          current++;
+        } else if (c === "]" && input[current] === "\n") {
+          deep--;
+          current += 1;
+        } else {
+          content += c;
+        }
+      }
+      tokens.push({ type: "CollapsibleSection", content });
       continue;
     }
 
@@ -318,27 +389,6 @@ function lex(input: string): Token[] {
       continue;
     }
 
-    // Collapsible Section (e.g., [)
-    if (char === "[" && input[current + 1] === "\n") {
-      let content = "";
-      let deep = 1;
-      current += 2; // Skip [
-      while (current < input.length && deep > 0) {
-        let c = input[current++];
-        if (c === "[" && input[current] === "\n") {
-          deep++;
-          current++;
-        } else if (c === "]" && input[current] === "\n") {
-          deep--;
-          current += 1;
-        } else {
-          content += c;
-        }
-      }
-      tokens.push({ type: "CollapsibleSection", content });
-      continue;
-    }
-
     // Color Text (e.g., %[text]{color})
     if (char === "%" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
       let text = "";
@@ -365,7 +415,7 @@ function lex(input: string): Token[] {
 }
 
 function isGoodURL(str: string): boolean {
-  const pattern = new RegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
+  const pattern = new RegExp("^((https|http)?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
   return pattern.test(str);
 }
 
@@ -418,7 +468,12 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
       case "Heading":
         elements.push(
           <p className="font-bold text-gray-900" style={{ fontSize: `${160 - ((token.level ?? 0) - 1) * 10}%` }} key={returnRandomString(64)}>
-            <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            <span
+              className="break-all"
+              dangerouslySetInnerHTML={{
+                __html: sanitize(token.content, sanitizeOptions),
+              }}
+            />
           </p>
         );
         break;
@@ -471,34 +526,59 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
           elements.push(
             <div className="flex rounded border-l-4 border-blue-500 text-white p-4" role="alert" style={{ backgroundColor: "#2563eb" }} key={returnRandomString(64)}>
               <MdInfoOutline className="text-xl mr-1" />
-              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+              <span
+                className="break-all"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(token.content, sanitizeOptions),
+                }}
+              />
             </div>
           );
         } else if (alertType === "warning") {
           elements.push(
             <div className="flex rounded border-l-4 border-yellow-500 text-white p-4" style={{ backgroundColor: "#14b8a6" }} role="alert" key={returnRandomString(64)}>
               <MdCheckCircleOutline className="text-xl mr-1" />
-              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+              <span
+                className="break-all"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(token.content, sanitizeOptions),
+                }}
+              />
             </div>
           );
         } else if (alertType === "danger") {
           elements.push(
             <div className="flex rounded border-l-4 border-red-500 text-white p-4" style={{ backgroundColor: "#eab308" }} role="alert" key={returnRandomString(64)}>
               <MdOutlineWarningAmber className="text-xl mr-1" />
-              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+              <span
+                className="break-all"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(token.content, sanitizeOptions),
+                }}
+              />
             </div>
           );
         } else if (alertType === "success") {
           elements.push(
             <div className="flex rounded border-l-4 border-green-500 text-white  p-4" style={{ backgroundColor: "#ef4444" }} role="alert" key={returnRandomString(64)}>
               <MdOutlineDangerous className="text-xl mr-1" />
-              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+              <span
+                className="break-all"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(token.content, sanitizeOptions),
+                }}
+              />
             </div>
           );
         } else {
           elements.push(
             <div className="flex rounded border-l-4 border-gray-500 text-white p-4" style={{ backgroundColor: "#6b7280" }} role="alert" key={returnRandomString(64)}>
-              <span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+              <span
+                className="break-all"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(token.content, sanitizeOptions),
+                }}
+              />
             </div>
           );
         }
@@ -513,14 +593,22 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
       case "Link":
         elements.push(
           <a href={isGoodURL(String(token.options?.url)) ? token.options?.url : ""} className="break-all myLink" key={returnRandomString(64)}>
-            <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            <span
+              dangerouslySetInnerHTML={{
+                __html: sanitize(token.content, sanitizeOptions),
+              }}
+            />
           </a>
         );
         break;
       case "BlankTargetLink":
         elements.push(
           <a href={isGoodURL(String(token.options?.url)) ? token.options?.url : ""} target="_blank" className="break-all myLink" key={returnRandomString(64)}>
-            <span dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} />
+            <span
+              dangerouslySetInnerHTML={{
+                __html: sanitize(token.content, sanitizeOptions),
+              }}
+            />
           </a>
         );
         break;
@@ -529,7 +617,9 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
           <span
             style={{ color: `${token.options?.color}` }}
             className="break-all"
-            dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }}
+            dangerouslySetInnerHTML={{
+              __html: sanitize(token.content, sanitizeOptions),
+            }}
             key={returnRandomString(64)}
           />
         );
@@ -543,7 +633,15 @@ const Lex = (input: string | Token[], isString = true): React.JSX.Element => {
         );
         break;
       case "Text":
-        elements.push(<span className="break-all" dangerouslySetInnerHTML={{ __html: sanitize(token.content, { allowedTags: ["inline", "i", "b", "s"] }) }} key={returnRandomString(64)} />);
+        elements.push(
+          <span
+            className="break-all"
+            dangerouslySetInnerHTML={{
+              __html: sanitize(token.content, sanitizeOptions),
+            }}
+            key={returnRandomString(64)}
+          />
+        );
         break;
     }
   }

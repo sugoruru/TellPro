@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import { TagsProvider } from "./components/hooks/tagsContext";
 import { hideHeaderPage, hideFooterPage } from "@/modules/other/hideComponentPage";
@@ -36,20 +36,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   if (process.env.NEXT_PUBLIC_IS_MAINTENANCE === "true") {
     return (
       <html lang="ja">
-          <head>
-            <title>メンテナンス中｜TellPro</title>
-            <meta name="referrer" content="no-referrer" />
-            <link rel="icon" href="/svg/logo.svg" />
-          </head>
-          <body>
-            <p className="m-5 text-center text-xl">
-              現在、メンテナンス中です。内容は
-              <a href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
-                公式X
-              </a>
-              を確認してください。
-            </p>
-          </body>
+        <head>
+          <title>メンテナンス中｜TellPro</title>
+          <meta name="referrer" content="no-referrer" />
+          <link rel="icon" href="/svg/logo.svg" />
+        </head>
+        <body>
+          <p className="m-5 text-center text-xl">
+            現在、メンテナンス中です。内容は
+            <a href="https://x.com/tellpro_net" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+              公式X
+            </a>
+            を確認してください。
+          </p>
+        </body>
       </html>
     );
   }
