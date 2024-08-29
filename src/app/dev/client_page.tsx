@@ -19,6 +19,15 @@ const Dev = () => {
           </Link>
         </p>
       </div>
+      <br />
+      <h1 className="text-2xl font-bold">discordサーバーについて</h1>
+      <p>
+        <a href="https://discord.gg/sT3SbsFx5f" className="myLink" target="_blank">
+          こちら
+        </a>
+        をクリックしてdiscordに参加しましょう！
+      </p>
+      <p>サイト案を気軽に出せます！</p>
     </div>
   );
 };
