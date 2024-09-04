@@ -4,6 +4,7 @@ SELECT id,
     is_public,
     is_closed,
     tags,
+    date,
     pages.like_count / power(
         (
             EXTRACT(

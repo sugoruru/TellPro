@@ -21,26 +21,29 @@ const PageLinkBlock = (props: {
   return (
     <>
       <div className={`border-gray-200 text-black dark:text-white`}>
-        <div className={`transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto bg-white dark:bg-slate-700`}>
-          <Link href={`/${props.page.user_id}/${props.pageType}/${props.page.id}`} prefetch className="min-h-40 block">
-            <div className="flex p-5">
+        <div className={`transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 rounded-lg break-words mx-auto bg-white dark:bg-slate-700`}>
+          <Link href={`/${props.page.user_id}/${props.pageType}/${props.page.id}`} prefetch className="block">
+            <div className="flex p-5 pl-8">
               <div>
-                <div className="flex">
-                  <Image alt={props.pageUser.username} src={props.pageUser.icon} width={24} height={24} priority />
-                  <u
-                    className="ml-1 cursor-pointer"
-                    onClick={() => {
-                      router.push(`/${props.page.user_id}`);
-                    }}
-                  >
-                    @{props.page.user_id}
-                  </u>
+                <div className="flex text-sm">
+                  <div className="h-[30px] w-[30px] relative">
+                    <Image alt={props.pageUser.username} src={props.pageUser.icon} fill priority />
+                  </div>
+                  <div>
+                    <span className="ml-2">
+                      <Link className="hover:underline" href={`/${props.page.user_id}`}>
+                        @{props.page.user_id}
+                      </Link>
+                      <span className={`${props.page.is_public ? (props.page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block ml-2`}>
+                        {props.page.is_public ? (props.page.is_closed ? "クローズ" : "公開") : "非公開"}
+                      </span>
+                    </span>
+                    <br />
+                    <span className="ml-2 text-gray-600">{`${new Date(props.page.date).getFullYear()}年${new Date(props.page.date).getMonth() + 1}月${new Date(props.page.date).getDate()}日`}</span>
+                  </div>
                 </div>
-                <b className="mr-1">{props.page.title}</b>
-                <div className={`${props.page.is_public ? (props.page.is_closed ? "bg-violet-400" : "bg-blue-400") : "bg-red-400"} text-white px-1 rounded-sm inline-block mb-1`}>
-                  {props.page.is_public ? (props.page.is_closed ? "クローズ" : "公開") : "非公開"}
-                </div>
-                <div className="flex flex-wrap mb-2 text-black">
+                <b className="mr-1 text-xl text-gray-800 ml-[calc(30px+0.5rem)] hover:underline">{props.page.title}</b>
+                <div className="flex flex-wrap text-gray-600 ml-[calc(30px+0.5rem)]">
                   {props.page.tags.length !== 0 ? (
                     props.page.tags.map((e) =>
                       e === "" ? (

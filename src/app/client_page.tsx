@@ -43,19 +43,16 @@ export default function Home() {
     <div className="h-full">
       <HomeNav path={HomeNavItems.Home} />
       <div className="m-10">
-        <div className={`text-3xl font-semibold text-center text-gray-800 dark:text-white`}>トレンド記事</div>
         {trendPages.map((page) => (
           <PageLinkBlock page={page} pageType="articles" pageUser={trendPageUsers[page.user_id]} key={returnRandomString(32)}></PageLinkBlock>
         ))}
       </div>
       <div className="mr-10 ml-10 mb-10">
-        <div className={`text-3xl font-semibold text-center text-gray-800 dark:text-white`}>質問</div>
         {trendQuestions.map((page) => (
           <PageLinkBlock page={page} pageType="questions" pageUser={trendPageUsers[page.user_id]} key={returnRandomString(32)}></PageLinkBlock>
         ))}
       </div>
       <div className="mr-10 ml-10 mb-10">
-        <div className={`text-3xl font-semibold text-center text-gray-800 dark:text-white`}>お知らせ</div>
         <div className={`p-5 border-gray-200 transition border-b-4 border-r-4 relative max-w-[60rem] mt-3 min-h-40 rounded-lg break-words mx-auto bg-white dark:bg-slate-700`}>
           {notices.map((notice) => (
             <NoticeBlock created_at={notice.created_at} key={notice.id} title={notice.title} content={notice.content}></NoticeBlock>

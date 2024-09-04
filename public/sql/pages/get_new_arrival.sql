@@ -3,7 +3,8 @@ select id,
     title,
     is_public,
     is_closed,
-    tags
+    tags,
+    date
 from pages
 where page_type = $1
     and is_public = true

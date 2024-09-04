@@ -12,6 +12,7 @@ trending_articles AS (
         is_public,
         is_closed,
         tags,
+        date,
         pages.like_count / (
             EXTRACT(
                 EPOCH
@@ -31,6 +32,7 @@ trending_questions AS (
         is_public,
         is_closed,
         tags,
+        date,
         pages.like_count / (
             EXTRACT(
                 EPOCH

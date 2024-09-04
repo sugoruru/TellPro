@@ -21,6 +21,7 @@ articles as (
             or is_public = 'true'
         )
         and page_type = 'articles'
+    order by date desc
 ),
 questions as (
     select *
@@ -35,6 +36,7 @@ questions as (
             or is_public = 'true'
         )
         and page_type = 'questions'
+    order by date desc
 ),
 problems as (
     select *

@@ -3,7 +3,8 @@ with articles as (
         p.user_id,
         p.title,
         p.is_public,
-        p.tags
+        p.tags,
+        p.date
     from pages p
         inner join (
             select page_id
@@ -18,7 +19,8 @@ questions as (
         p.user_id,
         p.title,
         p.is_public,
-        p.tags
+        p.tags,
+        p.date
     from pages p
         inner join (
             select page_id
@@ -33,7 +35,8 @@ problems as (
         p.user_id,
         p.title,
         p.is_public,
-        p.tags
+        p.tags,
+        p.date
     from pages p
         inner join (
             select page_id
