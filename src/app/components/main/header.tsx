@@ -37,7 +37,7 @@ const Header = () => {
             </Link>
             {status == "unauthenticated" ? (
               <div className="flex items-center gap-3">
-                <Link href="/tags">
+                <Link href="/search">
                   <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl text-black dark:text-white`} />
                 </Link>
                 <button className="ml-2 sm:block" onClick={() => setIsLoginMenuOpen(true)} id="header_login_button">
@@ -48,7 +48,7 @@ const Header = () => {
               </div>
             ) : status == "authenticated" && user ? (
               <div className="flex items-center gap-3">
-                <Link href="/tags">
+                <Link href="/search">
                   <IoSearch className={`flex-shrink-0 text-lg cursor-pointer hover:text-3xl text-black dark:text-white`} />
                 </Link>
                 <Link

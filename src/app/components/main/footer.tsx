@@ -12,6 +12,9 @@ const Footer = () => {
           <li>
             <Link href="/dev">開発</Link>
           </li>
+          <li>
+            <Link href="/api-info">APIドキュメント</Link>
+          </li>
         </ul>
         <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">Legal</li>
@@ -24,6 +27,9 @@ const Footer = () => {
         </ul>
         <ul className="mb-5 md:mb-0">
           <li className="font-bold mb-3">Other</li>
+          <li>
+            <Link href="/tags">タグ一覧</Link>
+          </li>
           <li>
             <Link href="/proposal">サイト案</Link>
           </li>

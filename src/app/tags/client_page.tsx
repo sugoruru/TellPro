@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 
-// 検索ページ.
+// タグページ.
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,7 +16,7 @@ export default function SearchPage() {
   const [pageID, setPageID] = useState(1);
 
   useEffect(() => {
-    document.title = "Search｜TellPro";
+    document.title = "Tags｜TellPro";
   }, []);
 
   useEffect(() => {

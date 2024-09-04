@@ -8,6 +8,7 @@ import path from "path";
 import db from "@/modules/network/db";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { UserPublic } from "@/types/user";
+import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   // 毎分100requestの制限.
   try {
-    await limitChecker.check(100, ip);
+    await limitChecker.check(APILimitConstant, ip);
   } catch (error) {
     NextResponse.json({
       ok: false,

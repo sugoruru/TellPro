@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { Page } from "@/types/page";
 import { UserPublic } from "@/types/user";
+import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   // 毎分100requestの制限.
   try {
-    await limitChecker.check(100, ip);
+    await limitChecker.check(APILimitConstant, ip);
   } catch (error) {
     const res = NextResponse.json({
       ok: false,

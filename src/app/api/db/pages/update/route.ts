@@ -6,6 +6,7 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
+import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
 export async function POST(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   // 毎分100requestの制限.
   try {
-    await limitChecker.check(100, ip);
+    await limitChecker.check(APILimitConstant, ip);
   } catch (error) {
     const res = NextResponse.json({
       ok: false,
