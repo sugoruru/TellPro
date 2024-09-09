@@ -1,19 +1,68 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoSearch } from "react-icons/io5";
+import axios from "axios";
+import returnRandomString from "@/modules/algo/returnRandomString";
+import { UserPublic } from "@/types/user";
+import Link from "next/link";
+import { Page } from "@/types/page";
+import { MdArticle } from "react-icons/md";
 
 // 検索ページ.
 export default function SearchPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [users, setUsers] = useState<UserPublic[]>([]);
+  const [articles, setArticles] = useState<Page[]>([]);
+  const lastSearchWord = useRef("");
+  const debounceTimeout = useRef<null | NodeJS.Timeout>(null);
+  const lastFetchTime = useRef(0);
+  const debounceDelay = 200;
+
+  const fetchData = async () => {
+    const currentTime = Date.now();
+    if (lastSearchWord.current === inputValue || currentTime - lastFetchTime.current < debounceDelay) return;
+    try {
+      const res = await axios.get(`/api/pages/search?word=${inputValue}`);
+      lastSearchWord.current = res.data.word;
+      lastFetchTime.current = currentTime;
+      if (res.data.result[0].search_json.users) {
+        setUsers(res.data.result[0].search_json.users);
+      } else {
+        setUsers([]);
+      }
+      if (res.data.result[0].search_json.articles) {
+        setArticles(res.data.result[0].search_json.articles);
+      } else {
+        setArticles([]);
+      }
+    } catch (error) {
+      console.error("API fetch error:", error);
+    }
+  };
+
   useEffect(() => {
-    document.title = "Search｜TellPro";
+    document.title = "検索｜TellPro";
   }, []);
+
+  useEffect(() => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      fetchData();
+    }, debounceDelay);
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+  }, [inputValue]);
 
   return (
     <div className="h-full">
-      <h1 className="font-bold text-2xl text-center mt-5">キーワード検索</h1>
       <div className="flex justify-center text-xl items-center">
-        <div className={`bg-white w-4/5 lg:w-3/5 flex items-center mt-5 px-4 transition-all border-2 rounded-lg ${isInputFocused ? "border-sky-400 shadow-xl" : "border-gray-200"}`}>
+        <div className={`bg-white w-4/5 lg:w-3/5 flex items-center mt-20 px-4 transition-all border-2 rounded-lg ${isInputFocused ? "border-sky-400 shadow-xl" : "border-gray-200"}`}>
           <label htmlFor="tellpro_search">
             <IoSearch className={`${isInputFocused ? "text-sky-400" : "text-gray-400"}`} />
           </label>
@@ -21,11 +70,49 @@ export default function SearchPage() {
             onBlur={() => setIsInputFocused(false)}
             onFocus={() => setIsInputFocused(true)}
             type="text"
+            maxLength={30}
             className="h-12 w-full outline-none ml-3"
             placeholder="キーワードを入力"
             id="tellpro_search"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            autoComplete="off"
           />
         </div>
+      </div>
+      <div className="mt-4">
+        {users.map((user) => (
+          <div key={returnRandomString(64)} className="w-3/5 mx-auto bg-white rounded-lg my-3 drop-shadow-sm hover:drop-shadow-lg transition-all">
+            <Link href={`/${user.id}`}>
+              <div className="flex p-1">
+                <img alt={user.username} src={user.icon} width={64} height={64} className="size-12" />
+                <div className="ml-2 overflow-x-hidden text-nowrap">
+                  <span>
+                    <span>{user.username}</span>
+                    <br />
+                    <span className="text-gray-500">@{user.id}</span>
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        ))}
+        {articles.map((article) => (
+          <div key={returnRandomString(64)} className="w-3/5 mx-auto bg-white rounded-lg my-3 drop-shadow-sm hover:drop-shadow-lg transition-all">
+            <Link href={`/${article.user_id}/articles/${article.id}`}>
+              <div className="flex p-1">
+                <MdArticle className="text-[3rem]" />
+                <div className="ml-2 overflow-x-hidden text-nowrap">
+                  <span>
+                    <span>{article.title}</span>
+                    <br />
+                    <span className="text-gray-500">@{article.user_id}</span>
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );

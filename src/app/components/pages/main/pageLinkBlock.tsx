@@ -27,7 +27,7 @@ const PageLinkBlock = (props: {
               <div>
                 <div className="flex text-sm">
                   <div className="h-[30px] w-[30px] relative">
-                    <Image alt={props.pageUser.username} src={props.pageUser.icon} fill priority />
+                    <Image alt={props.pageUser.username} src={props.pageUser.icon} fill priority sizes="100%" />
                   </div>
                   <div>
                     <span className="ml-2">
