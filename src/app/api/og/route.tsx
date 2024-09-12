@@ -3,12 +3,12 @@ import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   // default, user, articleの3種類のOGP画像を生成する
-  const OGPType = req.nextUrl.searchParams.get("OGPType") || "default";
-  const userID = req.nextUrl.searchParams.get("userID") || "";
-  const userIcon = req.nextUrl.searchParams.get("userIcon") || "";
-  const userStatusMessage = req.nextUrl.searchParams.get("userStatusMessage") || "";
-  const articleTitle = req.nextUrl.searchParams.get("articleTitle") || "";
-  const articleUser = req.nextUrl.searchParams.get("articleUser") || "";
+  const OGPType = decodeURIComponent(req.nextUrl.searchParams.get("OGPType") || "default");
+  const userID = decodeURIComponent(req.nextUrl.searchParams.get("userID") || "");
+  const userIcon = decodeURIComponent(req.nextUrl.searchParams.get("userIcon") || "");
+  const userStatusMessage = decodeURIComponent(req.nextUrl.searchParams.get("userStatusMessage") || "");
+  const articleTitle = decodeURIComponent(req.nextUrl.searchParams.get("articleTitle") || "");
+  const articleUser = decodeURIComponent(req.nextUrl.searchParams.get("articleUser") || "");
 
   return new ImageResponse(
     (
