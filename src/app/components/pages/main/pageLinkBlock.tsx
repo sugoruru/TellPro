@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { MdEditNote, MdKeyboardArrowDown } from "react-icons/md";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -17,7 +16,6 @@ const PageLinkBlock = (props: {
   me?: UserPublic | null;
   stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
 }) => {
-  const router = useRouter();
   return (
     <>
       <div className={`border-gray-200 text-black dark:text-white`}>
@@ -39,10 +37,12 @@ const PageLinkBlock = (props: {
                       </span>
                     </span>
                     <br />
-                    <span className="ml-2 text-gray-600">{`${new Date(props.page.date).getFullYear()}年${new Date(props.page.date).getMonth() + 1}月${new Date(props.page.date).getDate()}日`}</span>
+                    <span className="ml-2 text-gray-600 dark:text-gray-400">{`${new Date(props.page.date).getFullYear()}年${new Date(props.page.date).getMonth() + 1}月${new Date(
+                      props.page.date
+                    ).getDate()}日`}</span>
                   </div>
                 </div>
-                <b className="mr-1 text-xl text-gray-800 ml-[calc(30px+0.5rem)] hover:underline">{props.page.title}</b>
+                <b className="mr-1 text-xl text-gray-800 ml-[calc(30px+0.5rem)] hover:underline dark:text-white">{props.page.title}</b>
                 <div className="flex flex-wrap text-gray-600 ml-[calc(30px+0.5rem)]">
                   {props.page.tags.length !== 0 ? (
                     props.page.tags.map((e) =>
