@@ -125,6 +125,36 @@ function lex(input: string): Token[] {
       continue;
     }
 
+    // Blank Target Link (e.g., \[text]{url}).
+    if (char === "\\" && input[current + 1] === "[" && input.indexOf("]{", current + 2) !== -1) {
+      let text = "";
+      let tempText = "";
+      let tempCurrent = current;
+      while (input[tempCurrent] !== "\n" && tempCurrent < input.length) {
+        tempText += input[tempCurrent++];
+      }
+      const reg = /\[(.*?)\]{(.*?)}/;
+      if (!reg.test(tempText)) {
+        tokens.push({ type: "Text", content: char });
+        current++;
+        continue;
+      }
+
+      current += 2; // Skip \[
+      while (input[current] !== "]" && current < input.length) {
+        text += input[current++];
+      }
+      current += 2; // Skip ]{
+      let url = "";
+      while (input[current] !== "}" && current < input.length) {
+        url += input[current++];
+      }
+      text = decorateText(text);
+      tokens.push({ type: "Text", content: `\\[${text}]{${url}}` });
+      current++; // Skip }
+      continue;
+    }
+
     if (char === "\\") {
       current++;
       if (input.length <= current) {
