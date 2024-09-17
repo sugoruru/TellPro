@@ -31,6 +31,27 @@ interface Token {
   children?: Token[];
 }
 
+function escapeHtml(str: string): string {
+  return str.replace(/[<>&"'`]/g, (char) => {
+    switch (char) {
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case "&":
+        return "&amp;";
+      case '"':
+        return "&quot;";
+      case "'":
+        return "&#39;";
+      case "`":
+        return "&#96;";
+      default:
+        return char;
+    }
+  });
+}
+
 const sanitizeOptions = {
   allowedTags: ["inline", "i", "b", "s", "color", "link", "blankTargetLink", "span", "a"],
   allowedAttributes: {
@@ -193,7 +214,7 @@ function lex(input: string): Token[] {
         tokens.push({ type: "Text", content: char });
         continue;
       } else {
-        tokens.push({ type: "Text", content: input[current] });
+        tokens.push({ type: "Text", content: escapeHtml(input[current]) });
         current++;
         continue;
       }
