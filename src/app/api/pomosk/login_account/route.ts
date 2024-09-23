@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/modules/network/db";
+import pomoskDB from "@/modules/network/pomoskDB";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { addOneTimePass, deleteOneTimePass } from "@/modules/network/oneTimePass";
 import { UserPublic } from "@/types/user";
 
 const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
@@ -68,9 +68,11 @@ export async function POST(req: NextRequest) {
   }
 
   // ワンタイムパスワードの生成.
-  deleteOneTimePass();
   const oneTimePassword = returnRandomString(32);
-  addOneTimePass(oneTimePassword);
+  {
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/add_one_time.sql", "utf-8");
+    await pomoskDB.none(sql, [oneTimePassword]);
+  }
 
   // ワンタイムパスワードの送信.
   const notificationID = returnRandomString(64);

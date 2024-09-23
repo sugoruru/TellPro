@@ -6,7 +6,6 @@ import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { checkOneTimePass } from "@/modules/network/oneTimePass";
 
 const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
 const corsHeaders = {
@@ -55,7 +54,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 200, headers: corsHeaders });
   }
 
-  if (checkOneTimePass(passKey)) {
+  // oneTimePassの確認.
+  let isExist = false;
+  {
+    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_one_time.sql", "utf-8");
+    const data = await db.any(sql, [passKey]);
+    if (data.length > 0) {
+      isExist = true;
+    }
+    // 古いoneTimePassの削除.
+    const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/delete_old_one_time.sql", "utf-8");
+    await db.none(sql2, [passKey]);
+  }
+  if (isExist) {
     // ログインキーの作成.
     const loginKey = returnRandomString(32);
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/create_login_key.sql", "utf-8");
