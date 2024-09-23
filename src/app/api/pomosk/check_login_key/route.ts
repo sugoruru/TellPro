@@ -6,7 +6,7 @@ import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
 
-const allowOrigin = "*";
+const allowOrigin = "https://pomosk.tellpro.net/";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
