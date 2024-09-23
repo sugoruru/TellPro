@@ -9,7 +9,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { addOneTimePass, deleteOneTimePass } from "@/modules/network/oneTimePass";
 import { UserPublic } from "@/types/user";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net/";
+const allowOrigin = "*";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',

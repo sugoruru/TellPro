@@ -8,7 +8,7 @@ import path from "path";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { checkOneTimePass } from "@/modules/network/oneTimePass";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net/";
+const allowOrigin = "*";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
