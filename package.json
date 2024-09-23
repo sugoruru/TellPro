@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.19",
+    "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.4",
     "@types/pg-promise": "^5.4.3",
     "@types/react-katex": "^3.0.4",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lru-cache": "^10.2.0",

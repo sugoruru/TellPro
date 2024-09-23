@@ -96,6 +96,16 @@ const Notifications = () => {
                   </div>
                 ) : e.notification_type === "achievement" ? (
                   <>{e.notification_value}</>
+                ) : e.notification_type === "pomosk_one_time" ? (
+                  <div className={`flex my-5 p-2 ${new Date(e.created_at).getTime() > new Date(notifications.last_seeing_notifications_at).getTime() ? "bg-sky-100" : ""}`}>
+                    <img className="h-10 mr-2 my-auto" src="/svg/Pomosk.png" alt="" />
+                    <div className="block">
+                      <p>Pomoskからワンタイムパスワードが生成されました。ワンタイムパスワードは「{e.notification_value}」です。</p>
+                      <p className="text-gray-600">
+                        {e.created_at.split("T")[0]} {e.created_at.split("T")[1].slice(0, 5)}
+                      </p>
+                    </div>
+                  </div>
                 ) : (
                   <></>
                 )}
