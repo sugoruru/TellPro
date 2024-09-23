@@ -22,14 +22,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://pomosk.tellpro.net/api/:path*",
-      },
-    ];
-  },
   experimental: {
     runtime: "experimental-edge",
   },
