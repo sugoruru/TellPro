@@ -234,7 +234,7 @@ function lex(input: string): Token[] {
           value += input[current++];
         }
         current++;
-        value = decorateText(value.trim());
+        value = decorateText(value);
         tokens.push({ type: "Heading", content: value, level });
         continue;
       }
@@ -266,7 +266,7 @@ function lex(input: string): Token[] {
           }
           value += input[current++];
         }
-        value = decorateText(value.trim());
+        value = decorateText(value);
         subTokens.push({ type: "Text", content: value, level });
         current++; // Skip the newline after the indent
         tokens.push({ type: "Indent", content: "", level, children: subTokens });
@@ -293,9 +293,9 @@ function lex(input: string): Token[] {
           if (input[current] === "$" && input[current + 1] === "$") {
             current += 2;
             if (math) {
-              subTokens.push({ type: "InlineMath", content: value.trim(), level });
+              subTokens.push({ type: "InlineMath", content: value, level });
             } else {
-              value = decorateText(value.trim());
+              value = decorateText(value);
               subTokens.push({ type: "Text", content: value, level });
             }
             math = !math;
@@ -306,7 +306,7 @@ function lex(input: string): Token[] {
           }
           value += input[current++];
         }
-        value = decorateText(value.trim());
+        value = decorateText(value);
         subTokens.push({ type: "Text", content: value, level });
         current++; // Skip the newline after the list
         tokens.push({ type: "List", content: "", level, children: subTokens });
@@ -341,7 +341,7 @@ function lex(input: string): Token[] {
         while (input[current] !== "|" && input[current] !== "}" && current < input.length) {
           value += input[current++];
         }
-        options[key.trim()] = value.trim();
+        options[key.trim()] = value;
       }
       tokens.push({ type: "Image", content: alt, options: { src, ...options } });
       current++; // Skip }

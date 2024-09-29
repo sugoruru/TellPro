@@ -41,31 +41,28 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["login_token"];
+  const required = ["tag_id", "login_token"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400, headers: corsHeaders });
     }
   }
-  const { login_token } = body as { login_token: string };
+  const { login_token, tag_id } = body as { login_token: string, tag_id: string };
   const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_login_key.sql", "utf-8");
   const result = await db.any(sql, [login_token]);
   if (result.length === 0) {
     return NextResponse.json({ ok: false, error: "Invalid login token" }, { status: 400, headers: corsHeaders });
   }
-  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_data.sql", "utf-8");
-  const user = await db.any(sql2, [result[0].user_id]);
-  if (user[0].res.sessions === null) {
-    user[0].res.sessions = [];
+  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_tags.sql", "utf-8");
+  const tags = await db.any(sql2, [result[0].user_id]);
+  // tagsにtag_idが存在しなければ400を返す.
+  if (!tags.find((tag: any) => tag.id === tag_id)) {
+    return NextResponse.json({ ok: false, error: "Tag not found" }, { status: 400, headers: corsHeaders });
   }
-  if (user[0].res.tags === null) {
-    user[0].res.tags = [];
-  }
-  if (user[0].res.tasks === null) {
-    user[0].res.tasks = [];
-  }
-  return NextResponse.json({ ok: true, result, user: user[0].res }, { status: 200, headers: corsHeaders });
+  const sql3 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/delete_tag.sql", "utf-8");
+  await db.none(sql3, [tag_id]);
+  return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
 }
 
 export async function OPTIONS(request: Request) {

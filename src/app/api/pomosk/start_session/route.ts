@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 
 const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
 const corsHeaders = {
@@ -41,31 +42,40 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["login_token"];
+  const required = ["isBreak", "login_token", "tagID"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400, headers: corsHeaders });
     }
   }
-  const { login_token } = body as { login_token: string };
+  const { login_token, isBreak, tagID } = body as { login_token: string, isBreak: boolean, tagID: string };
   const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_login_key.sql", "utf-8");
   const result = await db.any(sql, [login_token]);
   if (result.length === 0) {
     return NextResponse.json({ ok: false, error: "Invalid login token" }, { status: 400, headers: corsHeaders });
   }
-  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_data.sql", "utf-8");
-  const user = await db.any(sql2, [result[0].user_id]);
-  if (user[0].res.sessions === null) {
-    user[0].res.sessions = [];
+  if (tagID !== "") {
+    const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_tags.sql", "utf-8");
+    const tags = await db.any(sql2, [result[0].user_id]);
+    if (!tags.find((tag: any) => tag.id === tagID)) {
+      return NextResponse.json({ ok: false, error: "Tag not found" }, { status: 400, headers: corsHeaders });
+    }
   }
-  if (user[0].res.tags === null) {
-    user[0].res.tags = [];
+  const uuid = randomUUID();
+  const sql3 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/start_session.sql", "utf-8");
+  const newDate = new Date();
+  await db.none(sql3, [uuid, result[0].user_id, newDate.toISOString(), isBreak, tagID]);
+  const session = {
+    id: uuid,
+    user_id: result[0].user_id,
+    start_time: newDate.toISOString(),
+    end_time: null,
+    is_interrupted: false,
+    is_break: isBreak,
+    tag_id: tagID,
   }
-  if (user[0].res.tasks === null) {
-    user[0].res.tasks = [];
-  }
-  return NextResponse.json({ ok: true, result, user: user[0].res }, { status: 200, headers: corsHeaders });
+  return NextResponse.json({ ok: true, session }, { status: 200, headers: corsHeaders });
 }
 
 export async function OPTIONS(request: Request) {

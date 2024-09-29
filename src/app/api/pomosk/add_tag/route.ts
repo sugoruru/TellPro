@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 
 const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
 const corsHeaders = {
@@ -41,31 +42,41 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["login_token"];
+  const required = ["tag_name", "login_token"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400, headers: corsHeaders });
     }
   }
-  const { login_token } = body as { login_token: string };
+  const { login_token, tag_name } = body as { login_token: string, tag_name: string };
   const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_login_key.sql", "utf-8");
   const result = await db.any(sql, [login_token]);
   if (result.length === 0) {
     return NextResponse.json({ ok: false, error: "Invalid login token" }, { status: 400, headers: corsHeaders });
   }
-  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_data.sql", "utf-8");
-  const user = await db.any(sql2, [result[0].user_id]);
-  if (user[0].res.sessions === null) {
-    user[0].res.sessions = [];
+  if (tag_name === "") {
+    return NextResponse.json({ ok: false, error: "tag_name is empty" }, { status: 400, headers: corsHeaders });
   }
-  if (user[0].res.tags === null) {
-    user[0].res.tags = [];
+  if (tag_name.length > 20) {
+    return NextResponse.json({ ok: false, error: "tag_name is too long" }, { status: 400, headers: corsHeaders });
   }
-  if (user[0].res.tasks === null) {
-    user[0].res.tasks = [];
+  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/get_user_tags.sql", "utf-8");
+  const tags = await db.any(sql2, [result[0].user_id]);
+  if (tags !== null) {
+    // isDuplicateがtrueの場合は400を返す.
+    const isDuplicate = tags.some((tag: { tag_name: string }) => tag.tag_name === tag_name);
+    if (isDuplicate) {
+      return NextResponse.json({ ok: false, error: "tag_name is duplicate" }, { status: 400, headers: corsHeaders });
+    }
+    if (tags.length >= 25) {
+      return NextResponse.json({ ok: false, error: "tag is full" }, { status: 400, headers: corsHeaders });
+    }
   }
-  return NextResponse.json({ ok: true, result, user: user[0].res }, { status: 200, headers: corsHeaders });
+  const uuid = randomUUID();
+  const sql3 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/add_tag.sql", "utf-8");
+  await db.none(sql3, [uuid, result[0].user_id, tag_name]);
+  return NextResponse.json({ ok: true, tagID: uuid }, { status: 200, headers: corsHeaders });
 }
 
 export async function OPTIONS(request: Request) {
