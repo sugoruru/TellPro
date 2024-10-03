@@ -7,9 +7,8 @@ import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { UserPublic } from "@/types/user";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
+const allowOrigin = process.env.IS_DEV === "true" ? "https://localhost:3001" : "https://pomosk.tellpro.net";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -59,8 +58,8 @@ export async function POST(req: NextRequest) {
   // ユーザーの存在確認.
   try {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_id.sql", "utf-8");
-    const data = (await db.one(sql, [tellproID])) as UserPublic[];
-    if (data.length === 0) {
+    const data = (await db.one(sql, [tellproID]));
+    if (!data) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400, headers: corsHeaders });
     }
   } catch (error) {

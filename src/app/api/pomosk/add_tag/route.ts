@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
+const allowOrigin = process.env.IS_DEV === "true" ? "https://localhost:3001" : "https://pomosk.tellpro.net";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/modules/network/pomoskDB";
+import mainDB from "@/modules/network/db";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
@@ -7,7 +8,7 @@ import fs from "fs";
 import path from "path";
 import returnRandomString from "@/modules/algo/returnRandomString";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
+const allowOrigin = process.env.IS_DEV === "true" ? "https://localhost:3001" : "https://pomosk.tellpro.net";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -67,10 +68,21 @@ export async function POST(req: NextRequest) {
     await db.none(sql2, [passKey]);
   }
   if (isExist) {
+    let mail = "";
+    try {
+      const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_id.sql", "utf-8");
+      const data = (await mainDB.one(sql, [currentTellproID]));
+      if (!data) {
+        return NextResponse.json({ ok: false, error: "User not found" }, { status: 400, headers: corsHeaders });
+      }
+      mail = data.mail;
+    } catch (error) {
+      return NextResponse.json({ ok: false, error: "Invalid request2" }, { status: 400, headers: corsHeaders });
+    }
     // ログインキーの作成.
     const loginKey = returnRandomString(32);
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/create_login_key.sql", "utf-8");
-    await db.none(sql, [loginKey, currentTellproID]);
+    await db.none(sql, [loginKey, mail]);
     return NextResponse.json({ ok: true, loginKey }, {
       status: 200, headers: corsHeaders
     });

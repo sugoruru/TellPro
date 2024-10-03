@@ -8,7 +8,7 @@ import path from "path";
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { randomUUID } from "crypto";
 
-const allowOrigin = process.env.IS_DEV === "true" ? "https://192.168.11.8:3000" : "https://pomosk.tellpro.net";
+const allowOrigin = process.env.IS_DEV === "true" ? "https://localhost:3001" : "https://pomosk.tellpro.net";
 const corsHeaders = {
   'Access-Control-Allow-Origin': allowOrigin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid tag data" }, { status: 400, headers: corsHeaders });
   }
   if (tags_data.length === 0) {
-    return NextResponse.json({ ok: false, error: "Empty tag data" }, { status: 400, headers: corsHeaders });
+    return NextResponse.json({ ok: false, error: "Empty tag data" }, { status: 200, headers: corsHeaders });
   }
   if (tags_data.length > 30) {
     return NextResponse.json({ ok: false, error: "Too many tags" }, { status: 400, headers: corsHeaders });
