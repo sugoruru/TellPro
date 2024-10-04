@@ -48,14 +48,14 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["login_token", "tag_data"];
+  const required = ["login_token", "tag_data", "supplementary_text"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400, headers: corsHeaders });
     }
   }
-  const { login_token, tag_data } = body as { login_token: string, tag_data: string };
+  const { login_token, tag_data, supplementary_text } = body as { login_token: string, tag_data: string, supplementary_text: string };
   const tags_data = JSON.parse(tag_data);
   if (!Array.isArray(tags_data)) {
     return NextResponse.json({ ok: false, error: "Invalid tag data" }, { status: 400, headers: corsHeaders });
@@ -92,8 +92,12 @@ export async function POST(req: NextRequest) {
   このデータを読み取ってアドバイスをしてください。
   ただし、「」はタグ名、「時間」は時間(h)を表しています。
   数字だけの相関を見て、タグ名は無視してください。
+  もし、時間が小数点以下が長く続きわかりにくい場合は、時間と分に分けてください。
 
   ${tags_data.map((tag: { name: string, time: number }) => `「${tag.name}」: ${tag.time}時間`).join("\n")}
+
+  ${supplementary_text.length > 0 ? `
+  また、以下の追加情報があります。\n${supplementary_text}` : ""}
   `;
   const response = (await model.generateContent(prompt)).response.text();
   if (gemini.length === 0) {

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/modules/network/pomoskDB";
-import mainDB from "@/modules/network/db";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 import fs from "fs";
 import path from "path";
-import returnRandomString from "@/modules/algo/returnRandomString";
+import { randomUUID } from "crypto";
 
 const allowOrigin = process.env.IS_DEV === "true" ? "https://localhost:3001" : "https://pomosk.tellpro.net";
 const corsHeaders = {
@@ -43,53 +42,28 @@ export async function POST(req: NextRequest) {
   }
 
   // リクエストボディに必要なキーが存在しなければ400を返す.
-  const required = ["passKey", "currentTellproID"];
+  const required = ["name", "login_token"];
   const body = await req.json();
   for (const key of required) {
     if (!(key in body)) {
       return NextResponse.json({ ok: false, error: "Missing required key" }, { status: 400, headers: corsHeaders });
     }
   }
-  const { passKey, currentTellproID } = body as { passKey: string, currentTellproID: string };
-  if (passKey.length !== 32) {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 200, headers: corsHeaders });
+  const { login_token, name } = body as { login_token: string, name: string };
+  const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_login_key.sql", "utf-8");
+  const result = await db.any(sql, [login_token]);
+  if (result.length === 0) {
+    return NextResponse.json({ ok: false, error: "Invalid login token" }, { status: 400, headers: corsHeaders });
   }
-
-  // oneTimePassの確認.
-  let isExist = false;
-  {
-    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/check_one_time.sql", "utf-8");
-    const data = await db.any(sql, [passKey]);
-    if (data.length > 0) {
-      isExist = true;
-    }
-    // 古いoneTimePassの削除.
-    const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/delete_old_one_time.sql", "utf-8");
-    await db.none(sql2, [passKey]);
+  if (name.trim() === "") {
+    return NextResponse.json({ ok: false, error: "name is empty" }, { status: 400, headers: corsHeaders });
   }
-  if (isExist) {
-    let mail = "";
-    try {
-      const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_id.sql", "utf-8");
-      const data = (await mainDB.one(sql, [currentTellproID]));
-      if (!data) {
-        return NextResponse.json({ ok: false, error: "User not found" }, { status: 400, headers: corsHeaders });
-      }
-      mail = data.mail;
-    } catch (error) {
-      return NextResponse.json({ ok: false, error: "Invalid request2" }, { status: 400, headers: corsHeaders });
-    }
-    // ログインキーの作成.
-    const loginKey = returnRandomString(32);
-    const sql = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/create_login_key.sql", "utf-8");
-    const name = `匿名${Math.floor(Math.random() * 10000)}`;
-    await db.none(sql, [loginKey, mail, name]);
-    return NextResponse.json({ ok: true, loginKey }, {
-      status: 200, headers: corsHeaders
-    });
-  } else {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 200, headers: corsHeaders });
+  if (name.length > 20) {
+    return NextResponse.json({ ok: false, error: "name is too long" }, { status: 400, headers: corsHeaders });
   }
+  const sql2 = fs.readFileSync(path.resolve("./public") + "/sql/pomosk/change_name.sql", "utf-8");
+  await db.none(sql2, [result[0].user_id, name]);
+  return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
 }
 
 export async function OPTIONS(request: Request) {
