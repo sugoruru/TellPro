@@ -12,6 +12,7 @@ import { IoMdImages } from "react-icons/io";
 import ImageUploader from "../main/imageUploader";
 import { UserPublic } from "@/types/user";
 import { HandleCommentGoodProps } from "@/modules/handle/handleCommentGood";
+import React from "react";
 
 const SendComment = (props: {
   page: Page;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import useTagSearch from "./useTagSearch";
 import { cantUseURL } from "@/modules/other/cantUseURL";
 

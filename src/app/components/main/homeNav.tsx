@@ -1,10 +1,11 @@
 import Link from "next/link";
 
 const HomeNavItems = {
-  "Home"     : "/",
-  "Articles" : "/articles",
-  "Questions": "/questions",
-  "Problems" : "/problems",
+  Home: "/",
+  Articles: "/articles",
+  Questions: "/questions",
+  Problems: "/problems",
+  "": "",
 } as const;
 
 type valueOf<T> = T[keyof T];
@@ -21,7 +22,7 @@ const HomeNav = (props: { path: valueOf<typeof HomeNavItems> }) => {
               <li className={`px-2 ${pathname === _pathname && "border-b-2 pb-1"}`} key={name}>
                 <Link href={_pathname}>{name}</Link>
               </li>
-            )
+            );
           })}
         </ul>
       </nav>

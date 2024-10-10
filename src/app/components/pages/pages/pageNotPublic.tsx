@@ -1,4 +1,5 @@
 import Link from "next/link";
+import React from "react";
 import { BsExclamationCircle } from "react-icons/bs";
 
 const PageNotPublic = () => {

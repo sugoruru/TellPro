@@ -7,6 +7,7 @@ import { UserPublic } from "@/types/user";
 import Link from "next/link";
 import { Page } from "@/types/page";
 import { MdArticle } from "react-icons/md";
+import HomeNav from "../components/main/homeNav";
 
 // 検索ページ.
 export default function SearchPage() {
@@ -19,28 +20,6 @@ export default function SearchPage() {
   const lastFetchTime = useRef(0);
   const debounceDelay = 200;
 
-  const fetchData = async () => {
-    const currentTime = Date.now();
-    if (lastSearchWord.current === inputValue || currentTime - lastFetchTime.current < debounceDelay) return;
-    try {
-      const res = await axios.get(`/api/pages/search?word=${inputValue}`);
-      lastSearchWord.current = res.data.word;
-      lastFetchTime.current = currentTime;
-      if (res.data.result[0].search_json.users) {
-        setUsers(res.data.result[0].search_json.users);
-      } else {
-        setUsers([]);
-      }
-      if (res.data.result[0].search_json.articles) {
-        setArticles(res.data.result[0].search_json.articles);
-      } else {
-        setArticles([]);
-      }
-    } catch (error) {
-      console.error("API fetch error:", error);
-    }
-  };
-
   useEffect(() => {
     document.title = "検索｜TellPro";
   }, []);
@@ -49,6 +28,27 @@ export default function SearchPage() {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
+    const fetchData = async () => {
+      const currentTime = Date.now();
+      if (lastSearchWord.current === inputValue || currentTime - lastFetchTime.current < debounceDelay) return;
+      try {
+        const res = await axios.get(`/api/pages/search?word=${inputValue}`);
+        lastSearchWord.current = res.data.word;
+        lastFetchTime.current = currentTime;
+        if (res.data.result[0].search_json.users) {
+          setUsers(res.data.result[0].search_json.users);
+        } else {
+          setUsers([]);
+        }
+        if (res.data.result[0].search_json.articles) {
+          setArticles(res.data.result[0].search_json.articles);
+        } else {
+          setArticles([]);
+        }
+      } catch (error) {
+        console.error("API fetch error:", error);
+      }
+    };
     debounceTimeout.current = setTimeout(() => {
       fetchData();
     }, debounceDelay);
@@ -61,6 +61,7 @@ export default function SearchPage() {
 
   return (
     <div className="h-full">
+      <HomeNav path={""} />
       <div className="flex justify-center text-xl items-center">
         <div className={`bg-white w-4/5 lg:w-3/5 flex items-center mt-20 px-4 transition-all border-2 rounded-lg ${isInputFocused ? "border-sky-400 shadow-xl" : "border-gray-200"}`}>
           <label htmlFor="tellpro_search">

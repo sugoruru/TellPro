@@ -1,6 +1,7 @@
 "use client";
 import Lex from "@/modules/md/md";
 import { Dialog, Transition } from "@headlessui/react";
+import React from "react";
 import { Fragment, useState } from "react";
 
 interface UpdateCommentModalProps {

@@ -20,6 +20,8 @@ import { useTagsContext } from "@/app/components/hooks/tagsContext";
 import handlePageUpload from "@/modules/handle/handlePageUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 import Lex from "@/modules/md/md";
+import sendImage from "@/modules/network/sendImage";
+import sleep from "@/modules/main/sleep";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -32,6 +34,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
   const [isMarkdown, setIsMarkdown] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
   const [realTimePreview, setRealTimePreview] = useState(false);
+  const [isPasteImage, setIsPasteImage] = useState(false);
   const [mdAreaValue, setMdAreaValue] = useState("");
   const [prevIcon, setPrevIcon] = useState("");
   const [title, setTitle] = useState("");
@@ -46,13 +49,44 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       router.replace("/");
       return;
     }
+    const onPasteHandler = (e: ClipboardEvent) => {
+      if (!e.clipboardData || !e.clipboardData.types || e.clipboardData.types.length != 1 || e.clipboardData.types[0] != "Files") {
+        return true;
+      }
+      e.preventDefault();
+      const file = e.clipboardData.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) return;
+      if (isPasteImage) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const target = e.target;
+        if (!target) return;
+        const data = target.result;
+        if (typeof data === "string") {
+          const url = await sendImage(data, setSendingImageMessage);
+          if (url) {
+            const imageTag = `![image]{${url}}`;
+            setMdAreaValue(mdAreaValue + imageTag + "\n");
+          }
+          // 10秒間画像の連続貼り付けを防ぐ.
+          await sleep(10000);
+          setIsPasteImage(false);
+        }
+      };
+      reader.readAsDataURL(file);
+      setIsPasteImage(true);
+      return false;
+    };
     Prism.highlightAll();
     setTagSearchValue("");
     window.addEventListener("beforeunload", onBeforeunloadHandler);
+    window.addEventListener("paste", onPasteHandler);
     return () => {
       window.removeEventListener("beforeunload", onBeforeunloadHandler);
+      window.removeEventListener("paste", onPasteHandler);
     };
-  }, [setTagSearchValue, router, params.pageID]);
+  }, [setTagSearchValue, router, params.pageID, isPasteImage, mdAreaValue]);
 
   const onBeforeunloadHandler = (e: BeforeUnloadEvent) => {
     e.preventDefault();

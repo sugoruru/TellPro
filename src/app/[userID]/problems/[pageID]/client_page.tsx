@@ -23,6 +23,7 @@ import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { pageContentSize } from "@/modules/other/uiOptions";
 import ShowProblems from "@/app/components/pages/pages/showProblems";
+import React from "react";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);

@@ -6,6 +6,7 @@ import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/page";
 import { UserPublic } from "@/types/user";
+import React from "react";
 
 export default function Questions() {
   const [pages, setPages] = useState<Page[]>([]);

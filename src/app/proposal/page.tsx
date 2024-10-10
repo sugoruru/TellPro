@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import ProposalPage from "./client_page";
+import React from "react";
 
 export const metadata: Metadata = {
   openGraph: {

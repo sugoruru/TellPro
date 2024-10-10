@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import axios from "axios";
 import Articles from "./client_page";
+import React from "react";
 
 export const generateMetadata = async ({ params }: { params: { userID: string; pageID: string } }): Promise<Metadata> => {
   const page = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles&userID=${params.userID}`)).data;

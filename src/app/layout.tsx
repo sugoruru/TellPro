@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import Prism from "prismjs";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import { UserProvider } from "./components/providers/userProvider";
 import { TagsProvider } from "./components/hooks/tagsContext";
 import { hideHeaderPage, hideFooterPage } from "@/modules/other/hideComponentPage";

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PageList } from "@/types/page";
 import { UserPublic } from "@/types/user";
+import React from "react";
 
 // 検索ページ.
 export default function SearchPage({ params }: { params: { tag: string } }) {

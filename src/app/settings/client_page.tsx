@@ -8,6 +8,7 @@ import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
 import { UserPublic } from "@/types/user";
 import { UserContext } from "../components/providers/userProvider";
+import React from "react";
 
 export default function Settings() {
   const { data: session, status } = useSession();

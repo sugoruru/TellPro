@@ -3,6 +3,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
 import { useEffect, useState } from "react";
 import { GrFormPrevious, GrFormNext } from "react-icons/gr";
 

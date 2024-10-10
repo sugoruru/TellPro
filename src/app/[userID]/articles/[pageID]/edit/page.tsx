@@ -20,9 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page({ params }: { params: { userID: string; pageID: string } }) {
-  return (
-    <>
-      <MakeNewPage params={params} />
-    </>
-  );
+  return <MakeNewPage params={params} />;
 }

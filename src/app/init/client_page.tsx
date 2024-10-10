@@ -14,6 +14,7 @@ import sendImage from "@/modules/network/sendImage";
 import userNameKeyword from "@/modules/other/userNameKeyword";
 import TermsOfService from "../termsOfService/page";
 import PrivacyPolicy from "../privacyPolicy/page";
+import React from "react";
 
 export default function Init() {
   const { data: session, status } = useSession();

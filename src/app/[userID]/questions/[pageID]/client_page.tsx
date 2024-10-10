@@ -24,7 +24,7 @@ import { handleCommentDelete } from "@/modules/handle/handleCommentDelete";
 import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 import { pageContentSize } from "@/modules/other/uiOptions";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
-import { UserContext } from "@/app/components/providers/userProvider";
+import React from "react";
 
 export default function Questions({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);

@@ -8,6 +8,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { PageList } from "@/types/page";
 import { PageType } from "@/modules/other/pageTypes";
 import { UserPublic } from "@/types/user";
+import React from "react";
 
 const PageLinkBlock = (props: {
   page: PageList;
