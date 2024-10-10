@@ -5,7 +5,7 @@ import { InlineMath } from "react-katex";
 import YouTube from "react-youtube";
 import sanitize from "sanitize-html";
 import validateColor from "validate-color";
-import validURL from "valid-url";
+import validator from "validator";
 
 type TokenType =
   | "Break"
@@ -443,7 +443,7 @@ function lex(input: string): Token[] {
 }
 
 function isGoodURL(str: string): boolean {
-  return validURL.isHttpUri(str) !== undefined || validURL.isHttpsUri(str) !== undefined;
+  return validator.isURL(str);
 }
 
 // 続いているTextトークンを結合する
