@@ -5,6 +5,7 @@ import { InlineMath } from "react-katex";
 import YouTube from "react-youtube";
 import sanitize from "sanitize-html";
 import validateColor from "validate-color";
+import validURL from "valid-url";
 
 type TokenType =
   | "Break"
@@ -237,6 +238,9 @@ function lex(input: string): Token[] {
         value = decorateText(value);
         tokens.push({ type: "Heading", content: value, level });
         continue;
+      } else {
+        tokens.push({ type: "Text", content: "#" });
+        continue;
       }
     }
 
@@ -439,8 +443,7 @@ function lex(input: string): Token[] {
 }
 
 function isGoodURL(str: string): boolean {
-  const pattern = new RegExp("^((https|http)?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$");
-  return pattern.test(str);
+  return validURL.isHttpUri(str) !== undefined || validURL.isHttpsUri(str) !== undefined;
 }
 
 // 続いているTextトークンを結合する
