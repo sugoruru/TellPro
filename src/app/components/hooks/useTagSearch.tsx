@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
+import { Tag } from "@/types/DBTypes";
 
 const useTagSearch = (tagSearchValue: string) => {
-  const [tags, setTags] = useState<TagData[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const lastTagsAPICalled = useRef(0);
   const fetchTags = useCallback(async (word: string) => {
     try {

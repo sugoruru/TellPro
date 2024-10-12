@@ -1,16 +1,16 @@
 import returnRandomString from "@/modules/algo/returnRandomString";
 import Lex from "@/modules/md/md";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import { Menu, Transition } from "@headlessui/react";
 import Link from "next/link";
 import { Dispatch, Fragment, MouseEventHandler, SetStateAction, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdEditNote } from "react-icons/md";
-import { Comment } from "@/types/comment";
+import { Comment } from "@/types/DBTypes";
 import { IoMdImages } from "react-icons/io";
 import ImageUploader from "../main/imageUploader";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { HandleCommentGoodProps } from "@/modules/handle/handleCommentGood";
 import React from "react";
 
@@ -23,8 +23,8 @@ const SendComment = (props: {
   isLikeSending: boolean;
   isLoading: boolean;
   comments: Comment[];
-  me: UserPublic;
-  commentUserMap: { [key: string]: UserPublic };
+  me: User;
+  commentUserMap: { [key: string]: User };
   likeComments: { [key: string]: boolean };
   setUpdateMdAreaValue: Dispatch<SetStateAction<string>>;
   setUpdateCommentID: Dispatch<SetStateAction<string>>;

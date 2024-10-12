@@ -5,18 +5,12 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { PageList } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import { PageType } from "@/modules/other/pageTypes";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import React from "react";
 
-const PageLinkBlock = (props: {
-  page: PageList;
-  pageUser: UserPublic;
-  pageType: PageType;
-  me?: UserPublic | null;
-  stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined;
-}) => {
+const PageLinkBlock = (props: { page: Page; pageUser: User; pageType: PageType; me?: User | null; stateFunctions?: { setIsOpenDeletePageModal: Function; setDeletePageID: Function } | undefined }) => {
   return (
     <>
       <div className={`border-gray-200 text-black dark:text-white`}>

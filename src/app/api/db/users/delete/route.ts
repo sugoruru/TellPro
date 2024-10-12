@@ -6,7 +6,7 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   // 自分自身のページであるか確認.
   try {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql").toString();
-    const data = await db.any(sql, [session.user.email]) as UserPublic[];
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }

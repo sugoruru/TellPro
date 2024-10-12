@@ -1,5 +1,5 @@
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import Link from "next/link";
 import React from "react";
 import { MouseEventHandler } from "react";
@@ -17,7 +17,7 @@ const PageMenu = (props: {
   page: Page;
   userID: string;
   pageID: string;
-  me: UserPublic;
+  me: User;
   pageType: string;
 }) => {
   return (

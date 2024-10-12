@@ -6,8 +6,8 @@ import fs from "fs";
 import path from "path";
 import { getServerSession } from "next-auth/next";
 import OPTIONS from "../../auth/[...nextauth]/options";
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
@@ -52,8 +52,8 @@ export async function GET(req: NextRequest) {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/api/user.sql", "utf-8");
     _res = await db.one(sql, [session.user.email, userID]);
   }
-  let __res: { me: UserPublic[], user: UserPublic[], articles: Page[], questions: Page[], problems: Page[] } = _res.result;
-  let result: { me: UserPublic | null, user: UserPublic | null, articles: Page[], questions: Page[], problems: Page[] } = _res.result;
+  let __res: { me: User[], user: User[], articles: Page[], questions: Page[], problems: Page[] } = _res.result;
+  let result: { me: User | null, user: User | null, articles: Page[], questions: Page[], problems: Page[] } = _res.result;
   if (__res.user) {
     if (__res.user.length === 1) {
       delete (__res.user[0] as any).mail;

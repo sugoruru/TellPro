@@ -9,12 +9,13 @@ import CompSitesListbox from "@/app/components/pages/pages/CompSitesListbox";
 import TagsDialog from "@/app/components/pages/pages/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
-import { UserPublic } from "@/types/user";
-import { Page } from "@/types/page";
+import { ProblemObject, SiteNameType, User } from "@/types/DBTypes";
+import { Page } from "@/types/DBTypes";
 import { Menu, Transition } from "@headlessui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import handleProblemUpload from "@/modules/handle/handleProblemUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
+import { CompSitesListboxProps, gotTitle } from "@/types/compSitesListboxProps";
 
 interface MakeProblemsProps {
   params: {
@@ -37,9 +38,9 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [sendingMessage, setSendingMessage] = useState<string>("");
-  const [problems, setProblems] = useState<Map<string, Problem>>(new Map());
+  const [problems, setProblems] = useState<Map<string, ProblemObject>>(new Map());
   const [gotTitle, setGotTitle] = useState<Map<string, gotTitle>>(new Map());
-  const [defaultProblems, setDefaultProblems] = useState<Map<string, Problem>>(new Map());
+  const [defaultProblems, setDefaultProblems] = useState<Map<string, ProblemObject>>(new Map());
   const router = useRouter();
   const { handleSetIsOpenTagEditor, tagSearchValue, setTagSearchValue } = useTagsContext();
 
@@ -110,7 +111,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchMe.data.data as UserPublic;
+            const tempUser = fetchMe.data.data as User;
             if (tempUser) {
               if (params.userID === tempUser.id) {
                 setCanEdit(true);
@@ -118,9 +119,9 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
                 if (fetchProblem.data.exist) {
                   const tempProblem = fetchProblem.data.data as Page;
                   setTitle(tempProblem.title);
-                  const content = JSON.parse(tempProblem.content) as { description: string; problems: [string, { site: SiteName; value: string }][] };
+                  const content = JSON.parse(tempProblem.content) as { description: string; problems: [string, { site: SiteNameType; value: string }][] };
                   setDescription(content.description);
-                  const nwMap = new Map<string, Problem>();
+                  const nwMap = new Map<string, ProblemObject>();
                   content.problems.forEach((e) => {
                     nwMap.set(e[0], { site: e[1].site, value: e[1].value, isInputValid: true });
                   });
@@ -155,7 +156,7 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
     }
   }, [existUser, canEdit, title, status]);
 
-  const handleSetProblem = useCallback((id: string, site: SiteName, value: string, isInputValid: boolean) => {
+  const handleSetProblem = useCallback((id: string, site: SiteNameType, value: string, isInputValid: boolean) => {
     setProblems((prev) => {
       const newProblems = new Map(prev);
       newProblems.set(id, { site, value, isInputValid });

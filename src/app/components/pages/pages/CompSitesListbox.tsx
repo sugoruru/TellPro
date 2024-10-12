@@ -4,12 +4,14 @@ import { GoTriangleDown } from "react-icons/go";
 import { FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import React, { useState, useCallback } from "react";
 import { sitePlaceholder, sites, siteImg, siteRegex } from "@/modules/other/compSitesConstants";
+import { ProblemObject, SiteNameType } from "@/types/DBTypes";
+import { CompSitesListboxProps } from "@/types/compSitesListboxProps";
 
 const CompSitesListbox: React.FC<CompSitesListboxProps> = ({ id, defaultProblem, gotTitle, handleSetProblem, handleDeleteInput }) => {
-  const [problemData, setProblemData] = useState<Problem>({ site: defaultProblem[0], value: defaultProblem[1], isInputValid: false });
+  const [problemData, setProblemData] = useState<ProblemObject>({ site: defaultProblem[0], value: defaultProblem[1], isInputValid: false });
 
   const handleChange = useCallback(
-    (site: SiteName) => {
+    (site: SiteNameType) => {
       setProblemData((prev) => ({ site, value: prev.value, isInputValid: siteRegex[site].test(prev.value) }));
       handleSetProblem(id, site, problemData.value, siteRegex[site].test(problemData.value));
     },

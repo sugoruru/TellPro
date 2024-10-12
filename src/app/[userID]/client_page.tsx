@@ -6,14 +6,14 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import { Dialog, Transition } from "@headlessui/react";
 import sleep from "@/modules/main/sleep";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import { IoShieldCheckmark } from "react-icons/io5";
 import { SiCodeforces } from "react-icons/si";
 import { BsTwitterX, BsTwitter } from "react-icons/bs";
 import Link from "next/link";
 import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors";
 import { max } from "@/modules/algo/max_min";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { UserContext } from "../components/providers/userProvider";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
@@ -25,8 +25,8 @@ export default function UserPage({ params }: { params: { userID: string } }) {
   const [isReportSending, setIsReportSending] = useState(false);
   const [isSendingUpdateBanned, setIsSendingUpdateBanned] = useState(false);
   const [canSendReport, setCanSendReport] = useState(true);
-  const [pageUser, setPageUser] = useState<UserPublic>({} as UserPublic);
-  const [me, setMe] = useState<UserPublic | null>(null);
+  const [pageUser, setPageUser] = useState<User>({} as User);
+  const [me, setMe] = useState<User | null>(null);
   const [pages, setPages] = useState<Page[]>([] as Page[]);
   const [questions, setQuestions] = useState<Page[]>([] as Page[]);
   const [problems, setProblems] = useState<Page[]>([] as Page[]);
@@ -62,13 +62,13 @@ export default function UserPage({ params }: { params: { userID: string } }) {
         if (res.data.ok) {
           if (res.data.data.user) {
             setIsExist(true);
-            setPageUser(res.data.data.user as UserPublic);
+            setPageUser(res.data.data.user as User);
             setPages(res.data.data.articles as Page[]);
             setQuestions(res.data.data.questions as Page[]);
             setProblems(res.data.data.problems as Page[]);
           }
           if (res.data.data.me) {
-            setMe(res.data.data.me as UserPublic);
+            setMe(res.data.data.me as User);
           }
           setIsLoading(false);
           if (res.data.data.user) {

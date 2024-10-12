@@ -4,9 +4,10 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
+import { Notice } from "@/types/DBTypes";
 
 const limitChecker = LimitChecker();
 export async function GET(req: NextRequest) {
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
   if (!data.root.trending_questions) {
     data.root.trending_questions = [];
   }
-  const result: { notices: Notice[], trending_articles: Page[], trending_questions: Page[], users: UserPublic[] } = data.root;
+  const result: { notices: Notice[], trending_articles: Page[], trending_questions: Page[], users: User[] } = data.root;
   result.users = users;
   const res = NextResponse.json({ ok: true, data: result }, { status: 200 });
   return res;

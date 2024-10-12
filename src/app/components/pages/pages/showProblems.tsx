@@ -2,6 +2,7 @@
 import { siteImg, siteURL } from "@/modules/other/compSitesConstants";
 import Link from "next/link";
 import Lex from "@/modules/md/md";
+import { ProblemJSON } from "@/types/DBTypes";
 
 const ShowProblems = (props: { data: ProblemJSON }) => {
   const { data } = props;

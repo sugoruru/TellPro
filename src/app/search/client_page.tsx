@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import Link from "next/link";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import { MdArticle } from "react-icons/md";
 import HomeNav from "../components/main/homeNav";
 
@@ -13,7 +13,7 @@ import HomeNav from "../components/main/homeNav";
 export default function SearchPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [users, setUsers] = useState<UserPublic[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [articles, setArticles] = useState<Page[]>([]);
   const lastSearchWord = useRef("");
   const debounceTimeout = useRef<null | NodeJS.Timeout>(null);

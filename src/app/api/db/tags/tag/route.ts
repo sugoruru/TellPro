@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import { pageBlockKey, userBlockKey } from "@/modules/other/DBBlockKey";
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  let data, pages, questions, problems, userMap: { [key: string]: UserPublic } = {};
+  let data, pages, questions, problems, userMap: { [key: string]: User } = {};
   await db.tx(async (t) => {
     data = await t.any(`SELECT * FROM tags WHERE name=$1`, [name]);
     pages = await t.any(`
@@ -72,7 +72,7 @@ LIMIT 30 OFFSET (($2 - 1) * 30);
       }
       const usersSet = new Set(users);
       users = Array.from(usersSet);
-      const userData = await t.any(`SELECT ${userBlockKey} FROM users WHERE id IN ($1:csv)`, [users]) as UserPublic[];
+      const userData = await t.any(`SELECT ${userBlockKey} FROM users WHERE id IN ($1:csv)`, [users]) as User[];
       userData.forEach((e) => {
         userMap[e.id] = e;
       });

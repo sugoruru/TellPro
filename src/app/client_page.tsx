@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import HomeNav, { HomeNavItems } from "./components/main/homeNav";
 import NoticeBlock from "./components/main/noticeBlock";
 import axios from "axios";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import PageLinkBlock from "./components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
+import { Notice } from "@/types/DBTypes";
 
 export default function Home() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [trendPages, setTrendArticles] = useState<Page[]>([]);
   const [trendQuestions, setTrendQuestions] = useState<Page[]>([]);
-  const [trendPageUsers, setTrendPageUsers] = useState<{ [key: string]: UserPublic }>({});
+  const [trendPageUsers, setTrendPageUsers] = useState<{ [key: string]: User }>({});
 
   useEffect(() => {
     document.title = "Home｜TellPro";
@@ -28,8 +29,8 @@ export default function Home() {
         setNotices(notices as Notice[]);
         setTrendArticles(trendPage as Page[]);
         setTrendQuestions(trendQuestion as Page[]);
-        const userData: { [key: string]: UserPublic } = {};
-        users.forEach((user: UserPublic) => {
+        const userData: { [key: string]: User } = {};
+        users.forEach((user: User) => {
           userData[user.id] = user;
         });
         setTrendPageUsers(userData);

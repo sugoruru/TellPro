@@ -1,10 +1,10 @@
-import { UserPublic } from "@/types/user";
-import { Comment } from "@/types/comment";
+import { User } from "@/types/DBTypes";
+import { Comment } from "@/types/DBTypes";
 import axios from "axios";
 import sleep from "../main/sleep";
 
 export interface HandleCommentGoodProps {
-  me: UserPublic;
+  me: User;
   comments: Comment[];
   commentID: string;
   commentLikeUserMap: { [key: string]: boolean };

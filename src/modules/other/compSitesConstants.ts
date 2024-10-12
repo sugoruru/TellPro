@@ -1,10 +1,12 @@
+import { SiteNameType } from "@/types/DBTypes";
+
 export const sites = [
   { id: 1, name: "AtCoder" },
   { id: 2, name: "Codeforces" },
   { id: 3, name: "yukicoder" },
   { id: 4, name: "AOJ" },
   { id: 5, name: "MojaCoder" },
-] as { id: number; name: SiteName }[];
+] as { id: number; name: SiteNameType }[];
 
 export const siteImg = {
   AtCoder: "/svg/atcoder.png",
@@ -33,7 +35,7 @@ export const siteRegex = {
   "": /^$/,
 };
 
-export const siteURL = (site: SiteName, id: string) => {
+export const siteURL = (site: SiteNameType, id: string) => {
   switch (site) {
     case "AtCoder":
       return `https://atcoder.jp/contests/${id}`;

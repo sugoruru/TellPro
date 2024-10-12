@@ -11,9 +11,9 @@ import { IoMdImages } from "react-icons/io";
 import React from "react";
 import TagsDialog from "@/app/components/pages/pages/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import ImageUploader from "@/app/components/pages/main/imageUploader";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { BiCopyAlt } from "react-icons/bi";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
@@ -102,7 +102,7 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchMe.data.data as UserPublic;
+            const tempUser = fetchMe.data.data as User;
             if (tempUser) {
               setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.id) {

@@ -6,20 +6,20 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
-import { PageList } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
+import { Page } from "@/types/DBTypes";
 
 export default function Bookmark() {
   const { status } = useSession();
-  const [me, setMe] = useState<UserPublic | null>(null);
+  const [me, setMe] = useState<User | null>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [navPlace, setNavPlace] = useState("articles");
-  const [articles, setArticles] = useState<PageList[]>([] as PageList[]);
-  const [questions, setQuestions] = useState<PageList[]>([] as PageList[]);
-  const [problems, setProblems] = useState<PageList[]>([] as PageList[]);
-  const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
+  const [articles, setArticles] = useState<Page[]>([] as Page[]);
+  const [questions, setQuestions] = useState<Page[]>([] as Page[]);
+  const [problems, setProblems] = useState<Page[]>([] as Page[]);
+  const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
   const isFetched = useRef(false);
 
   useEffect(() => {
@@ -63,8 +63,8 @@ export default function Bookmark() {
           }
           // bookmarks.userDataからuserMapを作成する.
           if (bookmarks.userData.length !== 0) {
-            const _userMap: { [key: string]: UserPublic } = {};
-            bookmarks.userData.forEach((user: UserPublic) => {
+            const _userMap: { [key: string]: User } = {};
+            bookmarks.userData.forEach((user: User) => {
               _userMap[user.id] = user;
             });
             setUserMap(_userMap);

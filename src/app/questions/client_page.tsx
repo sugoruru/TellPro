@@ -4,13 +4,13 @@ import HomeNav, { HomeNavItems } from "../components/main/homeNav";
 import axios from "axios";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import React from "react";
 
 export default function Questions() {
   const [pages, setPages] = useState<Page[]>([]);
-  const [pageUser, setPageUser] = useState<{ [key: string]: UserPublic }>({});
+  const [pageUser, setPageUser] = useState<{ [key: string]: User }>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,8 +22,8 @@ export default function Questions() {
       const res = await axios.get("/api/db/pages/get_new_arrival?pageType=questions");
       if (res.data.ok) {
         setPages(res.data.data);
-        const _pageUser: { [key: string]: UserPublic } = {};
-        res.data.userData.forEach((e: UserPublic) => {
+        const _pageUser: { [key: string]: User } = {};
+        res.data.userData.forEach((e: User) => {
           _pageUser[e.id] = e;
         });
         setPageUser(_pageUser);

@@ -5,7 +5,7 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import OPTIONS from "../../auth/[...nextauth]/options";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   let userID = "";
   try {
     const sql = fs.readFileSync(path.resolve("./public") + "/sql/users/get_user_by_email.sql", "utf-8");
-    const data = await db.any(sql, [session.user.email]) as UserPublic[];
+    const data = await db.any(sql, [session.user.email]) as User[];
     if (data.length === 0) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 400 });
     }

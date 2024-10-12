@@ -1,4 +1,4 @@
-import { Comment } from "@/types/comment";
+import { Comment } from "@/types/DBTypes";
 import axios from "axios";
 
 export const handleUpdateComment = async (props: {

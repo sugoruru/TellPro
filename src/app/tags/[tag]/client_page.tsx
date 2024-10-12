@@ -4,8 +4,8 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PageList } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page, Tag } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import React from "react";
 
 // 検索ページ.
@@ -13,12 +13,12 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = searchParams.get("page");
-  const [tag, setTag] = useState<TagData | null>(null);
-  const [pages, setPages] = useState<PageList[]>([]);
-  const [questions, setQuestions] = useState<PageList[]>([]);
-  const [problems, setProblems] = useState<PageList[]>([]);
+  const [tag, setTag] = useState<Tag | null>(null);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [questions, setQuestions] = useState<Page[]>([]);
+  const [problems, setProblems] = useState<Page[]>([]);
   const [navPlace, setNavPlace] = useState("pages");
-  const [userMap, setUserMap] = useState<{ [key: string]: UserPublic }>({});
+  const [userMap, setUserMap] = useState<{ [key: string]: User }>({});
 
   useEffect(() => {
     document.title = "Tag｜TellPro";

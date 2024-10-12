@@ -4,9 +4,9 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import path from "path";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 import { userBlockKey } from "@/modules/other/DBBlockKey";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
@@ -75,11 +75,11 @@ export async function GET(req: NextRequest) {
   const cacheFile = fs.readFileSync(cacheFilePath, 'utf-8');
   const cacheData = JSON.parse(cacheFile);
   const data = cacheData.data;
-  let userData: UserPublic[] = [];
+  let userData: User[] = [];
   if (data.length !== 0) {
     // userMap・likeCommentsの作成.
     const users: string[] = data.map((e: Page) => e.user_id);
-    userData = await db.any(`select ${userBlockKey} from users where id in ($1:csv)`, [users]) as UserPublic[];
+    userData = await db.any(`select ${userBlockKey} from users where id in ($1:csv)`, [users]) as User[];
   }
   const res = NextResponse.json({ ok: true, data: data, userData }, { status: 200 });
   return res;

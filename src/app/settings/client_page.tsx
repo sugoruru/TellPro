@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import handleImageChange from "@/modules/handle/handleImageChange";
 import sendImage from "@/modules/network/sendImage";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { UserContext } from "../components/providers/userProvider";
 import React from "react";
 
@@ -14,7 +14,7 @@ export default function Settings() {
   const { data: session, status } = useSession();
   const [isSignIn, setIsSignIn] = useState(false);
   const [existUser, setExistUser] = useState(false);
-  const [user, setUser] = useState<UserPublic | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isUserNameError, setIsUserNameError] = useState(false);
   const [isChangeImage, setIsChangeImage] = useState(false);
@@ -38,7 +38,7 @@ export default function Settings() {
           if (!response.data.exist || !response.data.data) {
             signOut();
           } else {
-            setUser(response.data.data as UserPublic);
+            setUser(response.data.data as User);
             setAreaValue(response.data.data.status_message);
             setSelectedImage(response.data.data.icon);
             setAtCoderID(response.data.data.atcoder_id);

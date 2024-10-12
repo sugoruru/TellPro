@@ -1,13 +1,14 @@
 import axios from "axios";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { siteRegex } from "../other/compSitesConstants";
+import { ProblemObject } from "@/types/DBTypes";
 
 const handleProblemUpload = async (props: {
   setIsSending: React.Dispatch<React.SetStateAction<boolean>>;
   setSendingMessage: React.Dispatch<React.SetStateAction<string>>;
   title: string;
   description: string;
-  problems: Map<string, Problem>;
+  problems: Map<string, ProblemObject>;
   problemTitleData: [string, { title: string; err: boolean }][];
   tagSearchValue: string;
   isPublic: boolean;

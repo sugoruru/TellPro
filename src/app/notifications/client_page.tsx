@@ -1,10 +1,10 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Notification } from "@/types/notification";
+import { Notification } from "@/types/DBTypes";
 import { useRouter } from "next/navigation";
-import { Comment } from "@/types/comment";
-import { UserPublic } from "@/types/user";
+import { Comment } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import Link from "next/link";
 import React from "react";
 import HomeNav from "../components/main/homeNav";
@@ -13,7 +13,7 @@ const Notifications = () => {
   interface NotificationData {
     notifications: Notification[];
     comments: { [key: string]: Comment };
-    users: { [key: string]: UserPublic };
+    users: { [key: string]: User };
     page_titles: { [key: string]: string };
     last_seeing_notifications_at: string;
   }
@@ -33,9 +33,9 @@ const Notifications = () => {
         for (const c of res.data.notifications.comments as Comment[]) {
           tmpComments[`${c.page_type} ${c.page_id} ${c.id}`] = c;
         }
-      const tmpUsers = {} as { [key: string]: UserPublic };
+      const tmpUsers = {} as { [key: string]: User };
       if (res.data.notifications.users)
-        for (const u of res.data.notifications.users as UserPublic[]) {
+        for (const u of res.data.notifications.users as User[]) {
           tmpUsers[u.id] = u;
         }
       const tmpPageTitles = {} as { [key: string]: string };

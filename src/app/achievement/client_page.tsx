@@ -4,13 +4,13 @@ import { BsExclamationCircle } from "react-icons/bs";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { achievements, achievementsDescription } from "@/modules/other/Achievements";
 import { GrAchievement, GrTrophy } from "react-icons/gr";
 
 export default function AchievementPage() {
   const { status } = useSession();
-  const [me, setMe] = useState<UserPublic | null>(null);
+  const [me, setMe] = useState<User | null>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [gotAchievements, setGotAchievements] = useState<Set<string>>(new Set<string>());

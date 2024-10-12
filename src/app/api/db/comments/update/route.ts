@@ -6,7 +6,7 @@ import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import fs from "fs";
 import pageTypes from "@/modules/other/pageTypes";
-import { Comment } from "@/types/comment";
+import { Comment } from "@/types/DBTypes";
 import path from "path";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 

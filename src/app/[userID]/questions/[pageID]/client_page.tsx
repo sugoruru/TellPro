@@ -7,15 +7,15 @@ import { useEffect, useState } from "react";
 import sleep from "@/modules/main/sleep";
 import DeleteCommentModal from "@/app/components/pages/comments/deleteCommentModal";
 import UpdateCommentModal from "@/app/components/pages/comments/updateCommentModal";
-import { Page } from "@/types/page";
-import { Comment } from "@/types/comment";
+import { Page } from "@/types/DBTypes";
+import { Comment } from "@/types/DBTypes";
 import SendComment from "@/app/components/pages/comments/sendComment";
 import PageTags from "@/app/components/pages/pages/pageTags";
 import PageUser from "@/app/components/pages/pages/pageUser";
 import PageMenu from "@/app/components/pages/pages/pageMenu";
 import PageNotExist from "@/app/components/pages/pages/pageNotExist";
 import PageNotPublic from "@/app/components/pages/pages/pageNotPublic";
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import { handleBookmark } from "@/modules/handle/handleBookmark";
 import { handleGoodButton } from "@/modules/handle/handleGoodButton";
 import { handleCommentGood } from "@/modules/handle/handleCommentGood";
@@ -37,7 +37,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
   const [updateSendingMessage, setUpdateSendingMessage] = useState("");
   const [page, setPage] = useState<Page>({} as Page);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: UserPublic }>({} as { [key: string]: UserPublic });
+  const [commentUserMap, setCommentUserMap] = useState<{ [key: string]: User }>({} as { [key: string]: User });
   const [commentLikeUserMap, setCommentLikeUserMap] = useState<{ [key: string]: boolean }>({} as { [key: string]: boolean });
   const [isExist, setIsExist] = useState(false);
   const [isLike, setIsLike] = useState(false);
@@ -52,7 +52,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
   const [isDeleteSending, setIsDeleteSending] = useState(false);
   const [isUpdateClosedSending, setIsUpdateClosedSending] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
-  const [me, setMe] = useState<UserPublic>({ id: "" } as UserPublic);
+  const [me, setMe] = useState<User>({ id: "" } as User);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { width } = useGetWindowSize();
@@ -73,11 +73,11 @@ export default function Questions({ params }: { params: { userID: string; pageID
         }
         const page: {
           isExist: boolean;
-          me: UserPublic | null;
+          me: User | null;
           page: Page | null;
-          pageUser: UserPublic | null;
+          pageUser: User | null;
           comments: Comment[];
-          commentsUser: UserPublic[];
+          commentsUser: User[];
           commentsLike: { comment_id: string }[];
           isLiked: boolean;
           isBookmarked: boolean;
@@ -87,10 +87,10 @@ export default function Questions({ params }: { params: { userID: string; pageID
           setPage(page.page);
           setContent(Lex(page.page.content));
           setUserIcon(page.pageUser.icon || "");
-          setMe(page.me || ({ id: "" } as UserPublic));
+          setMe(page.me || ({ id: "" } as User));
           if (page.me) setIsLogin(true);
           setComments(page.comments);
-          const commentUserMap: { [key: string]: UserPublic } = {};
+          const commentUserMap: { [key: string]: User } = {};
           page.commentsUser.forEach((e) => {
             commentUserMap[e.id] = e;
           });

@@ -6,8 +6,8 @@ import fs from "fs";
 import path from "path";
 import { getServerSession } from "next-auth/next";
 import OPTIONS from "../../auth/[...nextauth]/options";
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
 const limitChecker = LimitChecker();
@@ -47,11 +47,11 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(OPTIONS);
   const result: {
     isExist: boolean,
-    me: UserPublic | null,
+    me: User | null,
     page: Page | null,
-    pageUser: UserPublic | null,
+    pageUser: User | null,
     comments: Comment[],
-    commentsUser: UserPublic[],
+    commentsUser: User[],
     commentsLike: string[],
     isLiked: boolean,
     isBookmarked: boolean,

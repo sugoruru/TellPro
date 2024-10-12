@@ -1,13 +1,13 @@
 "use client";
 import returnRandomString from "@/modules/algo/returnRandomString";
-import { UserPublic } from "@/types/user";
+import { User, Report } from "@/types/DBTypes";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const Reports = () => {
-  const [user, setUser] = useState(null as UserPublic | null);
-  const [reports, setReports] = useState([] as Report[]);
+  const [user, setUser] = useState<User | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     const fetcher = async () => {

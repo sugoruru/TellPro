@@ -1,6 +1,6 @@
-import { Page } from "@/types/page";
-import { UserPublic } from "@/types/user";
-import { Comment } from "@/types/comment";
+import { Page } from "@/types/DBTypes";
+import { User } from "@/types/DBTypes";
+import { Comment } from "@/types/DBTypes";
 import returnRandomString from "../algo/returnRandomString";
 import axios from "axios";
 
@@ -10,9 +10,9 @@ export const handleCommentUpload = async (props: {
   setSendingMessage: React.Dispatch<React.SetStateAction<string>>;
   setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
   setCommentLikeUserMap: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  setCommentUserMap: React.Dispatch<React.SetStateAction<Record<string, UserPublic>>>;
+  setCommentUserMap: React.Dispatch<React.SetStateAction<Record<string, User>>>;
   setPage: React.Dispatch<React.SetStateAction<Page>>;
-  me: UserPublic;
+  me: User;
   page: Page;
   params: { userID: string; pageID: string };
   mdAreaValue: string;

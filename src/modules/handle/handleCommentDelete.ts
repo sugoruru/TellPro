@@ -1,5 +1,5 @@
-import { Comment } from "@/types/comment";
-import { Page } from "@/types/page";
+import { Comment } from "@/types/DBTypes";
+import { Page } from "@/types/DBTypes";
 import axios from "axios";
 
 export const handleCommentDelete = async (props: {

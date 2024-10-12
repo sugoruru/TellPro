@@ -1,5 +1,6 @@
 "use client";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { Tag } from "@/types/DBTypes";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,7 +13,7 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = searchParams.get("page");
-  const [tags, setTags] = useState<TagData[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [pageID, setPageID] = useState(1);
 
@@ -55,7 +56,7 @@ export default function SearchPage() {
             <b className={`text-3xl text-black dark:text-white`}>タグ一覧</b>
           </div>
           <div className="flex flex-wrap justify-center">
-            {tags.map((e: TagData) => (
+            {tags.map((e: Tag) => (
               <Link key={returnRandomString(32)} href={`/tags/${e.name}`} className="w-48 bg-white rounded p-3 mx-5 mt-5 shadow-xl flex flex-col hover:shadow-2xl duration-300">
                 <div className="text-center">
                   <b>{e.name}</b>

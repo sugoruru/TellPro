@@ -1,11 +1,11 @@
-import { UserPublic } from "@/types/user";
+import { User } from "@/types/DBTypes";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createContext, Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface UserProviderProps {
-  user: UserPublic | null;
+  user: User | null;
   notificationCount: number;
   isDarkMode: boolean;
   hateX: boolean;
@@ -33,7 +33,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const fetchData = async () => {
         try {
           const response = await axios.get(`/api/db/users/existMe`);
-          const userData = response.data.data as UserPublic;
+          const userData = response.data.data as User;
           if (response.data.exist) {
             if (userData.is_banned) {
               alert("アカウントが停止されています。異議がある場合はお問い合わせください。");

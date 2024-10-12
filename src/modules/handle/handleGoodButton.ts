@@ -1,6 +1,6 @@
 import axios from "axios";
 import sleep from "../main/sleep";
-import { Page } from "@/types/page";
+import { Page } from "@/types/DBTypes";
 
 export const handleGoodButton = async (props: {
   setIsLikeSending: React.Dispatch<React.SetStateAction<boolean>>,

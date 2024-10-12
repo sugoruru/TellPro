@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import useTagSearch from "./useTagSearch";
 import { cantUseURL } from "@/modules/other/cantUseURL";
+import { Tag } from "@/types/DBTypes";
 
 const TagsContext = createContext({
   tagSearchValue: "",
   isOpenTagEditor: false,
   handleSetIsOpenTagEditor: (value: boolean) => {},
-  tags: [] as TagData[],
+  tags: [] as Tag[],
   handleSetTagValue: (e: React.ChangeEvent<HTMLInputElement>) => {},
   setTagSearchValue: (value: string) => {},
   handleTagClick: (tagName: string) => {},
