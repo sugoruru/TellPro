@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Page(props: { data: any }) {
+export default async function Page() {
   const root = await fetch(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/root`);
   if (!root.ok) {
     return <p>エラーが発生しました。</p>;
