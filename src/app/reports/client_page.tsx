@@ -1,5 +1,6 @@
 "use client";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 import { User, Report } from "@/types/DBTypes";
 import axios from "axios";
 import Link from "next/link";
@@ -11,10 +12,11 @@ const Reports = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const data = await axios.get(`/api/db/users/existMe`);
+      const data = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+      if (!data.data.ok) return;
       setUser(data.data.data);
       if (data.data.data.is_admin) {
-        const reports = await axios.post(`/api/admin/get_report`);
+        const reports = await axios.post<{ data: Report[] }>(`/api/admin/get_report`);
         setReports(reports.data.data);
       }
     };

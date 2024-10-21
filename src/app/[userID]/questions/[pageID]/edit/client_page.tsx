@@ -23,6 +23,7 @@ import handlePageUpload from "@/modules/handle/handlePageUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 import sendImage from "@/modules/network/sendImage";
 import sleep from "@/modules/main/sleep";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -98,8 +99,14 @@ const MakeNewQuestion = ({ params }: { params: { userID: string; pageID: string 
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchMe, fetchQuestion] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`)]);
-          if (!fetchMe.data.exist || !fetchMe.data.data) {
+          const [fetchMe, fetchQuestion] = await Promise.all([
+            axios.get<DBUsersExistMe>(`/api/db/users/existMe`),
+            axios.get<{ exist: boolean; data: Page }>(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`),
+          ]);
+          if (!fetchMe.data.ok) {
+            signOut();
+            router.replace("/");
+          } else if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
           } else {

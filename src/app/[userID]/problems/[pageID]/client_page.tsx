@@ -24,6 +24,7 @@ import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { pageContentSize } from "@/modules/other/uiOptions";
 import ShowProblems from "@/app/components/pages/pages/showProblems";
 import React from "react";
+import { PagesPagesData } from "@/types/axiosTypes";
 
 export default function Articles({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -63,23 +64,13 @@ export default function Articles({ params }: { params: { userID: string; pageID:
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=problems`);
+        const pageData = await axios.get<{ ok: boolean; data: PagesPagesData }>(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=problems`);
         if (!pageData.data.ok) {
           alert("エラーが発生しました");
           router.replace("/");
           return;
         }
-        const page: {
-          isExist: boolean;
-          me: User | null;
-          page: Page | null;
-          pageUser: User | null;
-          comments: Comment[];
-          commentsUser: User[];
-          commentsLike: { comment_id: string }[];
-          isLiked: boolean;
-          isBookmarked: boolean;
-        } = pageData.data.data;
+        const page = pageData.data.data;
         setIsExist(page.isExist);
         if (page.isExist && page.page && page.pageUser) {
           setPage(page.page);

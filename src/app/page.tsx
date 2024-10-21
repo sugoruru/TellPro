@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Home from "./client_page";
+import { PagesRoot } from "@/types/axiosTypes";
 
 export const metadata: Metadata = {
   openGraph: {
@@ -19,8 +20,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
-  return (
-    <Home />
-  );
+export default async function Page(props: { data: any }) {
+  const root = await fetch(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/root`);
+  if (!root.ok) {
+    return <p>エラーが発生しました。</p>;
+  }
+  const rootData: PagesRoot = await root.json();
+  return <Home root={rootData} />;
 }

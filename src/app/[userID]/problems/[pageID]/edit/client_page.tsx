@@ -9,13 +9,14 @@ import CompSitesListbox from "@/app/components/pages/pages/CompSitesListbox";
 import TagsDialog from "@/app/components/pages/pages/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import axios from "axios";
-import { ProblemObject, SiteNameType, User } from "@/types/DBTypes";
+import { ProblemObject, SiteNameType } from "@/types/DBTypes";
 import { Page } from "@/types/DBTypes";
 import { Menu, Transition } from "@headlessui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import handleProblemUpload from "@/modules/handle/handleProblemUpload";
 import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 import { CompSitesListboxProps, gotTitle } from "@/types/compSitesListboxProps";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 interface MakeProblemsProps {
   params: {
@@ -58,8 +59,8 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
 
   const handleProblemButtonClick = async () => {
     setIsSending(true);
-    const res = await axios.post("/api/problems/getTitle", { data: Array.from(problems.entries()) });
-    const problemTitleData = res.data.data as [string, { title: string; err: boolean }][];
+    const res = await axios.post<{ data: [string, { title: string; err: boolean }][] }>("/api/problems/getTitle", { data: Array.from(problems.entries()) });
+    const problemTitleData = res.data.data;
     let allCorrect = true;
     // errがtrueの場合は、その問題のタイトルが取得できなかったことを示す.
     for (const [id, { err }] of problemTitleData) {
@@ -106,18 +107,24 @@ const MakeProblems: React.FC<MakeProblemsProps> = ({ params }) => {
     if (status === "authenticated") {
       const fetchData = async () => {
         try {
-          const [fetchMe, fetchProblem] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=problems`)]);
-          if (!fetchMe.data.exist || !fetchMe.data.data) {
+          const [fetchMe, fetchProblem] = await Promise.all([
+            axios.get<DBUsersExistMe>(`/api/db/users/existMe`),
+            axios.get<{ exist: boolean; data: Page }>(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=problems`),
+          ]);
+          if (fetchMe.data.ok === false) {
+            signOut();
+            router.replace("/");
+          } else if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchMe.data.data as User;
+            const tempUser = fetchMe.data.data;
             if (tempUser) {
               if (params.userID === tempUser.id) {
                 setCanEdit(true);
                 setIsPageExist(fetchProblem.data.exist);
                 if (fetchProblem.data.exist) {
-                  const tempProblem = fetchProblem.data.data as Page;
+                  const tempProblem = fetchProblem.data.data;
                   setTitle(tempProblem.title);
                   const content = JSON.parse(tempProblem.content) as { description: string; problems: [string, { site: SiteNameType; value: string }][] };
                   setDescription(content.description);

@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import UserPage from "./client_page";
 import axios from "axios";
+import { User } from "@/types/DBTypes";
 
 export const generateMetadata = async ({ params }: { params: { userID: string } }): Promise<Metadata> => {
-  const user = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/user_meta?userID=${params.userID}`)).data;
+  const user = (await axios.get<{ ok: true; user: User } | { ok: false; error: string }>(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/user_meta?userID=${params.userID}`)).data;
   return {
     openGraph: {
       url: process.env.NEXT_PUBLIC_TRUTH_URL,

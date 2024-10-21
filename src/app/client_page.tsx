@@ -8,8 +8,9 @@ import PageLinkBlock from "./components/pages/main/pageLinkBlock";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { User } from "@/types/DBTypes";
 import { Notice } from "@/types/DBTypes";
+import { PagesRoot } from "@/types/axiosTypes";
 
-export default function Home() {
+export default function Home(props: { root: PagesRoot }) {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [trendPages, setTrendArticles] = useState<Page[]>([]);
   const [trendQuestions, setTrendQuestions] = useState<Page[]>([]);
@@ -19,27 +20,24 @@ export default function Home() {
     document.title = "Home｜TellPro";
   }, []);
   useEffect(() => {
-    const getNotice = async () => {
-      const root = await axios.get("/api/pages/root");
-      if (root.data.ok) {
-        const notices = root.data.data.notices;
-        const trendPage = root.data.data.trending_articles;
-        const trendQuestion = root.data.data.trending_questions;
-        const users = root.data.data.users;
-        setNotices(notices as Notice[]);
-        setTrendArticles(trendPage as Page[]);
-        setTrendQuestions(trendQuestion as Page[]);
-        const userData: { [key: string]: User } = {};
-        users.forEach((user: User) => {
-          userData[user.id] = user;
-        });
-        setTrendPageUsers(userData);
-      } else {
-        alert("エラーが発生しました。");
-      }
-    };
-    getNotice();
-  }, []);
+    const root = { data: props.root };
+    if (root.data.ok) {
+      const notices = root.data.data.notices;
+      const trendPage = root.data.data.trending_articles;
+      const trendQuestion = root.data.data.trending_questions;
+      const users = root.data.data.users;
+      setNotices(notices);
+      setTrendArticles(trendPage);
+      setTrendQuestions(trendQuestion);
+      const userData: { [key: string]: User } = {};
+      users.forEach((user: User) => {
+        userData[user.id] = user;
+      });
+      setTrendPageUsers(userData);
+    } else {
+      alert("エラーが発生しました。");
+    }
+  }, [props.root]);
   return (
     <div className="h-full">
       <HomeNav path={HomeNavItems.Home} />

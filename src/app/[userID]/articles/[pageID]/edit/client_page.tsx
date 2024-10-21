@@ -13,7 +13,6 @@ import TagsDialog from "@/app/components/pages/pages/tagsDialog";
 import returnRandomString from "@/modules/algo/returnRandomString";
 import { Page } from "@/types/DBTypes";
 import ImageUploader from "@/app/components/pages/main/imageUploader";
-import { User } from "@/types/DBTypes";
 import { BiCopyAlt } from "react-icons/bi";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import { useTagsContext } from "@/app/components/hooks/tagsContext";
@@ -22,6 +21,7 @@ import HaveNoAuthToEdit from "@/app/components/pages/pages/haveNoAuthToEdit";
 import Lex from "@/modules/md/md";
 import sendImage from "@/modules/network/sendImage";
 import sleep from "@/modules/main/sleep";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } }) => {
   const { status } = useSession();
@@ -97,18 +97,24 @@ const MakeNewPage = ({ params }: { params: { userID: string; pageID: string } })
       const fetchData = async () => {
         try {
           // 並列処理でユーザーとページの存在確認を行う.
-          const [fetchMe, fetchPage] = await Promise.all([axios.get(`/api/db/users/existMe`), axios.get(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=articles`)]);
-          if (!fetchMe.data.exist || !fetchMe.data.data) {
+          const [fetchMe, fetchPage] = await Promise.all([
+            axios.get<DBUsersExistMe>(`/api/db/users/existMe`),
+            axios.get<{ exist: boolean; data: Page }>(`/api/db/pages/exist?userID=${params.userID}&pageID=${params.pageID}&pageType=articles`),
+          ]);
+          if (!fetchMe.data.ok) {
+            signOut();
+            router.replace("/");
+          } else if (!fetchMe.data.exist || !fetchMe.data.data) {
             signOut();
             router.replace("/");
           } else {
-            const tempUser = fetchMe.data.data as User;
+            const tempUser = fetchMe.data.data;
             if (tempUser) {
               setPrevIcon(tempUser.icon);
               if (params.userID === tempUser.id) {
                 setCanEdit(true);
                 if (fetchPage.data.exist) {
-                  const tempPage = fetchPage.data.data as Page;
+                  const tempPage = fetchPage.data.data;
                   setMdAreaValue(tempPage.content);
                   setTitle(tempPage.title);
                   setTagSearchValue(tempPage.tags.join(" "));

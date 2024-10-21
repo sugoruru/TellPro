@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   // ユーザー情報の取得.
   const res = await db.any("SELECT id, status_message, icon FROM users WHERE id = $1", [userID]);
   if (res.length === 0) {
-    const res = NextResponse.json({ ok: false });
+    const res = NextResponse.json({ ok: false, error: 'Invalid request2' }, { status: 400 });
     return res;
   } else {
     const result = NextResponse.json({ ok: true, user: res[0] });

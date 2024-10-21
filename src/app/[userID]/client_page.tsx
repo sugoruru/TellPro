@@ -15,6 +15,7 @@ import { getAtCoderColors, getCodeforcesColors } from "@/modules/other/getColors
 import { max } from "@/modules/algo/max_min";
 import { User } from "@/types/DBTypes";
 import { UserContext } from "../components/providers/userProvider";
+import { AtCoderAPI, CodeforcesAPI } from "@/types/axiosTypes";
 
 export default function UserPage({ params }: { params: { userID: string } }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,23 +59,23 @@ export default function UserPage({ params }: { params: { userID: string } }) {
       const fetcher = async () => {
         if (isFetched.current) return;
         isFetched.current = true;
-        const res = await axios.get(`/api/pages/user?userID=${params.userID}`);
+        const res = await axios.get<{ ok: boolean; data: { user: User; articles: Page[]; questions: Page[]; problems: Page[]; me: User | null } }>(`/api/pages/user?userID=${params.userID}`);
         if (res.data.ok) {
           if (res.data.data.user) {
             setIsExist(true);
-            setPageUser(res.data.data.user as User);
-            setPages(res.data.data.articles as Page[]);
-            setQuestions(res.data.data.questions as Page[]);
-            setProblems(res.data.data.problems as Page[]);
+            setPageUser(res.data.data.user);
+            setPages(res.data.data.articles);
+            setQuestions(res.data.data.questions);
+            setProblems(res.data.data.problems);
           }
           if (res.data.data.me) {
-            setMe(res.data.data.me as User);
+            setMe(res.data.data.me);
           }
           setIsLoading(false);
           if (res.data.data.user) {
             if (res.data.data.user.atcoder_id !== "") {
               try {
-                axios.get(`https://kenkoooo.com/atcoder/proxy/users/${res.data.data.user.atcoder_id}/history/json`).then((_res) => {
+                axios.get<AtCoderAPI>(`https://kenkoooo.com/atcoder/proxy/users/${res.data.data.user.atcoder_id}/history/json`).then((_res) => {
                   const rate = _res.data.slice(-1)[0].NewRating;
                   setAtcoderRatingColor(getAtCoderColors(rate) as string);
                 });
@@ -84,7 +85,7 @@ export default function UserPage({ params }: { params: { userID: string } }) {
             }
             if (res.data.data.user.codeforces_id !== "") {
               try {
-                axios.get(`https://codeforces.com/api/user.info?handles=${res.data.data.user.codeforces_id}&checkHistoricHandles=false`).then((_res) => {
+                axios.get<CodeforcesAPI>(`https://codeforces.com/api/user.info?handles=${res.data.data.user.codeforces_id}&checkHistoricHandles=false`).then((_res) => {
                   const rate = _res.data.result[0].rating;
                   setCodeforcesRatingColor(getCodeforcesColors(rate) as string);
                 });

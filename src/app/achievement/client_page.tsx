@@ -7,6 +7,7 @@ import axios from "axios";
 import { User } from "@/types/DBTypes";
 import { achievements, achievementsDescription } from "@/modules/other/Achievements";
 import { GrAchievement, GrTrophy } from "react-icons/gr";
+import { DBUsersExistMe, PagesAchievements } from "@/types/axiosTypes";
 
 export default function AchievementPage() {
   const { status } = useSession();
@@ -25,7 +26,8 @@ export default function AchievementPage() {
     }
     const fetcher = async () => {
       try {
-        const me = await axios.get("/api/db/users/existMe");
+        const me = await axios.get<DBUsersExistMe>("/api/db/users/existMe");
+        if (!me.data.ok) return;
         setMe(me.data.data);
       } catch (e) {
         console.error(e);
@@ -41,7 +43,7 @@ export default function AchievementPage() {
         try {
           if (isFetched.current) return;
           isFetched.current = true;
-          const achievements = (await axios.get(`/api/pages/achievements`)).data;
+          const achievements = (await axios.get<PagesAchievements>(`/api/pages/achievements`)).data;
           if (achievements.ok === false) {
             console.error("Error");
             return;

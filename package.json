@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.20.0",
     "@headlessui/react": "^1.7.19",
+    "@types/axios": "^0.9.36",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.4",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.11.1",
+    "@types/cookie": "^0.6.0",
     "@types/lru-cache": "^7.10.10",
     "@types/node": "^20.12.7",
     "@types/prismjs": "^1.26.3",
