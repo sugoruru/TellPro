@@ -22,35 +22,48 @@ const Notifications = () => {
   const router = useRouter();
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios.get("/api/pages/notifications");
-      if (!res.data.ok) router.replace("/");
-      if (!res.data.isLogin) {
+      const res = (
+        await axios.get<
+          | { ok: false }
+          | { ok: true; isLogin: false }
+          | {
+              ok: true;
+              isLogin: true;
+              notifications: { comments: Comment[]; users: User[]; page_titles: { id: string; title: string }[]; notifications: Notification[]; last_seeing_notifications_at: string };
+            }
+        >("/api/pages/notifications")
+      ).data;
+      if (!res.ok) {
+        router.replace("/");
+      } else if (!res.isLogin) {
         alert("ログインしてください");
         router.replace("/");
+      } else {
+        const tmpComments = {} as { [key: string]: Comment };
+        if (res.notifications.comments)
+          for (const c of res.notifications.comments) {
+            tmpComments[`${c.page_type} ${c.page_id} ${c.id}`] = c;
+          }
+        const tmpUsers = {} as { [key: string]: User };
+        if (res.notifications.users)
+          for (const u of res.notifications.users) {
+            tmpUsers[u.id] = u;
+          }
+        const tmpPageTitles = {} as { [key: string]: string };
+        if (res.notifications.page_titles) {
+          for (const p of res.notifications.page_titles) {
+            tmpPageTitles[p.id] = p.title;
+          }
+        }
+        setNotifications((prev) => ({
+          ...prev,
+          notifications: res.notifications.notifications || [],
+          comments: tmpComments,
+          users: tmpUsers,
+          page_titles: tmpPageTitles,
+          last_seeing_notifications_at: res.notifications.last_seeing_notifications_at,
+        }));
       }
-      const tmpComments = {} as { [key: string]: Comment };
-      if (res.data.notifications.comments)
-        for (const c of res.data.notifications.comments as Comment[]) {
-          tmpComments[`${c.page_type} ${c.page_id} ${c.id}`] = c;
-        }
-      const tmpUsers = {} as { [key: string]: User };
-      if (res.data.notifications.users)
-        for (const u of res.data.notifications.users as User[]) {
-          tmpUsers[u.id] = u;
-        }
-      const tmpPageTitles = {} as { [key: string]: string };
-      if (res.data.notifications.page_titles)
-        for (const p of res.data.notifications.page_titles as { id: string; title: string }[]) {
-          tmpPageTitles[p.id] = p.title;
-        }
-      setNotifications((prev) => ({
-        ...prev,
-        notifications: res.data.notifications.notifications || [],
-        comments: tmpComments,
-        users: tmpUsers,
-        page_titles: tmpPageTitles,
-        last_seeing_notifications_at: res.data.notifications.last_seeing_notifications_at,
-      }));
       setIsLoading(false);
     };
     try {

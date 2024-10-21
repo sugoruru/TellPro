@@ -8,6 +8,7 @@ import returnRandomString from "@/modules/algo/returnRandomString";
 import PageLinkBlock from "../components/pages/main/pageLinkBlock";
 import { User } from "@/types/DBTypes";
 import { Page } from "@/types/DBTypes";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 export default function Bookmark() {
   const { status } = useSession();
@@ -31,8 +32,12 @@ export default function Bookmark() {
     }
     const fetcher = async () => {
       try {
-        const me = await axios.get("/api/db/users/existMe");
-        setMe(me.data.data);
+        const me = await axios.get<DBUsersExistMe>("/api/db/users/existMe");
+        if (me.data.ok === false) {
+          setIsLoading(false);
+        } else {
+          setMe(me.data.data);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -47,7 +52,7 @@ export default function Bookmark() {
         try {
           if (isFetched.current) return;
           isFetched.current = true;
-          const bookmarks = (await axios.get(`/api/pages/bookmarks`)).data;
+          const bookmarks = (await axios.get<{ ok: false } | { ok: true; pages: { articles: Page[]; questions: Page[]; problems: Page[] }; userData: User[] }>(`/api/pages/bookmarks`)).data;
           if (bookmarks.ok === false) {
             console.error("Error");
             return;

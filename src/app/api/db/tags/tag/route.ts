@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { LimitChecker } from "@/modules/main/limitChecker";
 import { headers } from "next/headers";
 import { pageBlockKey, userBlockKey } from "@/modules/other/DBBlockKey";
-import { Page } from "@/types/DBTypes";
 import { User } from "@/types/DBTypes";
 import { APILimitConstant } from "@/modules/other/APILimitConstant";
 
@@ -82,6 +81,6 @@ LIMIT 30 OFFSET (($2 - 1) * 30);
     const res = NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
     return res;
   }
-  const res = NextResponse.json({ ok: true, exist: true, data: data[0], pages, questions, problems, userMap }, { status: 200 });
+  const res = NextResponse.json({ ok: true, data: data[0], pages, questions, problems, userMap }, { status: 200 });
   return res;
 }

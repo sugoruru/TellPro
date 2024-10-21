@@ -187,7 +187,7 @@ const Header = () => {
                               {({ active }) => (
                                 <button
                                   onClick={async () => {
-                                    const res = await axios.post("/api/admin/delete_cache");
+                                    const res = await axios.post<{ ok: boolean }>("/api/admin/delete_cache");
                                     if (res.data.ok) alert("キャッシュを削除しました");
                                     else alert("キャッシュの削除に失敗しました");
                                   }}

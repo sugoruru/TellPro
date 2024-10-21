@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   // データを取得する.
   const body = await req.json();
-  const jwtToken = await axios.post(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/problems`, { data: body.data });
-  const res = await axios.post(`${process.env.PROBLEMS_SERVER_URL}/getTitle`, { jwtToken: jwtToken.data.token });
+  const jwtToken = await axios.post<{ token: string }>(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/problems`, { data: body.data });
+  const res = await axios.post<{ problems: [string, string][] }>(`${process.env.PROBLEMS_SERVER_URL}/getTitle`, { jwtToken: jwtToken.data.token });
   return NextResponse.json({ ok: true, data: res.data.problems }, { status: 200 });
 }

@@ -1,3 +1,4 @@
+import { DBUsersExistMe } from "@/types/axiosTypes";
 import { User } from "@/types/DBTypes";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
@@ -32,26 +33,30 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/existMe`);
-          const userData = response.data.data as User;
-          if (response.data.exist) {
-            if (userData.is_banned) {
-              alert("アカウントが停止されています。異議がある場合はお問い合わせください。");
-              signOut();
+          const response = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+          if (response.data.ok) {
+            const userData = response.data.data as User;
+            if (response.data.exist) {
+              if (userData.is_banned) {
+                alert("アカウントが停止されています。異議がある場合はお問い合わせください。");
+                signOut();
+              } else {
+                const havingNotification = await axios.get<{ data: { count: number } }>(`/api/db/users/isHavingNotification?user_id=${userData.id}`);
+                if (localStorage.getItem("isDarkMode") === null) {
+                  localStorage.setItem("isDarkMode", "false");
+                }
+                if (localStorage.getItem("hateX") === null) {
+                  localStorage.setItem("hateX", "false");
+                }
+                const isDarkMode = localStorage.getItem("isDarkMode") === "true";
+                const hateX = localStorage.getItem("hateX") === "true";
+                setUser({ user: userData, notificationCount: havingNotification.data.data.count, isDarkMode: isDarkMode, hateX: hateX });
+              }
             } else {
-              const havingNotification = await axios.get(`/api/db/users/isHavingNotification?user_id=${userData.id}`);
-              if (localStorage.getItem("isDarkMode") === null) {
-                localStorage.setItem("isDarkMode", "false");
-              }
-              if (localStorage.getItem("hateX") === null) {
-                localStorage.setItem("hateX", "false");
-              }
-              const isDarkMode = localStorage.getItem("isDarkMode") === "true";
-              const hateX = localStorage.getItem("hateX") === "true";
-              setUser({ user: userData, notificationCount: Number(havingNotification.data.data.count), isDarkMode: isDarkMode, hateX: hateX });
+              router.replace("/init");
             }
           } else {
-            router.replace("/init");
+            signOut();
           }
         } catch (error) {
           console.error("Error fetching data:", error);

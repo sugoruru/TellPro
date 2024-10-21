@@ -1,5 +1,6 @@
 "use client";
 import returnRandomString from "@/modules/algo/returnRandomString";
+import { DBTagsGet } from "@/types/axiosTypes";
 import { Tag } from "@/types/DBTypes";
 import axios from "axios";
 import Link from "next/link";
@@ -24,18 +25,24 @@ export default function SearchPage() {
   useEffect(() => {
     const fetcher = async () => {
       if (page === null) {
-        const data = await axios.get("/api/db/tags/get?page=1");
-        setPageID(1);
-        setTags(data.data.data);
+        const data = await axios.get<DBTagsGet>("/api/db/tags/get?page=1");
+        if (data.data.ok) {
+          setPageID(1);
+          setTags(data.data.data);
+        }
       } else if (isNaN(Number(page)) || Number(page) < 1) {
         router.replace("/tags");
-        const data = await axios.get("/api/db/tags/get?page=1");
-        setPageID(1);
-        setTags(data.data.data);
+        const data = await axios.get<DBTagsGet>("/api/db/tags/get?page=1");
+        if (data.data.ok) {
+          setPageID(1);
+          setTags(data.data.data);
+        }
       } else {
-        const data = await axios.get(`/api/db/tags/get?page=${page}`);
-        setPageID(Number(page));
-        setTags(data.data.data);
+        const data = await axios.get<DBTagsGet>(`/api/db/tags/get?page=${page}`);
+        if (data.data.ok) {
+          setPageID(Number(page));
+          setTags(data.data.data);
+        }
       }
       setIsLoaded(true);
     };

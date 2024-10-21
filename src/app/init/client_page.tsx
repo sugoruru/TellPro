@@ -15,6 +15,7 @@ import userNameKeyword from "@/modules/other/userNameKeyword";
 import TermsOfService from "../termsOfService/page";
 import PrivacyPolicy from "../privacyPolicy/page";
 import React from "react";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 export default function Init() {
   const { data: session, status } = useSession();
@@ -35,8 +36,11 @@ export default function Init() {
     if (status == "authenticated") {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/existMe`);
-          const response2 = await axios.get(`/api/db/users/getAllUserID`);
+          const response = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+          if (!response.data.ok) {
+            return;
+          }
+          const response2 = await axios.get<{ ok: false; error: string } | { ok: true; data: string[] }>(`/api/db/users/getAllUserID`);
           if (response2.data.ok) {
             setUsersID(quickSort(response2.data.data, 0, response2.data.data.length - 1));
           }
@@ -132,8 +136,8 @@ export default function Init() {
     try {
       if (session) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/users/existMe`);
-        if (existUser.data.exist) {
+        const existUser = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+        if (!existUser.data.ok || existUser.data.exist) {
           router.replace("/");
           setIsSending(false);
           return;
@@ -177,7 +181,7 @@ export default function Init() {
           }
         }
         setStateMessage("ページ名が使用されているかを確認中...");
-        const response2 = await axios.get(`/api/db/users/getAllUserID`);
+        const response2 = await axios.get<{ ok: false; error: string } | { ok: true; data: string[] }>(`/api/db/users/getAllUserID`);
         if (response2.data.ok) {
           const x = quickSort(response2.data.data, 0, response2.data.data.length - 1);
           if (existTargetByBinarySearch(x, (document.getElementById("pageName_tellPro") as HTMLInputElement).value)) {

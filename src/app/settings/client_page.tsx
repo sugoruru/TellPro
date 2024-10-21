@@ -9,6 +9,7 @@ import sendImage from "@/modules/network/sendImage";
 import { User } from "@/types/DBTypes";
 import { UserContext } from "../components/providers/userProvider";
 import React from "react";
+import { DBUsersExistMe } from "@/types/axiosTypes";
 
 export default function Settings() {
   const { data: session, status } = useSession();
@@ -34,17 +35,19 @@ export default function Settings() {
       setIsSignIn(true);
       const fetchData = async () => {
         try {
-          const response = await axios.get(`/api/db/users/existMe`);
-          if (!response.data.exist || !response.data.data) {
-            signOut();
-          } else {
-            setUser(response.data.data as User);
-            setAreaValue(response.data.data.status_message);
-            setSelectedImage(response.data.data.icon);
-            setAtCoderID(response.data.data.atcoder_id);
-            setCodeForcesID(response.data.data.codeforces_id);
-            setXID(response.data.data.x_id);
-            setExistUser(true);
+          const response = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+          if (response.data.ok) {
+            if (!response.data.exist || !response.data.data) {
+              signOut();
+            } else {
+              setUser(response.data.data as User);
+              setAreaValue(response.data.data.status_message);
+              setSelectedImage(response.data.data.icon);
+              setAtCoderID(response.data.data.atcoder_id);
+              setCodeForcesID(response.data.data.codeforces_id);
+              setXID(response.data.data.x_id);
+              setExistUser(true);
+            }
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -95,8 +98,8 @@ export default function Settings() {
     try {
       if (session && user && existUser && session.user) {
         setStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/users/existMe`);
-        if (!existUser.data.exist) {
+        const existUser = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+        if (existUser.data.ok && !existUser.data.exist) {
           router.replace("/");
           setIsSending(false);
           return;
@@ -137,8 +140,8 @@ export default function Settings() {
     try {
       if (session && user && existUser && session.user) {
         setDeleteAccountStateMessage("ユーザーが存在するかを確認中...");
-        const existUser = await axios.get(`/api/db/users/existMe`);
-        if (!existUser.data.exist) {
+        const existUser = await axios.get<DBUsersExistMe>(`/api/db/users/existMe`);
+        if (existUser.data.ok && !existUser.data.exist) {
           router.replace("/");
           setIsSending(false);
           return;

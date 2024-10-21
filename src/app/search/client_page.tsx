@@ -32,18 +32,20 @@ export default function SearchPage() {
       const currentTime = Date.now();
       if (lastSearchWord.current === inputValue || currentTime - lastFetchTime.current < debounceDelay) return;
       try {
-        const res = await axios.get(`/api/pages/search?word=${inputValue}`);
-        lastSearchWord.current = res.data.word;
-        lastFetchTime.current = currentTime;
-        if (res.data.result[0].search_json.users) {
-          setUsers(res.data.result[0].search_json.users);
-        } else {
-          setUsers([]);
-        }
-        if (res.data.result[0].search_json.articles) {
-          setArticles(res.data.result[0].search_json.articles);
-        } else {
-          setArticles([]);
+        const res = await axios.get<{ ok: false; error: string } | { ok: true; word: string; result: { search_json: { users: User[]; articles: Page[] } }[] }>(`/api/pages/search?word=${inputValue}`);
+        if (res.data.ok) {
+          lastSearchWord.current = res.data.word;
+          lastFetchTime.current = currentTime;
+          if (res.data.result[0].search_json.users) {
+            setUsers(res.data.result[0].search_json.users);
+          } else {
+            setUsers([]);
+          }
+          if (res.data.result[0].search_json.articles) {
+            setArticles(res.data.result[0].search_json.articles);
+          } else {
+            setArticles([]);
+          }
         }
       } catch (error) {
         console.error("API fetch error:", error);

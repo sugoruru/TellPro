@@ -25,6 +25,7 @@ import { handleUpdateComment } from "@/modules/handle/handleUpdateComment";
 import { pageContentSize } from "@/modules/other/uiOptions";
 import { useGetWindowSize } from "@/app/components/hooks/useGetWindowSize";
 import React from "react";
+import { PagesPagesData } from "@/types/axiosTypes";
 
 export default function Questions({ params }: { params: { userID: string; pageID: string } }) {
   const [content, setContent] = useState<JSX.Element>(<></>);
@@ -65,7 +66,7 @@ export default function Questions({ params }: { params: { userID: string; pageID
     Prism.highlightAll();
     try {
       const fetch = async () => {
-        const pageData = await axios.get(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`);
+        const pageData = await axios.get<{ ok: boolean; data: PagesPagesData }>(`/api/pages/pages?userID=${params.userID}&pageID=${params.pageID}&pageType=questions`);
         if (!pageData.data.ok) {
           alert("エラーが発生しました");
           router.replace("/");

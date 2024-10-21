@@ -1,4 +1,4 @@
-import { Page, User, Comment, Notice } from "./DBTypes";
+import { Page, User, Comment, Notice, Tag } from "./DBTypes";
 
 type DBUsersExistMe = {
   ok: true;
@@ -69,4 +69,8 @@ type PagesAchievements = {
   achievements: { achievement_name: string }[]
 }
 
-export type { DBUsersExistMe, PagesPagesData, PagesRoot, AtCoderAPI, CodeforcesAPI, PagesAchievements };
+type DBTagsTag = { ok: false; error: string } | { ok: true; data: Tag, pages: Page[]; questions: Page[], problems: Page[], userMap: { [key: string]: User } };
+
+type DBTagsGet = { ok: false; error: string } | { ok: true; data: Tag[] };
+
+export type { DBUsersExistMe, PagesPagesData, PagesRoot, AtCoderAPI, CodeforcesAPI, PagesAchievements, DBTagsTag, DBTagsGet };

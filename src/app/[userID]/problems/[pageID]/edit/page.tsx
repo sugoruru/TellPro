@@ -4,7 +4,7 @@ import axios from "axios";
 import React from "react";
 
 export const generateMetadata = async ({ params }: { params: { userID: string } }): Promise<Metadata> => {
-  const user = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/user_meta?userID=${params.userID}`)).data;
+  const user = (await axios.get<{ ok: false } | { ok: true; user: { status_message: string; icon: string } }>(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/user_meta?userID=${params.userID}`)).data;
   return {
     openGraph: {
       url: process.env.NEXT_PUBLIC_TRUTH_URL,

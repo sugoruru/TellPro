@@ -4,7 +4,11 @@ import Articles from "./client_page";
 import React from "react";
 
 export const generateMetadata = async ({ params }: { params: { userID: string; pageID: string } }): Promise<Metadata> => {
-  const page = (await axios.get(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles&userID=${params.userID}`)).data;
+  const page = (
+    await axios.get<{ ok: false } | { ok: true; page: { title: string }; user: { status_message: string; icon: string } }>(
+      `${process.env.NEXT_PUBLIC_TRUTH_URL}/api/pages/page_meta?pageID=${params.pageID}&pageType=articles&userID=${params.userID}`
+    )
+  ).data;
   if (!page.ok) return { title: "TellPro" };
   return {
     openGraph: {

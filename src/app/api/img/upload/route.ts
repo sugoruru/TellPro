@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   // 画像を保存.
   const imageID = returnRandomString(64);
-  const jwtToken = await axios.post(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/img`, { imageID });
+  const jwtToken = await axios.post<{ token: string }>(`${process.env.NEXT_PUBLIC_TRUTH_URL}/api/img`, { imageID });
   const body = await req.json();
   const imageData = body.image as string;
   const res = await axios.post(`${process.env.IMAGE_SERVER_URL}/upload`, { image: imageData, jwtToken: jwtToken.data.token });

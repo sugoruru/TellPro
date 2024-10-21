@@ -7,7 +7,7 @@ const useTagSearch = (tagSearchValue: string) => {
   const lastTagsAPICalled = useRef(0);
   const fetchTags = useCallback(async (word: string) => {
     try {
-      const data = await axios.get(`/api/db/tags/search?word=${word}`);
+      const data = await axios.get<{ data: Tag[] }>(`/api/db/tags/search?word=${word}`);
       setTags(data.data.data);
     } catch (error) {
       console.error("Failed to fetch tags", error);

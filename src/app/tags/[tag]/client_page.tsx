@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Page, Tag } from "@/types/DBTypes";
 import { User } from "@/types/DBTypes";
 import React from "react";
+import { DBTagsTag } from "@/types/axiosTypes";
 
 // 検索ページ.
 export default function SearchPage({ params }: { params: { tag: string } }) {
@@ -28,18 +29,20 @@ export default function SearchPage({ params }: { params: { tag: string } }) {
     const fetcher = async () => {
       let res;
       if (page === null) {
-        res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
+        res = await axios.get<DBTagsTag>(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else if (isNaN(Number(page)) || Number(page) < 1) {
         router.replace(`/tags/${params.tag}?page=1`);
-        res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=1`);
+        res = await axios.get<DBTagsTag>(`/api/db/tags/tag?name=${params.tag}&page=1`);
       } else {
-        res = await axios.get(`/api/db/tags/tag?name=${params.tag}&page=${page}`);
+        res = await axios.get<DBTagsTag>(`/api/db/tags/tag?name=${params.tag}&page=${page}`);
       }
-      setTag(res.data.data);
-      setPages(res.data.pages);
-      setQuestions(res.data.questions);
-      setProblems(res.data.problems);
-      setUserMap(res.data.userMap);
+      if (res.data.ok) {
+        setTag(res.data.data);
+        setPages(res.data.pages);
+        setQuestions(res.data.questions);
+        setProblems(res.data.problems);
+        setUserMap(res.data.userMap);
+      }
     };
     fetcher();
   }, [router, params.tag, page]);

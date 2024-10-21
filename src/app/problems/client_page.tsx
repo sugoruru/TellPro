@@ -19,7 +19,7 @@ export default function Problems() {
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios.get("/api/db/pages/get_new_arrival?pageType=problems");
+      const res = await axios.get<{ ok: false } | { ok: true; data: Page[]; userData: User[] }>("/api/db/pages/get_new_arrival?pageType=problems");
       if (res.data.ok) {
         setPages(res.data.data);
         const _pageUser: { [key: string]: User } = {};

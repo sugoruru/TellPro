@@ -33,7 +33,7 @@ const ProposalPage = () => {
     setMessage("送信中...");
     let res;
     try {
-      res = await axios.post("/api/admin/send_proposal", {
+      res = await axios.post<{ ok: false; type: number; time_ms: number } | { ok: true }>("/api/admin/send_proposal", {
         title,
         opinion,
       });

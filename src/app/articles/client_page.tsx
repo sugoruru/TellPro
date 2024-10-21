@@ -18,7 +18,7 @@ export default function Articles() {
   }, []);
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios.get("/api/db/pages/get_new_arrival?pageType=articles");
+      const res = await axios.get<{ ok: false } | { ok: true; data: Page[]; userData: User[] }>("/api/db/pages/get_new_arrival?pageType=articles");
       if (res.data.ok) {
         setPages(res.data.data);
         const _pageUser: { [key: string]: User } = {};
